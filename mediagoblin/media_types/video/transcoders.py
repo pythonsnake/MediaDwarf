@@ -574,9 +574,6 @@ pending: {2}'.format(
     def on_thumbnail_error(self, message):
         _log.error('Thumbnailing failed.')
         self.disconnect()
-        self.handle_error(message)
-
-    def handle_error(self, message):
         if 'Error calculating the output scaled size - integer overflow' in message.parse_error()[1]:
             _log.error('Retrying with manually set sizes...')
             video_info = VideoTranscoder().discover(self.source_path)
