@@ -29,7 +29,8 @@ from mediagoblin.user_pages.lib import send_comment_email
 from mediagoblin.decorators import (uses_pagination, get_user_media_entry,
     get_media_entry_by_id,
     require_active_login, user_may_delete_media, user_may_alter_collection,
-    get_user_collection, get_user_collection_item, active_user_from_url)
+    get_user_collection, get_user_collection_item, active_user_from_url,
+    get_comment_entry_by_id)
 
 from werkzeug.contrib.atom import AtomFeed
 
@@ -171,6 +172,41 @@ def media_post_comment(request, media):
             send_comment_email(media_uploader, comment, media, request)
 
     return redirect(request, location=media.url_for_self(request.urlgen))
+
+
+@require_active_login
+@get_comment_entry_by_id
+@get_user_media_entry
+def comment_confirm_delete(request, comment, media):
+
+    form = user_forms.ConfirmDeleteForm(request.form)
+
+    if request.method == 'POST' and form.validate():
+        if form.confirm.data is True:
+            comment.delete()
+            messages.add_message(
+                request, messages.SUCCESS, _('You deleted the comment.'))
+
+        else:
+            messages.add_message(
+                request, messages.ERROR,
+                _("The comment was not deleted because you didn't check that you were sure."))
+        return redirect(request,
+                        location=media.url_for_self(request.urlgen))
+
+    if ((request.user.is_admin and
+         request.user.id != comment.get_author.id)):
+        messages.add_message(
+            request, messages.WARNING,
+            _("You are about to delete another user's comment. "
+              "Proceed with caution."))
+
+    return render_to_response(
+        request,
+        'mediagoblin/user_pages/comment_confirm_delete.html',
+        {'comment': comment,
+         'media': media,
+         'form': form})
 
 
 @get_user_media_entry

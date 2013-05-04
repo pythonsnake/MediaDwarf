@@ -213,6 +213,15 @@ footer {
   color: #283F35;
 }
 
+.delete_button {
+  font-size: 5px;
+  right: 3px;
+  top: 3px;
+  float: right;
+  position: relative;
+  display: none;
+}
+
 .button_form {
   min-width: 99px;
   margin: 10px 0px 10px 15px;
@@ -341,12 +350,20 @@ textarea#description, textarea#bio {
 /* comments */
 
 .comment_wrapper {
-  margin-top: 20px;
+  margin-top: 5px;
   margin-bottom: 20px;
+  background: black;
+  border-radius: 4px;
+  padding: 10px;
+  position: relative;
 }
 
 .comment_wrapper p {
   margin-bottom: 2px;
+}
+
+.comment_wrapper:hover .delete_button {
+  display: block;
 }
 
 .comment_author {
