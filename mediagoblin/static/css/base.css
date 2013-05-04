@@ -490,6 +490,10 @@ textarea#description, textarea#bio {
 .comment_wrapper, .report_wrapper {
   margin-top: 20px;
   margin-bottom: 20px;
+  background: black;
+  border-radius: 4px;
+  padding: 10px;
+  position: relative;
 }
 
 .comment_wrapper p, .report_wrapper p {

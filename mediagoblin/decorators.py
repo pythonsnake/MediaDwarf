@@ -47,7 +47,6 @@ def user_not_banned(controller):
 
     return wrapper
 
-
 def require_active_login(controller):
     """
     Require an active login from the user. If the user is banned, redirects to
@@ -278,6 +277,23 @@ def get_media_entry_by_id(controller):
             return render_404(request)
 
         return controller(request, media=media, *args, **kwargs)
+
+    return wrapper
+
+
+def get_comment_entry_by_id(controller):
+    """
+    Pass in a MediaComment based off of a url component
+    """
+    @wraps(controller)
+    def wrapper(request, *args, **kwargs):
+        comment = MediaComment.query.filter_by(
+                id=request.matchdict['comment']).first()
+        # Still no comment?  Okay, 404.
+        if not comment:
+            return render_404(request)
+
+        return controller(request, comment=comment, *args, **kwargs)
 
     return wrapper
 

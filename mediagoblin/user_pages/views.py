@@ -168,7 +168,6 @@ def media_home(request, media, page, **kwargs):
         media_template_name,
         context)
 
-
 @get_media_entry_by_id
 @user_has_privilege(u'commenter')
 def media_post_comment(request, media):
@@ -206,6 +205,39 @@ def media_post_comment(request, media):
 
     return redirect_obj(request, media)
 
+@require_active_login
+@get_comment_entry_by_id
+@get_user_media_entry
+def comment_confirm_delete(request, comment, media):
+
+    form = user_forms.ConfirmDeleteForm(request.form)
+
+    if request.method == 'POST' and form.validate():
+        if form.confirm.data is True:
+            comment.delete()
+            messages.add_message(
+                request, messages.SUCCESS, _('You deleted the comment.'))
+
+        else:
+            messages.add_message(
+                request, messages.ERROR,
+                _("The comment was not deleted because you didn't check that you were sure."))
+        return redirect(request,
+                        location=media.url_for_self(request.urlgen))
+
+    if ((request.user.is_admin and
+         request.user.id != comment.get_author.id)):
+        messages.add_message(
+            request, messages.WARNING,
+            _("You are about to delete another user's comment. "
+              "Proceed with caution."))
+
+    return render_to_response(
+        request,
+        'mediagoblin/user_pages/comment_confirm_delete.html',
+        {'comment': comment,
+         'media': media,
+         'form': form})
 
 
 def media_preview_comment(request):
