@@ -19,6 +19,7 @@ import wtforms
 from mediagoblin.tools.text import tag_length_validator, TOO_LONG_TAG_WARNING
 from mediagoblin.tools.translate import fake_ugettext_passthrough as _
 from mediagoblin.tools.licenses import licenses_as_choices
+from mediagoblin.submit.forms import SelectFieldWithDescription
 
 class EditForm(wtforms.Form):
     title = wtforms.TextField(
@@ -40,7 +41,7 @@ class EditForm(wtforms.Form):
         description=_(
             "The title part of this media's address. "
             "You usually don't need to change this."))
-    license = wtforms.SelectField(
+    license = SelectFieldWithDescription(
         _('License'),
         [wtforms.validators.Optional(),],
         choices=licenses_as_choices())
