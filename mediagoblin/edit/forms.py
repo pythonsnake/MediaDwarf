@@ -20,7 +20,7 @@ from mediagoblin.tools.text import tag_length_validator
 from mediagoblin.tools.translate import lazy_pass_to_ugettext as _
 from mediagoblin.tools.licenses import licenses_as_choices
 from mediagoblin.auth.forms import normalize_user_or_email_field
-
+from mediagoblin.submit.forms import SelectFieldWithDescription
 
 class EditForm(wtforms.Form):
     title = wtforms.TextField(
@@ -42,7 +42,7 @@ class EditForm(wtforms.Form):
         description=_(
             "The title part of this media's address. "
             "You usually don't need to change this."))
-    license = wtforms.SelectField(
+    license = SelectFieldWithDescription(
         _('License'),
         [wtforms.validators.Optional(),],
         choices=licenses_as_choices())
@@ -68,15 +68,13 @@ class EditAccountForm(wtforms.Form):
     wants_comment_notification = wtforms.BooleanField(
         label='',
         description=_("Email me when others comment on my media"))
-    license_preference = wtforms.SelectField(
-        _('License preference'),
+    license_preference = wtforms.SelectFieldWithDescription(
+        _('Default license preference'),
         [
             wtforms.validators.Optional(),
             wtforms.validators.AnyOf([lic[0] for lic in licenses_as_choices()]),
         ],
-        choices=licenses_as_choices(),
-        description=_('This will be your default license on upload forms.'))
-
+        choices=licenses_as_choices())
 
 class EditAttachmentsForm(wtforms.Form):
     attachment_name = wtforms.TextField(

@@ -16,11 +16,49 @@
 
 
 import wtforms
+from wtforms.widgets import html_params, HTMLString
+from cgi import escape
+from webtest.compat import text_type
 
 from mediagoblin.tools.text import tag_length_validator
 from mediagoblin.tools.translate import lazy_pass_to_ugettext as _
 from mediagoblin.tools.licenses import licenses_as_choices
 
+
+class SelectWithDescription(wtforms.widgets.Select):
+    def __call__(self, field, **kwargs):
+        kwargs.setdefault('id', field.id)
+        # Descriptions' dict so we don't have to iter_choices twice
+        d = {}
+        if self.multiple:
+            kwargs['multiple'] = True
+        html = ['<select %s>' % html_params(name=field.name, **kwargs)]
+        for value, label, descr, index, selected in field.iter_choices():
+            html.append(self.render_option(value, label, selected, index=index))
+            d[index] = descr
+        html.append('</select>')
+        html.append(u'<div %s>' % html_params(class_="form_field_description", id="hide-all", style="display:none"))
+        for i in d:
+            html.append(u'<div %s>%s</div>' % (html_params(id='d_'+str(i)), d[i]))
+        html.append(u'</div>')
+        return HTMLString(''.join(html))
+
+    @classmethod
+    def render_option(cls, value, label, selected, **kwargs):
+        options = dict(kwargs, value=value)
+        if selected:
+            options['selected'] = True
+        options['data-id'] = kwargs['index']
+        return HTMLString('<option %s>%s</option>' % (html_params(**options), escape(text_type(label))))
+
+
+class SelectFieldWithDescription(wtforms.SelectMultipleField):
+    widget = SelectWithDescription(multiple=False)
+
+    def iter_choices(self):
+        for value, label, descr, index in self.choices:
+            selected = self.data is not None and self.coerce(value) in self.data
+            yield (value, label, descr, index, selected)
 
 class SubmitStartForm(wtforms.Form):
     file = wtforms.FileField(_('File'))
@@ -37,7 +75,7 @@ class SubmitStartForm(wtforms.Form):
         [tag_length_validator],
         description=_(
           "Separate tags by commas."))
-    license = wtforms.SelectField(
+    license = SelectFieldWithDescription(
         _('License'),
         [wtforms.validators.Optional(),],
         choices=licenses_as_choices())
