@@ -207,12 +207,13 @@ def media_post_comment(request, media):
 
 @require_active_login
 @get_comment_entry_by_id
-@get_user_media_entry
-def comment_confirm_delete(request, comment, media):
+def comment_confirm_delete(request, comment):
 
     form = user_forms.ConfirmDeleteForm(request.form)
+    media = request.db.MediaEntry.query.filter_by(id=comment.media_entry).first()
 
     if request.method == 'POST' and form.validate():
+
         if form.confirm.data is True:
             comment.delete()
             messages.add_message(
@@ -236,7 +237,7 @@ def comment_confirm_delete(request, comment, media):
         request,
         'mediagoblin/user_pages/comment_confirm_delete.html',
         {'comment': comment,
-         'media': media,
+         'media' : media,
          'form': form})
 
 

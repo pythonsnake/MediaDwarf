@@ -45,7 +45,7 @@ add_route('mediagoblin.user_pages.media_preview_comment',
           'mediagoblin.user_pages.views:media_preview_comment')
 
 add_route('mediagoblin.user_pages.comment_confirm_delete',
-          '/u/<string:user>/m/<string:media>/c/<string:comment>/confirm-delete/',
+          '/c/<string:comment>/confirm-delete/',
           'mediagoblin.user_pages.views:comment_confirm_delete')
 
 add_route('mediagoblin.user_pages.user_gallery',

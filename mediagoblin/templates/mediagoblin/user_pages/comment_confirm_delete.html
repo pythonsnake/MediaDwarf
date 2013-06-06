@@ -22,14 +22,13 @@
 {% block mediagoblin_content %}
 
 <form action="{{ request.urlgen('mediagoblin.user_pages.comment_confirm_delete',
-                                 user= media.get_uploader.username,
                                  comment= comment.id,
-                                 media= media.id) }}"
+                                 media= media) }}"
       method="POST" enctype="multipart/form-data">
 
     <div class="form_box">
       <h1>
-        {%- trans title=media.title -%}
+        {%- trans title=comment.media_entry.title -%}
           Really delete the comment?
         {%- endtrans %}
       </h1>
@@ -47,7 +46,10 @@
 
       <div class="form_submit_buttons">
         {# TODO: This isn't a button really... might do unexpected things :) #}
-	<a class="button_action" href="{{ media.url_for_self(request.urlgen) }}">{% trans %}Cancel{% endtrans %}</a>
+        <a class="button_action" 
+           href="{{ media.url_for_self(request.urlgen) }}">
+           {% trans %}Cancel{% endtrans %}
+        </a>
         <input type="submit" value="{% trans %}Delete permanently{% endtrans %}" class="button_form" />
 	{{ csrf_token }}
       </div>
