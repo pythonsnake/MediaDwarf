@@ -131,9 +131,7 @@
           {% if (comment_author == request.user) or
                  request.user.is_admin %}
             {% set delete_url = request.urlgen('mediagoblin.user_pages.comment_confirm_delete',
-                                                user= media.get_uploader.username,
-                                                comment= comment.id,
-                                                media= media.id) %}
+                                                comment= comment.id) %}
           <a class="button_action delete_button" href="{{ delete_url }}">X</a>
           {% endif %}
           <div class="comment_content">
