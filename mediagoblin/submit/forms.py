@@ -16,22 +16,35 @@
 
 
 import wtforms
+from wtforms.widgets import html_params, HTMLString     
+from cgi import escape                                  
+from webtest.compat import text_type                    
 
 from mediagoblin.tools.text import tag_length_validator
 from mediagoblin.tools.translate import lazy_pass_to_ugettext as _
 from mediagoblin.tools.licenses import licenses_as_choices
 
 
+class MultipleFileInput(object):
+    def __call__(self, field, **kwargs):
+        kwargs.setdefault('id', field.id)
+        value = field._value()
+        html = [u'<input %s>' % html_params(name="file[]", type="file", multiple=True, style="display: none;", \
+                **kwargs)]
+        html.append(u'<input %s>' % html_params(class_="button_action", type="button", value="Browse...", \
+                    onclick="$('#file').click();", style="width:auto;", **kwargs))
+        html.append(u'<span %s> or drop the file here</span>' % html_params(class_="form_field_description"))
+        if value:
+            kwargs.setdefault('value', value)
+        return HTMLString(u''.join(html))
+
+class MultipleFileField(wtforms.FileField):
+    widget = MultipleFileInput()
+
 class SubmitStartForm(wtforms.Form):
-    file = wtforms.FileField(_('File'))
-    title = wtforms.TextField(
-        _('Title'),
-        [wtforms.validators.Length(min=0, max=500)])
-    description = wtforms.TextAreaField(
-        _('Description of this work'),
-        description=_("""You can use
-                      <a href="http://daringfireball.net/projects/markdown/basics">
-                      Markdown</a> for formatting."""))
+    file = MultipleFileField(_('File'))
+
+class SubmitOptionsForm(wtforms.Form):
     tags = wtforms.TextField(
         _('Tags'),
         [tag_length_validator],

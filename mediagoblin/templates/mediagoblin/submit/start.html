@@ -24,15 +24,39 @@
 {%- endblock %}
 
 {% block mediagoblin_content %}
-  <form action="{{ request.urlgen('mediagoblin.submit.start') }}"
+  <form id="fileupload" action="{{ request.urlgen('mediagoblin.submit.start') }}"
         method="POST" enctype="multipart/form-data">
     <div class="form_box_xl">
       <h1>{% trans %}Add your media{% endtrans %}</h1>
+      <!-- The global progress information -->
+      <div class="fileupload-progress fade">
+      <!-- The global progress bar -->
+        <div class="progress" aria-valuemin="0" aria-valuemax="100">
+          <div class="bar" style="width:0%;"></div>
+        </div>
+        <!-- The extended global progress information -->
+        <div class="progress-extended"></div>
+      </div>
+      <table class="fileupload-table">
+        <tbody class="files"></tbody>
+      </table>
       {{ wtforms_util.render_divs(submit_form) }}
+      <h3 class="button_action options_button" onclick="$('.options_form').toggle('slow')">Default media settings</h3>
+      <div class="options_form" style="display:none">
+        {{ wtforms_util.render_divs(options_form) }}
+      </div>
       <div class="form_submit_buttons">
         {{ csrf_token }}
-        <input type="submit" value="{% trans %}Add{% endtrans %}" class="button_form" />
+        <button type="submit" class="button_form"/>{% trans %}Add{% endtrans %}</button>
       </div>
     </div>
   </form>
+
+  <script src="{{ request.staticdirect('/js/extlib/jQuery-File-Upload/vendor/jquery.ui.widget.js') }}"></script>
+  <script src="{{ request.staticdirect('/js/extlib/jQuery-File-Upload/jquery.iframe-transport.js') }}"></script>
+  <script src="{{ request.staticdirect('/js/extlib/jQuery-File-Upload/jquery.fileupload.js') }}"></script>
+  <script src="{{ request.staticdirect('/js/extlib/jQuery-File-Upload/jquery.fileupload-ui.js') }}"></script>
+  <script src="{{ request.staticdirect('/js/extlib/jQuery-File-Upload/jquery.fileupload-process.js') }}"></script>
+  <script src="{{ request.staticdirect('/js/uploader.js') }}"></script>
+
 {% endblock %}
