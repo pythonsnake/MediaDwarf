@@ -68,7 +68,7 @@ class EditAccountForm(wtforms.Form):
     wants_comment_notification = wtforms.BooleanField(
         label='',
         description=_("Email me when others comment on my media"))
-    license_preference = wtforms.SelectFieldWithDescription(
+    license_preference = SelectFieldWithDescription(
         _('Default license preference'),
         [
             wtforms.validators.Optional(),
