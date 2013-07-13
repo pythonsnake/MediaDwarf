@@ -15,7 +15,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import datetime
+from urlparse import urljoin
 
+from mediagoblin.tools.processing import get_resize_dimensions
 from mediagoblin.media_types import MediaManagerBase
 from mediagoblin.media_types.image.processing import process_image, \
     sniff_handler
@@ -29,7 +31,7 @@ class ImageMediaManager(MediaManagerBase):
     default_thumb = "images/media_thumbs/image.png"
     accepted_extensions = ["jpg", "jpeg", "png", "gif", "tiff"]
     media_fetch_order = [u'medium', u'original', u'thumb']
-    
+
     def get_original_date(self):
         """
         Get the original date and time from the EXIF information. Returns
@@ -50,6 +52,19 @@ class ImageMediaManager(MediaManagerBase):
             return original_date
         except (KeyError, ValueError):
             return None
+
+    def embed_html(self, oembed_dict):
+        html = """<a href="{0}>
+                    <img src="{1}" alt="{2}" width={3} height={4}/>
+                  </a>""".format(oembed_dict['url_home'], oembed_dict['url'], oembed_dict['title'], 
+                                 oembed_dict['width'], oembed_dict['height'])
+        return html
+
+    def oembed_func(self, request, query_params):
+        r_params = self.init_oembed(request, query_params)
+        r_params.update({'type': 'image', 'url': request.app.public_store.file_url(self.entry.media_files['original'])})
+
+        return r_params
 
 
 MEDIA_MANAGER = ImageMediaManager

@@ -23,6 +23,10 @@ add_route('mediagoblin.user_pages.media_home',
           '/u/<string:user>/m/<string:media>/',
           'mediagoblin.user_pages.views:media_home')
 
+add_route('mediagoblin.user_pages.media_embed',
+          '/u/<string:user>/m/<string:media>/embed/',
+          'mediagoblin.user_pages.views:media_embed')
+
 add_route('mediagoblin.user_pages.media_confirm_delete',
           '/u/<string:user>/m/<int:media_id>/confirm-delete/',
           'mediagoblin.user_pages.views:media_confirm_delete')

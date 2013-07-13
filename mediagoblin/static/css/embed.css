@@ -1,0 +1,4 @@
+html, div.video-js, .audio-media, .audio-spectrogram, .audio-spectrogram img {
+  width: 100% !important;
+  height: 100% !important;
+}

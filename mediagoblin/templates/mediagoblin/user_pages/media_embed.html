@@ -1,0 +1,61 @@
+{#
+# GNU MediaGoblin -- federated, autonomous media hosting
+# Copyright (C) 2011, 2012 MediaGoblin contributors.  See AUTHORS.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#}
+
+<!doctype html>
+<html
+{% block mediagoblin_html_tag %}
+{% endblock mediagoblin_html_tag %}
+>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ app_config['html_title'] }}{% endblock %}</title>
+  <link rel="stylesheet" type="text/css"
+        href="{{ request.staticdirect('/css/extlib/reset.css') }}"/>
+  <link rel="stylesheet" type="text/css"                            
+        href="{{ request.staticdirect('/css/embed.css') }}"/>
+
+  <style>
+    /* @font-face */
+    @font-face {
+      font-family: 'Lato';
+      font-style: normal;
+      font-weight: 400;
+      src: local('Lato Regular'), local('Lato-Regular'), url('../fonts/Lato-Regular.ttf') format('truetype');
+    }
+
+    body {
+      color: #C3C3C3;
+      height: 100%;
+      width: 100%;
+      font: 16px 'Lato', 'Helvetica Neue', Arial, 'Liberation Sans', FreeSans, sans-serif;
+    }
+  </style>
+
+  <link rel="shortcut icon"
+        href="{{ request.staticdirect('/images/goblin.ico') }}" />
+  <script type="text/javascript"
+          src="{{ request.staticdirect('/js/extlib/jquery.js') }}"></script>
+  {% block mediagoblin_head %}
+  {% endblock mediagoblin_head %}
+</head>
+
+<body>
+  {% block mediagoblin_media %}
+  {% endblock %}
+</body>

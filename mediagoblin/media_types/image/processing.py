@@ -147,6 +147,9 @@ def process_image(proc_state):
                 name_builder.fill('{basename}.medium{ext}'),
                 conversions_subdir, exif_tags)
 
+    # Get the dimensions of the image to save it
+    dimensions = Image.open(queued_filename).size
+
     # Copy our queued local workbench to its final destination
     proc_state.copy_original(name_builder.fill('{basename}{ext}'))
 
@@ -155,6 +158,10 @@ def process_image(proc_state):
 
     # Insert exif data into database
     exif_all = clean_exif(exif_tags)
+
+    entry.media_data_init(
+        width=dimensions[0],
+        height=dimensions[1])
 
     if len(exif_all):
         entry.media_data_init(exif_all=exif_all)

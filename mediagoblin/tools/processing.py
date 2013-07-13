@@ -85,3 +85,23 @@ def json_processing_callback(entry):
             traceback.format_exc()))
 
         return False
+
+def get_resize_dimensions(actual_size, maximum_size):
+    '''
+    Returns dimensions if resized based on maximum ones
+    :param actual_size: (width, height) representing the actual dimensions
+    :param maximum_size: (max_width, max_height) indicating the maximums to respect
+    '''
+    width, height  = float(actual_size[0]), float(actual_size[1])
+    max_width, max_height = float(maximum_size[0]), float(maximum_size[1])
+
+    if width > max_width:
+        ratio = max_width / width
+        width = max_width
+        height = height * ratio
+    if height > max_height:
+        ratio = max_height / height
+        width = width * ratio
+        height = max_height
+
+    return (int(width), int(height))

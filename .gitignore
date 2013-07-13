@@ -35,3 +35,6 @@
 
 # The legacy of buildout
 .installed.cfg
+
+/extlib/colorbox/
+/mediagoblin/static/js/extlib/colorbox/

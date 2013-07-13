@@ -20,7 +20,7 @@ import datetime
 from mediagoblin import messages, mg_globals
 from mediagoblin.db.models import (MediaEntry, MediaTag, Collection,
                                    CollectionItem, User)
-from mediagoblin.tools.response import render_to_response, render_404, \
+from mediagoblin.tools.response import render_to_response, render_404, render_http_exception, \
     redirect, redirect_obj
 from mediagoblin.tools.translate import pass_to_ugettext as _
 from mediagoblin.tools.pagination import Pagination
@@ -35,7 +35,7 @@ from mediagoblin.decorators import (uses_pagination, get_user_media_entry,
     get_user_collection, get_user_collection_item, active_user_from_url)
 
 from werkzeug.contrib.atom import AtomFeed
-from werkzeug.exceptions import MethodNotAllowed
+from werkzeug.exceptions import MethodNotAllowed, NotImplemented
 
 
 _log = logging.getLogger(__name__)
@@ -153,6 +153,19 @@ def media_home(request, media, page, **kwargs):
          'comment_form': comment_form,
          'app_config': mg_globals.app_config})
 
+@get_user_media_entry
+def media_embed(request, media):
+    try:
+        embed_template_name = media.media_manager['embed_template']
+    except AttributeError:
+        err_msg = _("Sorry, but this media type doesn't have embedding support yet")
+        return render_http_exception(request, NotImplemented(), err_msg)
+
+    return render_to_response(
+    request,
+    embed_template_name,
+    {'media': media,
+     'app_config': mg_globals.app_config})
 
 @get_media_entry_by_id
 @require_active_login

@@ -18,10 +18,15 @@ import os
 import sys
 import logging
 import tempfile
+from functools import partial
+
+from werkzeug.utils import HTMLBuilder
 
 from mediagoblin import mg_globals
 from mediagoblin.tools.common import import_component
 from mediagoblin.tools.translate import lazy_pass_to_ugettext as _
+from mediagoblin.tools.processing import get_resize_dimensions
+
 
 _log = logging.getLogger(__name__)
 
@@ -41,6 +46,50 @@ class MediaManagerBase(object):
     @staticmethod
     def sniff_handler(*args, **kwargs):
         return False
+
+    def init_oembed(self, request, query_params):
+        r_params = self.entry.get_oembed()
+        url_root = request.url_root
+        urlgen = partial(request.urlgen, qualified=True)
+
+        try:
+            dimensions = (self.entry.media_data.width, self.entry.media_data.height)
+        except AttributeError:
+            dimensions = (None, None)
+
+        max_dimensions = (query_params.get("maxwidth") or dimensions[0],
+            query_params.get("maxheight") or dimensions[1])
+        if not None in max_dimensions:
+            width, height = get_resize_dimensions(dimensions, max_dimensions)
+        else:
+            width, height = None, None
+
+        r_params.update({
+            'width': width, 
+            'height': height,
+            'provider_url': url_root, 
+            'author_url': urlgen('mediagoblin.user_pages.user_home',
+                                 user=self.entry.get_uploader.username),
+            'url_home': self.entry.url_for_self(urlgen)})
+
+        return r_params
+
+    def get_embed_html(self, request, r_params, **extra_args):
+        urlgen = partial(request.urlgen, qualified=True)  
+        html_attr = {
+            'width': r_params['width'], 
+            'height': r_params['height'], 
+            'frameborder': 0, 
+            'scrolling': False, 
+            'allowfullscreen': True,
+            'src': urlgen('mediagoblin.user_pages.media_embed',
+                          user=r_params['author_name'],
+                          media=self.entry.slug_or_id)}
+        html_attr.update(extra_args)
+        html = HTMLBuilder('html').iframe(**html_attr)
+
+        print html
+        return html_attr
 
     def __init__(self, entry):
         self.entry = entry

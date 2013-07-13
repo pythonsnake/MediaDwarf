@@ -17,6 +17,7 @@
 import logging
 import json
 
+from lxml.etree import Element, tostring
 from functools import wraps
 from urlparse import urljoin
 from werkzeug.exceptions import Forbidden
@@ -74,6 +75,16 @@ def json_response(serializable, _disable_cors=False, *args, **kw):
 
     return response
 
+def xml_response(serializable, *args, **kwargs):
+    root = Element("oembed")
+    for (field, val) in serializable.iteritems():
+        sub = Element(field)
+        sub.text = unicode(val)
+        root.append(sub)
+
+    html = tostring(root, encoding='UTF-8', standalone='yes', xml_declaration=True)
+    response = Response(html, *args, content_type='text/xml', **kwargs)
+    return response
 
 def get_entry_serializable(entry, urlgen):
     '''

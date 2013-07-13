@@ -219,6 +219,12 @@ class MediaEntry(Base, MediaEntryMixin):
             for field, value in kwargs.iteritems():
                 setattr(media_data, field, value)
 
+    def get_oembed(self):
+        response_params = {'version': '1.0', 'title': self.title,
+                           'author_name': self.get_uploader.username, 'author_url': self.get_uploader.url,
+                           'provider_name': 'MediaGoblin'}
+        return response_params
+
     @memoized_property
     def media_data_ref(self):
         return import_component(self.media_type + '.models:BACKREF_NAME')

@@ -175,6 +175,7 @@ class MediaGoblinApp(object):
 
         request.db = self.db
         request.staticdirect = self.staticdirector
+        request.map_adapter = map_adapter
 
         request.locale = translate.get_locale_from_request(request)
         request.template_env = template.get_jinja_env(

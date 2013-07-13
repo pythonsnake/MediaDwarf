@@ -14,8 +14,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from urlparse import urlparse, urlunparse
 import werkzeug.utils
 from werkzeug.wrappers import Response as wz_Response
+from werkzeug.urls import url_decode, url_encode, url_unquote
 from mediagoblin.tools.template import render_template
 from mediagoblin.tools.translate import (lazy_pass_to_ugettext as _,
                                          pass_to_ugettext)
@@ -66,7 +68,7 @@ def render_404(request):
 def render_http_exception(request, exc, description):
     """Return Response() given a werkzeug.HTTPException
 
-    :param exc: werkzeug.HTTPException or subclass thereof
+    :param exc: werkzeug.exceptions.HTTPException or subclass thereof
     :description: message describing the error."""
     # If we were passed the HTTPException stock description on
     # exceptions where we have localized ones, use those:
@@ -97,7 +99,11 @@ def redirect(request, *args, **kwargs):
         location = request.urlgen(*args, **kwargs)
 
     if querystring:
-        location += querystring
+        # Parse url then replace the query string
+        parts = list(urlparse(location))
+        parts[4] = querystring
+        location = urlunparse(parts)
+
     return werkzeug.utils.redirect(location)
 
 
@@ -106,3 +112,23 @@ def redirect_obj(request, obj):
 
     Requires obj to have a .url_for_self method."""
     return redirect(request, location=obj.url_for_self(request.urlgen))
+
+def append_slash_redirect(request, params, code=301):
+    """Redirect to the same URL but with a slash appended (url params supported).
+
+    :param environ: the WSGI environment for the request that triggers
+                    the redirect.
+    :param params: the string list of params to check.
+    :param code: the status code for the redirect.
+    """
+    new_path = request.environ['PATH_INFO'].strip('/') + '/'
+    query_string = request.environ.get('QUERY_STRING')
+
+    if query_string:
+        query_dict = url_decode(query_string, decode_keys=True)
+        for i in params:
+            query_dict[i] = query_dict[i].strip() + '/'
+        query_string = url_unquote(url_encode(query_dict, encode_keys=True))
+        new_path += '?' + query_string
+
+    return redirect(request, location=new_path, querystring=query_string)

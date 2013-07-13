@@ -14,32 +14,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import re
-# This import *is* used; see word.encode('tranlit/long') below.
-from unicodedata import normalize
-from urlparse import urljoin
+from mediagoblin.tools.routing import add_route
 
-try:
-    import translitcodec
-    USING_TRANSLITCODEC = True
-except ImportError:
-    USING_TRANSLITCODEC = False
-
-
-_punct_re = re.compile(r'[\t !"#:$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
-
-
-def slugify(text, delim=u'-'):
-    """
-    Generates an ASCII-only slug. Taken from http://flask.pocoo.org/snippets/5/
-    """
-    result = []
-    for word in _punct_re.split(text.lower()):
-        if USING_TRANSLITCODEC:
-            word = word.encode('translit/long')
-        else:
-            word = normalize('NFKD', word).encode('ascii', 'ignore')
-
-        if word:
-            result.append(word)
-    return unicode(delim.join(result))
+add_route('mediagoblin.oembed.media_oembed',
+          "/oembed/",
+          "mediagoblin.oembed.views:media_oembed")
