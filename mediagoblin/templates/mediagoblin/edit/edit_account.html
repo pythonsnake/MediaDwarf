@@ -43,13 +43,9 @@
           Changing {{ username }}'s account settings
         {%- endtrans -%}
       </h1>
-      <p>
-        <a href="{{ request.urlgen('mediagoblin.edit.pass') }}">
-          {% trans %}Change your password.{% endtrans %}
-        </a>
-      </p>
+      {% template_hook("edit_link") %} 
       {{ wtforms_util.render_divs(form, True) }}
-      <div class="form_submit_buttons">
+     <div class="form_submit_buttons">
         <input type="submit" value="{% trans %}Save changes{% endtrans %}" class="button_form" />
   {{ csrf_token }}
       </div>
@@ -59,5 +55,19 @@
     <a href="{{ request.urlgen('mediagoblin.edit.delete_account') }}">
       {%- trans %}Delete my account{% endtrans -%}
     </a>
+    <br />
+    <a href="{{ request.urlgen('mediagoblin.edit.deauthorize_applications') }}">
+      {%- trans %}Deauthorize applications{% endtrans -%}
+    </a>
+    {% template_hook("edit_link") %}
+    <a href="{{ request.urlgen('mediagoblin.edit.email') }}">
+      {% trans %}Email{% endtrans %}
+    </a>
+    {% if pass_auth is defined %}
+      &middot;
+      <a href="{{ request.urlgen('mediagoblin.plugins.basic_auth.edit.pass') }}">
+        {% trans %}Password{% endtrans %}
+      </a>
+    {% endif %}
   </div>
 {% endblock %}

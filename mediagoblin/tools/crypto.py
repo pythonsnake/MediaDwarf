@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import base64
+import string
 import errno
 import itsdangerous
 import logging
@@ -24,6 +26,8 @@ from mediagoblin import mg_globals
 
 _log = logging.getLogger(__name__)
 
+# produces base64 alphabet
+ALPHABET = string.ascii_letters + "-_"
 
 # Use the system (hardware-based) random number generator if it exists.
 # -- this optimization is lifted from Django
@@ -32,7 +36,7 @@ try:
 except AttributeError:
     getrandbits = random.getrandbits
 
-
+# TODO: This should be attached to the MediaGoblinApp
 __itsda_secret = None
 
 
@@ -47,7 +51,7 @@ def load_key(filename):
 
 def create_key(key_dir, key_filepath):
     global __itsda_secret
-    old_umask = os.umask(077)
+    old_umask = os.umask(0o77)
     key_file = None
     try:
         if not os.path.isdir(key_dir):
@@ -56,7 +60,7 @@ def create_key(key_dir, key_filepath):
         key = str(getrandbits(192))
         key_file = tempfile.NamedTemporaryFile(dir=key_dir, suffix='.bin',
                                                delete=False)
-        key_file.write(key)
+        key_file.write(key.encode('ascii'))
         key_file.flush()
         os.rename(key_file.name, key_filepath)
         key_file.close()
@@ -69,13 +73,13 @@ def create_key(key_dir, key_filepath):
     _log.info("Saved new key for It's Dangerous")
 
 
-def setup_crypto():
+def setup_crypto(app_config):
     global __itsda_secret
-    key_dir = mg_globals.app_config["crypto_path"]
+    key_dir = app_config["crypto_path"]
     key_filepath = os.path.join(key_dir, 'itsdangeroussecret.bin')
     try:
         load_key(key_filepath)
-    except IOError, error:
+    except IOError as error:
         if error.errno != errno.ENOENT:
             raise
         create_key(key_dir, key_filepath)
@@ -111,3 +115,14 @@ def get_timed_signer_url(namespace):
     assert __itsda_secret is not None
     return itsdangerous.URLSafeTimedSerializer(__itsda_secret,
          salt=namespace)
+
+def random_string(length, alphabet=ALPHABET):
+    """ Returns a URL safe base64 encoded crypographically strong string """
+    base = len(alphabet)
+    rstring = ""
+    for i in range(length):
+        n = getrandbits(6) # 6 bytes = 2^6 = 64
+        n = divmod(n, base)[1]
+        rstring += alphabet[n]
+
+    return rstring

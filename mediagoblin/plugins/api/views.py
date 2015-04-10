@@ -17,17 +17,20 @@
 import json
 import logging
 
-from os.path import splitext
-from werkzeug.exceptions import BadRequest, Forbidden
+import six
+
+from werkzeug.exceptions import BadRequest
 from werkzeug.wrappers import Response
 
+from mediagoblin.tools.translate import pass_to_ugettext as _
+from mediagoblin.tools.response import json_response
 from mediagoblin.decorators import require_active_login
 from mediagoblin.meddleware.csrf import csrf_exempt
-from mediagoblin.media_types import sniff_media
-from mediagoblin.plugins.api.tools import api_auth, get_entry_serializable, \
-        json_response
-from mediagoblin.submit.lib import check_file_field, prepare_queue_task, \
-    run_process_media, new_upload_entry
+from mediagoblin.media_types import FileTypeNotSupported
+from mediagoblin.plugins.api.tools import api_auth, get_entry_serializable
+from mediagoblin.submit.lib import \
+    check_file_field, submit_media, get_upload_file_limits, \
+    FileUploadLimit, UserUploadLimit, UserPastUploadLimit
 
 _log = logging.getLogger(__name__)
 
@@ -49,45 +52,38 @@ def post_entry(request):
         _log.debug('File field not found')
         raise BadRequest()
 
-    media_file = request.files['file']
+    upload_limit, max_file_size = get_upload_file_limits(request.user)
 
-    media_type, media_manager = sniff_media(media_file)
+    callback_url = request.form.get('callback_url')
+    if callback_url:
+        callback_url = six.text_type(callback_url)
+    try:
+        entry = submit_media(
+            mg_app=request.app, user=request.user,
+            submitted_file=request.files['file'],
+            filename=request.files['file'].filename,
+            title=six.text_type(request.form.get('title')),
+            description=six.text_type(request.form.get('description')),
+            license=six.text_type(request.form.get('license', '')),
+            tags_string=six.text_type(request.form.get('tags', '')),
+            upload_limit=upload_limit, max_file_size=max_file_size,
+            callback_url=callback_url)
 
-    entry = new_upload_entry(request.user)
-    entry.media_type = unicode(media_type)
-    entry.title = unicode(request.form.get('title')
-            or splitext(media_file.filename)[0])
+        return json_response(get_entry_serializable(entry, request.urlgen))
 
-    entry.description = unicode(request.form.get('description'))
-    entry.license = unicode(request.form.get('license', ''))
-
-    entry.generate_slug()
-
-    # queue appropriately
-    queue_file = prepare_queue_task(request.app, entry, media_file.filename)
-
-    with queue_file:
-        queue_file.write(request.files['file'].stream.read())
-
-    # Save now so we have this data before kicking off processing
-    entry.save()
-
-    if request.form.get('callback_url'):
-        metadata = request.db.ProcessingMetaData()
-        metadata.media_entry = entry
-        metadata.callback_url = unicode(request.form['callback_url'])
-        metadata.save()
-
-    # Pass off to processing
-    #
-    # (... don't change entry after this point to avoid race
-    # conditions with changes to the document via processing code)
-    feed_url = request.urlgen(
-        'mediagoblin.user_pages.atom_feed',
-        qualified=True, user=request.user.username)
-    run_process_media(entry, feed_url)
-
-    return json_response(get_entry_serializable(entry, request.urlgen))
+    # Handle upload limit issues
+    except FileUploadLimit:
+        raise BadRequest(
+            _(u'Sorry, the file size is too big.'))
+    except UserUploadLimit:
+        raise BadRequest(
+            _('Sorry, uploading this file will put you over your'
+              ' upload limit.'))
+    except UserPastUploadLimit:
+        raise BadRequest(
+            _('Sorry, you have reached your upload limit.'))
+    except FileTypeNotSupported as e:
+        raise BadRequest(e)
 
 
 @api_auth
@@ -99,7 +95,7 @@ def api_test(request):
 
     # TODO: This is the *only* thing using Response() here, should that
     # not simply use json_response()?
-    return Response(json.dumps(user_data))
+    return Response(json.dumps(user_data, sort_keys=True))
 
 
 def get_entries(request):

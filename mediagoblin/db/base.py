@@ -16,25 +16,26 @@
 
 
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import scoped_session, sessionmaker, object_session
+from sqlalchemy import inspect
 
-Session = scoped_session(sessionmaker())
+from mediagoblin.tools.transition import DISABLE_GLOBALS
+
+if not DISABLE_GLOBALS:
+    from sqlalchemy.orm import scoped_session, sessionmaker
+    Session = scoped_session(sessionmaker())
 
 
 class GMGTableBase(object):
-    query = Session.query_property()
+    @property
+    def _session(self):
+        return inspect(self).session
 
-    @classmethod
-    def find(cls, query_dict):
-        return cls.query.filter_by(**query_dict)
+    @property
+    def _app(self):
+        return self._session.bind.app
 
-    @classmethod
-    def find_one(cls, query_dict):
-        return cls.query.filter_by(**query_dict).first()
-
-    @classmethod
-    def one(cls, query_dict):
-        return cls.find(query_dict).one()
+    if not DISABLE_GLOBALS:
+        query = Session.query_property()
 
     def get(self, key):
         return getattr(self, key)
@@ -43,16 +44,20 @@ class GMGTableBase(object):
         # The key *has* to exist on sql.
         return getattr(self, key)
 
-    def save(self):
-        sess = object_session(self)
-        if sess is None:
+    def save(self, commit=True):
+        sess = self._session
+        if sess is None and not DISABLE_GLOBALS:
             sess = Session()
+        assert sess is not None, "Can't save, %r has a detached session" % self
         sess.add(self)
-        sess.commit()
+        if commit:
+            sess.commit()
+        else:
+            sess.flush()
 
     def delete(self, commit=True):
         """Delete the object and commit the change immediately by default"""
-        sess = object_session(self)
+        sess = self._session
         assert sess is not None, "Not going to delete detached %r" % self
         sess.delete(self)
         if commit:

@@ -15,16 +15,35 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from mediagoblin.media_types import MediaManagerBase
-from mediagoblin.media_types.audio.processing import process_audio, \
+from mediagoblin.media_types.audio.processing import AudioProcessingManager, \
     sniff_handler
+from mediagoblin.tools import pluginapi
+
+# Why isn't .ogg in this list?  It's still detected, but via sniffing,
+# .ogg files could be either video or audio... sniffing determines which.
+
+ACCEPTED_EXTENSIONS = ["mp3", "flac", "wav", "m4a"]
+MEDIA_TYPE = 'mediagoblin.media_types.audio'
+
+
+def setup_plugin():
+    config = pluginapi.get_config(MEDIA_TYPE)
 
 
 class AudioMediaManager(MediaManagerBase):
     human_readable = "Audio"
-    processor = staticmethod(process_audio)
-    sniff_handler = staticmethod(sniff_handler)
     display_template = "mediagoblin/media_displays/audio.html"
-    accepted_extensions = ["mp3", "flac", "wav", "m4a"]
+    default_thumb = "images/media_thumbs/image.png"
 
 
-MEDIA_MANAGER = AudioMediaManager
+def get_media_type_and_manager(ext):
+    if ext in ACCEPTED_EXTENSIONS:
+        return MEDIA_TYPE, AudioMediaManager
+
+hooks = {
+    'setup': setup_plugin,
+    'get_media_type_and_manager': get_media_type_and_manager,
+    'sniff_handler': sniff_handler,
+    ('media_manager', MEDIA_TYPE): lambda: AudioMediaManager,
+    ('reprocess_manager', MEDIA_TYPE): lambda: AudioProcessingManager,
+}

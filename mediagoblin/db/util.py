@@ -14,9 +14,16 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from mediagoblin.db.base import Session
-from mediagoblin.db.models import MediaEntry, Tag, MediaTag, Collection
+import sys
 
+from mediagoblin import mg_globals as mgg
+from mediagoblin.db.models import MediaEntry, Tag, MediaTag, Collection
+from mediagoblin.gmg_commands.dbupdate import gather_database_data
+
+from mediagoblin.tools.transition import DISABLE_GLOBALS
+
+if not DISABLE_GLOBALS:
+    from mediagoblin.db.base import Session
 
 ##########################
 # Random utility functions
@@ -24,7 +31,7 @@ from mediagoblin.db.models import MediaEntry, Tag, MediaTag, Collection
 
 
 def atomic_update(table, query_dict, update_values):
-    table.find(query_dict).update(update_values,
+    table.query.filter_by(**query_dict).update(update_values,
     	synchronize_session=False)
     Session.commit()
 
@@ -66,6 +73,23 @@ def check_collection_slug_used(creator_id, slug, ignore_c_id):
         filt = filt & (Collection.id != ignore_c_id)
     does_exist = Session.query(Collection.id).filter(filt).first() is not None
     return does_exist
+
+
+def check_db_up_to_date():
+    """Check if the database is up to date and quit if not"""
+    dbdatas = gather_database_data(mgg.global_config.get('plugins', {}).keys())
+
+    for dbdata in dbdatas:
+        session = Session()
+        try:
+            migration_manager = dbdata.make_migration_manager(session)
+            if migration_manager.database_current_migration is None or \
+                    migration_manager.migrations_to_run():
+                sys.exit("Your database is not up to date. Please run "
+                         "'gmg dbupdate' before starting MediaGoblin.")
+        finally:
+            Session.rollback()
+            Session.remove()
 
 
 if __name__ == '__main__':

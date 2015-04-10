@@ -14,9 +14,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function, unicode_literals
+
+import six
 import smtplib
-from email.MIMEText import MIMEText
+import sys
 from mediagoblin import mg_globals, messages
+from mediagoblin._compat import MIMEText
 from mediagoblin.tools import common
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -64,6 +68,8 @@ class FakeMhost(object):
              'to': to_addrs,
              'message': message})
 
+    def starttls(self):
+        raise smtplib.SMTPException("No STARTTLS here")
 
 def _clear_test_inboxes():
     global EMAIL_TEST_INBOX
@@ -103,6 +109,13 @@ def send_email(from_addr, to_addrs, subject, message_body):
         if not mg_globals.app_config['email_smtp_host']:  # e.g. host = ''
             mhost.connect()  # We SMTP.connect explicitly
 
+        try:
+            mhost.starttls()
+        except smtplib.SMTPException:
+            # Only raise an exception if we're forced to
+            if mg_globals.app_config['email_smtp_force_starttls']:
+                six.reraise(*sys.exc_info())
+
     if ((not common.TESTS_ENABLED)
         and (mg_globals.app_config['email_smtp_user']
              or mg_globals.app_config['email_smtp_pass'])):
@@ -119,12 +132,12 @@ def send_email(from_addr, to_addrs, subject, message_body):
         EMAIL_TEST_INBOX.append(message)
 
     elif mg_globals.app_config['email_debug_mode']:
-        print u"===== Email ====="
-        print u"From address: %s" % message['From']
-        print u"To addresses: %s" % message['To']
-        print u"Subject: %s" % message['Subject']
-        print u"-- Body: --"
-        print message.get_payload(decode=True)
+        print("===== Email =====")
+        print("From address: %s" % message['From'])
+        print("To addresses: %s" % message['To'])
+        print("Subject: %s" % message['Subject'])
+        print("-- Body: --")
+        print(message.get_payload(decode=True))
 
     return mhost.sendmail(from_addr, to_addrs, message.as_string())
 
@@ -151,5 +164,5 @@ def email_debug_message(request):
     if mg_globals.app_config['email_debug_mode']:
         # DEBUG message, no need to translate
         messages.add_message(request, messages.DEBUG,
-            u"This instance is running in email debug mode. "
-            u"The email will be on the console of the server process.")
+            "This instance is running in email debug mode. "
+            "The email will be on the console of the server process.")

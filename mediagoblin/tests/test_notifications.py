@@ -16,7 +16,7 @@
 
 import pytest
 
-import urlparse
+import six.moves.urllib.parse as urlparse
 
 from mediagoblin.tools import template, mail
 
@@ -38,7 +38,7 @@ class TestNotifications:
 
         # TODO: Possibly abstract into a decorator like:
         # @as_authenticated_user('chris')
-        self.test_user = fixture_add_user()
+        self.test_user = fixture_add_user(privileges=[u'active',u'commenter'])
 
         self.current_user = None
 
@@ -75,7 +75,10 @@ class TestNotifications:
 
         '''
         user = fixture_add_user('otherperson', password='nosreprehto',
-                                wants_comment_notification=wants_email)
+                                wants_comment_notification=wants_email,
+                                privileges=[u'active',u'commenter'])
+
+        assert user.wants_comment_notification == wants_email
 
         user_id = user.id
 
@@ -124,6 +127,7 @@ otherperson@example.com\n\nSGkgb3RoZXJwZXJzb24sCmNocmlzIGNvbW1lbnRlZCBvbiB5b3VyI
         else:
             assert mail.EMAIL_TEST_MBOX_INBOX == []
 
+
         # Save the ids temporarily because of DetachedInstanceError
         notification_id = notification.id
         comment_id = notification.subject.id
@@ -131,13 +135,13 @@ otherperson@example.com\n\nSGkgb3RoZXJwZXJzb24sCmNocmlzIGNvbW1lbnRlZCBvbiB5b3VyI
         self.logout()
         self.login('otherperson', 'nosreprehto')
 
-        self.test_app.get(media_uri_slug + '/c/{0}/'.format(comment_id))
+        self.test_app.get(media_uri_slug + 'c/{0}/'.format(comment_id))
 
         notification = Notification.query.filter_by(id=notification_id).first()
 
         assert notification.seen == True
 
-        self.test_app.get(media_uri_slug + '/notifications/silence/')
+        self.test_app.get(media_uri_slug + 'notifications/silence/')
 
         subscription = CommentSubscription.query.filter_by(id=subscription_id)\
                 .first()
@@ -149,3 +153,57 @@ otherperson@example.com\n\nSGkgb3RoZXJwZXJzb24sCmNocmlzIGNvbW1lbnRlZCBvbiB5b3VyI
 
         # User should not have been notified
         assert len(notifications) == 1
+
+    def test_mark_all_comment_notifications_seen(self):
+        """ Test that mark_all_comments_seen works"""
+
+        user = fixture_add_user('otherperson', password='nosreprehto',
+                        privileges=[u'active'])
+
+        media_entry = fixture_media_entry(uploader=user.id, state=u'processed')
+
+        fixture_comment_subscription(media_entry)
+
+        media_uri_id = '/u/{0}/m/{1}/'.format(user.username,
+                                              media_entry.id)
+
+        # add 2 comments
+        self.test_app.post(
+            media_uri_id + 'comment/add/',
+            {
+                'comment_content': u'Test comment #43'
+            }
+        )
+
+        self.test_app.post(
+            media_uri_id + 'comment/add/',
+            {
+                'comment_content': u'Test comment #44'
+            }
+        )
+
+        notifications = Notification.query.filter_by(
+            user_id=user.id).all()
+
+        assert len(notifications) == 2
+
+        # both comments should not be marked seen
+        assert notifications[0].seen == False
+        assert notifications[1].seen == False
+
+        # login with other user to mark notifications seen
+        self.logout()
+        self.login('otherperson', 'nosreprehto')
+
+        # mark all comment notifications seen
+        res = self.test_app.get('/notifications/comments/mark_all_seen/')
+        res.follow()
+
+        assert urlparse.urlsplit(res.location)[2] == '/'
+
+        notifications = Notification.query.filter_by(
+            user_id=user.id).all()
+
+        # both notifications should be marked seen
+        assert notifications[0].seen == True
+        assert notifications[1].seen == True

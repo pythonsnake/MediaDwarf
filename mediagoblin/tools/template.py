@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import six
 
 import jinja2
 from jinja2.ext import Extension
@@ -26,17 +27,16 @@ from mediagoblin import mg_globals
 from mediagoblin import messages
 from mediagoblin import _version
 from mediagoblin.tools import common
+from mediagoblin.tools.translate import is_rtl
 from mediagoblin.tools.translate import set_thread_locale
 from mediagoblin.tools.pluginapi import get_hook_templates, hook_transform
 from mediagoblin.tools.timesince import timesince
 from mediagoblin.meddleware.csrf import render_csrf_form_token
 
-
-
 SETUP_JINJA_ENVS = {}
 
 
-def get_jinja_env(template_loader, locale):
+def get_jinja_env(app, template_loader, locale):
     """
     Set up the Jinja environment,
 
@@ -50,6 +50,12 @@ def get_jinja_env(template_loader, locale):
     if locale in SETUP_JINJA_ENVS:
         return SETUP_JINJA_ENVS[locale]
 
+    # The default config does not require a [jinja2] block.
+    # You may create one if you wish to enable additional jinja2 extensions,
+    # see example in config_spec.ini 
+    jinja2_config = app.global_config.get('jinja2', {})
+    local_exts = jinja2_config.get('extensions', [])
+
     # jinja2.StrictUndefined will give exceptions on references
     # to undefined/unknown variables in templates.
     template_env = jinja2.Environment(
@@ -57,22 +63,26 @@ def get_jinja_env(template_loader, locale):
         undefined=jinja2.StrictUndefined,
         extensions=[
             'jinja2.ext.i18n', 'jinja2.ext.autoescape',
-            TemplateHookExtension])
+            TemplateHookExtension] + local_exts)
 
-    template_env.install_gettext_callables(
-        mg_globals.thread_scope.translations.ugettext,
-        mg_globals.thread_scope.translations.ungettext)
+    if six.PY2:
+        template_env.install_gettext_callables(mg_globals.thread_scope.translations.ugettext,
+                                           mg_globals.thread_scope.translations.ungettext)
+    else:
+        template_env.install_gettext_callables(mg_globals.thread_scope.translations.gettext,
+                                           mg_globals.thread_scope.translations.ngettext)
 
     # All templates will know how to ...
     # ... fetch all waiting messages and remove them from the queue
     # ... construct a grid of thumbnails or other media
     # ... have access to the global and app config
+    # ... determine if the language is rtl or ltr
     template_env.globals['fetch_messages'] = messages.fetch_messages
-    template_env.globals['app_config'] = mg_globals.app_config
-    template_env.globals['global_config'] = mg_globals.global_config
+    template_env.globals['app_config'] = app.app_config
+    template_env.globals['global_config'] = app.global_config
     template_env.globals['version'] = _version.__version__
-    template_env.globals['auth'] = mg_globals.app.auth
-
+    template_env.globals['auth'] = app.auth
+    template_env.globals['is_rtl'] = is_rtl(locale)
     template_env.filters['urlencode'] = url_quote_plus
 
     # add human readable fuzzy date time
@@ -83,6 +93,16 @@ def get_jinja_env(template_loader, locale):
 
     template_env.globals = hook_transform(
         'template_global_context', template_env.globals)
+
+    #### THIS IS TEMPORARY, PLEASE FIX IT
+    ## Notifications stuff is not yet a plugin (and we're not sure it will be),
+    ## but it needs to add stuff to the context.  This is THE WRONG WAY TO DO IT
+    from mediagoblin import notifications
+    template_env.globals['get_notifications'] = notifications.get_notifications
+    template_env.globals[
+        'get_notification_count'] = notifications.get_notification_count
+    template_env.globals[
+        'get_comment_subscription'] = notifications.get_comment_subscription
 
     if exists(locale):
         SETUP_JINJA_ENVS[locale] = template_env

@@ -18,9 +18,11 @@ import logging
 import json
 
 from functools import wraps
-from urlparse import urljoin
 from werkzeug.exceptions import Forbidden
 from werkzeug.wrappers import Response
+
+from six.moves.urllib.parse import urljoin
+
 from mediagoblin import mg_globals
 from mediagoblin.tools.pluginapi import PluginManager
 from mediagoblin.storage.filestorage import BasicFileStorage
@@ -50,30 +52,6 @@ class Auth(object):
 
     def __call__(self, request, *args, **kw):
         raise NotImplemented()
-
-
-def json_response(serializable, _disable_cors=False, *args, **kw):
-    '''
-    Serializes a json objects and returns a werkzeug Response object with the
-    serialized value as the response body and Content-Type: application/json.
-
-    :param serializable: A json-serializable object
-
-    Any extra arguments and keyword arguments are passed to the
-    Response.__init__ method.
-    '''
-    response = Response(json.dumps(serializable), *args, content_type='application/json', **kw)
-
-    if not _disable_cors:
-        cors_headers = {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, X-Requested-With'}
-        for key, value in cors_headers.iteritems():
-            response.headers.set(key, value)
-
-    return response
-
 
 def get_entry_serializable(entry, urlgen):
     '''

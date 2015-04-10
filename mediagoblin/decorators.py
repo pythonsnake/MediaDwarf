@@ -16,27 +16,52 @@
 
 from functools import wraps
 
-from urlparse import urljoin
 from werkzeug.exceptions import Forbidden, NotFound
-from werkzeug.urls import url_quote
+from oauthlib.oauth1 import ResourceEndpoint
+
+from six.moves.urllib.parse import urljoin
 
 from mediagoblin import mg_globals as mgg
-from mediagoblin.db.models import MediaEntry, User
-from mediagoblin.tools.response import redirect, render_404
+from mediagoblin import messages
+from mediagoblin.db.models import MediaEntry, User, MediaComment, AccessToken
+from mediagoblin.tools.response import (
+    redirect, render_404,
+    render_user_banned, json_response)
+from mediagoblin.tools.translate import pass_to_ugettext as _
+
+from mediagoblin.oauth.tools.request import decode_authorization_header
+from mediagoblin.oauth.oauth import GMGRequestValidator
+
+
+def user_not_banned(controller):
+    """
+    Requires that the user has not been banned. Otherwise redirects to the page
+    explaining why they have been banned
+    """
+    @wraps(controller)
+    def wrapper(request, *args, **kwargs):
+        if request.user:
+            if request.user.is_banned():
+                return render_user_banned(request)
+        return controller(request, *args, **kwargs)
+
+    return wrapper
 
 
 def require_active_login(controller):
     """
-    Require an active login from the user.
+    Require an active login from the user. If the user is banned, redirects to
+    the "You are Banned" page.
     """
     @wraps(controller)
+    @user_not_banned
     def new_controller_func(request, *args, **kwargs):
         if request.user and \
-                request.user.status == u'needs_email_verification':
+                not request.user.has_privilege(u'active'):
             return redirect(
                 request, 'mediagoblin.user_pages.user_home',
                 user=request.user.username)
-        elif not request.user or request.user.status != u'active':
+        elif not request.user or not request.user.has_privilege(u'active'):
             next_url = urljoin(
                     request.urlgen('mediagoblin.auth.login',
                         qualified=True),
@@ -48,6 +73,37 @@ def require_active_login(controller):
         return controller(request, *args, **kwargs)
 
     return new_controller_func
+
+
+def user_has_privilege(privilege_name, allow_admin=True):
+    """
+    Requires that a user have a particular privilege in order to access a page.
+    In order to require that a user have multiple privileges, use this
+    decorator twice on the same view. This decorator also makes sure that the
+    user is not banned, or else it redirects them to the "You are Banned" page.
+
+        :param privilege_name       A unicode object that is that represents
+                                        the privilege object. This object is
+                                        the name of the privilege, as assigned
+                                        in the Privilege.privilege_name column
+
+        :param allow_admin          If this is true then if the user is an admin
+                                    it will allow the user even if the user doesn't
+                                    have the privilage given in privilage_name.
+    """
+
+    def user_has_privilege_decorator(controller):
+        @wraps(controller)
+        @require_active_login
+        def wrapper(request, *args, **kwargs):
+            if not request.user.has_privilege(privilege_name, allow_admin):
+                raise Forbidden()
+
+            return controller(request, *args, **kwargs)
+
+        return wrapper
+    return user_has_privilege_decorator
+
 
 def active_user_from_url(controller):
     """Retrieve User() from <user> URL pattern and pass in as url_user=...
@@ -71,7 +127,7 @@ def user_may_delete_media(controller):
     @wraps(controller)
     def wrapper(request, *args, **kwargs):
         uploader_id = kwargs['media'].uploader
-        if not (request.user.is_admin or
+        if not (request.user.has_privilege(u'admin') or
                 request.user.id == uploader_id):
             raise Forbidden()
 
@@ -86,9 +142,9 @@ def user_may_alter_collection(controller):
     """
     @wraps(controller)
     def wrapper(request, *args, **kwargs):
-        creator_id = request.db.User.find_one(
-            {'username': request.matchdict['user']}).id
-        if not (request.user.is_admin or
+        creator_id = request.db.User.query.filter_by(
+            username=request.matchdict['user']).first().id
+        if not (request.user.has_privilege(u'admin') or
                 request.user.id == creator_id):
             raise Forbidden()
 
@@ -161,15 +217,15 @@ def get_user_collection(controller):
     """
     @wraps(controller)
     def wrapper(request, *args, **kwargs):
-        user = request.db.User.find_one(
-            {'username': request.matchdict['user']})
+        user = request.db.User.query.filter_by(
+            username=request.matchdict['user']).first()
 
         if not user:
             return render_404(request)
 
-        collection = request.db.Collection.find_one(
-            {'slug': request.matchdict['collection'],
-             'creator': user.id})
+        collection = request.db.Collection.query.filter_by(
+            slug=request.matchdict['collection'],
+            creator=user.id).first()
 
         # Still no collection?  Okay, 404.
         if not collection:
@@ -186,14 +242,14 @@ def get_user_collection_item(controller):
     """
     @wraps(controller)
     def wrapper(request, *args, **kwargs):
-        user = request.db.User.find_one(
-            {'username': request.matchdict['user']})
+        user = request.db.User.query.filter_by(
+            username=request.matchdict['user']).first()
 
         if not user:
             return render_404(request)
 
-        collection_item = request.db.CollectionItem.find_one(
-            {'id': request.matchdict['collection_item'] })
+        collection_item = request.db.CollectionItem.query.filter_by(
+            id=request.matchdict['collection_item']).first()
 
         # Still no collection item?  Okay, 404.
         if not collection_item:
@@ -235,3 +291,139 @@ def get_workbench(func):
             return func(*args, workbench=workbench, **kwargs)
 
     return new_func
+
+
+def allow_registration(controller):
+    """ Decorator for if registration is enabled"""
+    @wraps(controller)
+    def wrapper(request, *args, **kwargs):
+        if not mgg.app_config["allow_registration"]:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                _('Sorry, registration is disabled on this instance.'))
+            return redirect(request, "index")
+
+        return controller(request, *args, **kwargs)
+
+    return wrapper
+
+def allow_reporting(controller):
+    """ Decorator for if reporting is enabled"""
+    @wraps(controller)
+    def wrapper(request, *args, **kwargs):
+        if not mgg.app_config["allow_reporting"]:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                _('Sorry, reporting is disabled on this instance.'))
+            return redirect(request, 'index')
+
+        return controller(request, *args, **kwargs)
+
+    return wrapper
+
+def get_optional_media_comment_by_id(controller):
+    """
+    Pass in a MediaComment based off of a url component. Because of this decor-
+    -ator's use in filing Media or Comment Reports, it has two valid outcomes.
+
+    :returns        The view function being wrapped with kwarg `comment` set to
+                        the MediaComment who's id is in the URL. If there is a
+                        comment id in the URL and if it is valid.
+    :returns        The view function being wrapped with kwarg `comment` set to
+                        None. If there is no comment id in the URL.
+    :returns        A 404 Error page, if there is a comment if in the URL and it
+                        is invalid.
+    """
+    @wraps(controller)
+    def wrapper(request, *args, **kwargs):
+        if 'comment' in request.matchdict:
+            comment = MediaComment.query.filter_by(
+                    id=request.matchdict['comment']).first()
+
+            if comment is None:
+                return render_404(request)
+
+            return controller(request, comment=comment, *args, **kwargs)
+        else:
+            return controller(request, comment=None, *args, **kwargs)
+    return wrapper
+
+
+def auth_enabled(controller):
+    """Decorator for if an auth plugin is enabled"""
+    @wraps(controller)
+    def wrapper(request, *args, **kwargs):
+        if not mgg.app.auth:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                _('Sorry, authentication is disabled on this instance.'))
+            return redirect(request, 'index')
+
+        return controller(request, *args, **kwargs)
+
+    return wrapper
+
+def require_admin_or_moderator_login(controller):
+    """
+    Require a login from an administrator or a moderator.
+    """
+    @wraps(controller)
+    def new_controller_func(request, *args, **kwargs):
+        if request.user and \
+            not (request.user.has_privilege(u'admin')
+                or request.user.has_privilege(u'moderator')):
+
+            raise Forbidden()
+        elif not request.user:
+            next_url = urljoin(
+                    request.urlgen('mediagoblin.auth.login',
+                        qualified=True),
+                    request.url)
+
+            return redirect(request, 'mediagoblin.auth.login',
+                            next=next_url)
+
+        return controller(request, *args, **kwargs)
+
+    return new_controller_func
+
+
+
+def oauth_required(controller):
+    """ Used to wrap API endpoints where oauth is required """
+    @wraps(controller)
+    def wrapper(request, *args, **kwargs):
+        data = request.headers
+        authorization = decode_authorization_header(data)
+
+        if authorization == dict():
+            error = "Missing required parameter."
+            return json_response({"error": error}, status=400)
+
+
+        request_validator = GMGRequestValidator()
+        resource_endpoint = ResourceEndpoint(request_validator)
+        valid, r = resource_endpoint.validate_protected_resource_request(
+                uri=request.base_url,
+                http_method=request.method,
+                body=request.data,
+                headers=dict(request.headers),
+                )
+
+        if not valid:
+            error = "Invalid oauth prarameter."
+            return json_response({"error": error}, status=400)
+
+        # Fill user if not already
+        token = authorization[u"oauth_token"]
+        request.access_token = AccessToken.query.filter_by(token=token).first()
+        if request.access_token is not None and request.user is None:
+            user_id = request.access_token.user
+            request.user = User.query.filter_by(id=user_id).first()
+
+        return controller(request, *args, **kwargs)
+
+    return wrapper

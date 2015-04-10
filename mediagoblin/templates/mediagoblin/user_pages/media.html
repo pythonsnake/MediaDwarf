@@ -30,11 +30,12 @@
   <script type="text/javascript"
           src="{{ request.staticdirect('/js/keyboard_navigation.js') }}"></script>
 
+  {% template_hook("location_head") %}
   {% template_hook("media_head") %}
 {% endblock mediagoblin_head %}
-
 {% block mediagoblin_content %}
-  <p class="context">
+<div class="row foot">
+  <p class="eleven columns context">
     {%- trans user_url=request.urlgen(
               'mediagoblin.user_pages.user_home',
               user=media.get_uploader.username),
@@ -42,10 +43,13 @@
     ❖ Browsing media by <a href="{{user_url}}">{{username}}</a>
     {%- endtrans -%}
   </p>
-  {% include "mediagoblin/utils/prev_next.html" %}
-  <div class="media_pane">
-    <div class="media_image_container">
-      {% block mediagoblin_media %}
+  <div class="five columns">
+    {% include "mediagoblin/utils/prev_next.html" %}
+  </div>
+</div>
+  <div class="media_pane eleven columns">
+    {% block mediagoblin_media %}
+      <div class="media_image_container">
         {% set display_media = request.app.public_store.file_url(
                  media.get_display_media()[1]) %}
         {# if there's a medium file size, that means the medium size
@@ -65,14 +69,16 @@
                alt="{% trans media_title=media.title -%}
                       Image for {{ media_title }}{% endtrans %}" />
         {% endif %}
-      {% endblock %}
-    </div>
+      </div>
+    {% endblock %}
+    <div class="row head foot">
     <h2 class="media_title">
       {{ media.title }}
     </h2>
     {% if request.user and
           (media.uploader == request.user.id or
-           request.user.is_admin) %}
+           request.user.has_privilege('admin')) %}
+    <div class="pull-right" style="padding-top:20px;">
       {% set edit_url = request.urlgen('mediagoblin.edit.edit_media',
                                  user= media.get_uploader.username,
                                  media_id=media.id) %}
@@ -80,17 +86,20 @@
       {% set delete_url = request.urlgen('mediagoblin.user_pages.media_confirm_delete',
                                  user= media.get_uploader.username,
                                  media_id=media.id) %}
-      <a class="button_action" href="{{ delete_url }}">{% trans %}Delete{% endtrans %}</a>
-
+      <a class="button_action button_warning" href="{{ delete_url }}">{% trans %}Delete{% endtrans %}</a>
+      </div>
     {% endif %}
     {% autoescape False %}
       <p>{{ media.description_html }}</p>
     {% endautoescape %}
-    {% if comments %}
+    </div>
+    {% if comments and request.user and request.user.has_privilege('commenter') %}
+    <div class="media_comments">
       {% if app_config['allow_comments'] %}
         <a
           {% if not request.user %}
-            href="{{ request.urlgen('mediagoblin.auth.login') }}"
+          href="{{ request.urlgen('mediagoblin.auth.login') }}?next={{
+                                                request.base_url|urlencode }}"
           {% endif %}
           class="button_action" id="button_addcomment" title="Add a comment">
           {% trans %}Add a comment{% endtrans %}
@@ -107,7 +116,10 @@
             <input type="submit" value="{% trans %}Add this comment{% endtrans %}" class="button_action" />
               {{ csrf_token }}
           </div>
+          <input type="hidden" value="{{ request.urlgen('mediagoblin.user_pages.media_preview_comment') }}" id="previewURL" />
+          <input type="hidden" value="{% trans %}Comment Preview{% endtrans %}" id="previewText"/>
         </form>
+	<div id="comment_preview"></div>
       {% endif %}
       <ul style="list-style:none">
       {% for comment in comments %}
@@ -142,17 +154,32 @@
               {{ comment.content_html }}
             {%- endautoescape %}
           </div>
+          <div>
+            {% if app_config.allow_reporting %}
+                <a href="{{ request.urlgen('mediagoblin.user_pages.media_home.report_comment',
+                            user=media.get_uploader.username,
+                             media=media.slug_or_id,
+                             comment=comment.id) }}">
+                    {% trans %}Report{% endtrans %}</a>
+            {% endif %}
+          </div>
         </li>
       {% endfor %}
       </ul>
       {{ render_pagination(request, pagination,
                  media.url_for_self(request.urlgen)) }}
+    {% else %}
+      <div class="empty_space no_background">
     {% endif %}
   </div>
-  <div class="media_sidebar">
+
+    </div>
+
+
+  <div class="five columns media_sidebar">
     <h3>{% trans %}Added{% endtrans %}</h3>
     <p><span title="{{ media.created.strftime("%I:%M%p %Y-%m-%d") }}">
-        {%- trans formatted_time=timesince(media.created) -%}    
+        {%- trans formatted_time=timesince(media.created) -%}
           {{ formatted_time }} ago
         {%- endtrans -%}
     </span></p>
@@ -165,6 +192,10 @@
     {% endif %}
 
     {% include "mediagoblin/utils/collections.html" %}
+
+    {% if app_config.allow_reporting %}
+      {% include "mediagoblin/utils/report.html" %}
+    {% endif %}
 
     {% include "mediagoblin/utils/license.html" %}
 
@@ -185,7 +216,7 @@
     {%- if app_config['allow_attachments']
           and request.user
           and (media.uploader == request.user.id
-               or request.user.is_admin) %}
+               or request.user.has_privilege('admin')) %}
       {%- if not media.attachment_files|count %}
         <h3>{% trans %}Attachments{% endtrans %}</h3>
       {%- endif %}
@@ -198,11 +229,14 @@
       </p>
     {%- endif %}
 
-    {% template_hook("media_sideinfo") %}
-
     {% block mediagoblin_sidebar %}
     {% endblock %}
 
-  </div>
+    {%- set model = media %}
+    {% template_hook("location_info") %}
+    {% template_hook("media_sideinfo") %}
+
+  </div><!--end media_sidebar-->
+
   <div class="clear"></div>
 {% endblock %}

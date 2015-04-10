@@ -17,14 +17,15 @@
 from mediagoblin import mg_globals
 from mediagoblin.db.models import MediaEntry
 from mediagoblin.tools.pagination import Pagination
-from mediagoblin.tools.response import render_to_response
-from mediagoblin.decorators import uses_pagination
+from mediagoblin.tools.pluginapi import hook_handle
+from mediagoblin.tools.response import render_to_response, render_404
+from mediagoblin.decorators import uses_pagination, user_not_banned
 
 
-
+@user_not_banned
 @uses_pagination
-def root_view(request, page):
-    cursor = MediaEntry.query.filter_by(state=u'processed').\
+def default_root_view(request, page):
+    cursor = request.db.query(MediaEntry).filter_by(state=u'processed').\
         order_by(MediaEntry.created.desc())
 
     pagination = Pagination(page, cursor)
@@ -36,6 +37,16 @@ def root_view(request, page):
          'pagination': pagination})
 
 
+
+def root_view(request):
+    """
+    Proxies to the real root view that's displayed
+    """
+    view = hook_handle("frontpage_view") or default_root_view
+    return view(request)
+
+
+
 def simple_template_render(request):
     """
     A view for absolutely simple template rendering.
@@ -44,3 +55,10 @@ def simple_template_render(request):
     template_name = request.matchdict['template']
     return render_to_response(
         request, template_name, {})
+
+def terms_of_service(request):
+    if mg_globals.app_config["show_tos"] is False:
+        return render_404(request)
+
+    return render_to_response(request,
+        'mediagoblin/terms_of_service.html', {})

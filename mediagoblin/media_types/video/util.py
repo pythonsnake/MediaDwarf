@@ -21,39 +21,45 @@ from mediagoblin import mg_globals as mgg
 _log = logging.getLogger(__name__)
 
 
-def skip_transcode(metadata):
+def skip_transcode(metadata, size):
     '''
     Checks video metadata against configuration values for skip_transcode.
 
     Returns True if the video matches the requirements in the configuration.
     '''
-    config = mgg.global_config['media_type:mediagoblin.media_types.video']\
+    config = mgg.global_config['plugins']['mediagoblin.media_types.video']\
             ['skip_transcode']
 
     medium_config = mgg.global_config['media:medium']
 
     _log.debug('skip_transcode config: {0}'.format(config))
-
-    if config['mime_types'] and metadata.get('mimetype'):
-        if not metadata['mimetype'] in config['mime_types']:
+    tags = metadata.get_tags()
+    if config['mime_types'] and tags.get_string('mimetype'):
+        if not tags.get_string('mimetype') in config['mime_types']:
             return False
 
-    if config['container_formats'] and metadata['tags'].get('audio-codec'):
-        if not metadata['tags']['container-format'] in config['container_formats']:
+    if config['container_formats'] and tags.get_string('container-format'):
+        if not (metadata.get_tags().get_string('container-format') in
+                config['container_formats']):
             return False
 
-    if config['video_codecs'] and metadata['tags'].get('audio-codec'):
-        if not metadata['tags']['video-codec'] in config['video_codecs']:
-            return False
+    if config['video_codecs']:
+        for video_info in metadata.get_video_streams():
+            if not (video_info.get_tags().get_string('video-codec') in
+                    config['video_codecs']):
+                return False
 
-    if config['audio_codecs'] and metadata['tags'].get('audio-codec'):
-        if not metadata['tags']['audio-codec'] in config['audio_codecs']:
-            return False
+    if config['audio_codecs']:
+        for audio_info in metadata.get_audio_streams():
+            if not (audio_info.get_tags().get_string('audio-codec') in
+                    config['audio_codecs']):
+                return False
 
     if config['dimensions_match']:
-        if not metadata['videoheight'] <= medium_config['max_height']:
-            return False
-        if not metadata['videowidth'] <= medium_config['max_width']:
-            return False
+        for video_info in metadata.get_video_streams():
+            if not video_info.get_height() <= size[1]:
+                return False
+            if not video_info.get_width() <= size[0]:
+                return False
 
     return True

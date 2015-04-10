@@ -14,36 +14,41 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import six
+
 from mediagoblin import messages
 import mediagoblin.mg_globals as mg_globals
-from os.path import splitext
 
 import logging
 
 _log = logging.getLogger(__name__)
 
 
-from mediagoblin.tools.text import convert_to_tag_list_of_dicts
 from mediagoblin.tools.translate import pass_to_ugettext as _
 from mediagoblin.tools.response import render_to_response, redirect
-from mediagoblin.decorators import require_active_login
+from mediagoblin.decorators import require_active_login, user_has_privilege
 from mediagoblin.submit import forms as submit_forms
 from mediagoblin.messages import add_message, SUCCESS
-from mediagoblin.media_types import sniff_media, \
-    InvalidFileType, FileTypeNotSupported
-from mediagoblin.submit.lib import check_file_field, prepare_queue_task, \
-    run_process_media, new_upload_entry
-
-from mediagoblin.notifications import add_comment_subscription
+from mediagoblin.media_types import FileTypeNotSupported
+from mediagoblin.submit.lib import \
+    check_file_field, submit_media, get_upload_file_limits, \
+    FileUploadLimit, UserUploadLimit, UserPastUploadLimit
 
 
 @require_active_login
+@user_has_privilege(u'uploader')
 def submit_start(request):
     """
     First view for submitting a file.
     """
-    submit_form = submit_forms.SubmitStartForm(request.form,
-        license=request.user.license_preference)
+    upload_limit, max_file_size = get_upload_file_limits(request.user)
+
+    submit_form = submit_forms.get_submit_start_form(
+        request.form,
+        license=request.user.license_preference,
+        max_file_size=max_file_size,
+        upload_limit=upload_limit,
+        uploaded=request.user.uploaded)
 
     if request.method == 'POST' and submit_form.validate():
         if not check_file_field(request, 'file'):
@@ -51,64 +56,42 @@ def submit_start(request):
                 _(u'You must provide a file.'))
         else:
             try:
-                filename = request.files['file'].filename
+                submit_media(
+                    mg_app=request.app, user=request.user,
+                    submitted_file=request.files['file'],
+                    filename=request.files['file'].filename,
+                    title=six.text_type(submit_form.title.data),
+                    description=six.text_type(submit_form.description.data),
+                    license=six.text_type(submit_form.license.data) or None,
+                    tags_string=submit_form.tags.data,
+                    upload_limit=upload_limit, max_file_size=max_file_size,
+                    urlgen=request.urlgen)
 
-                # Sniff the submitted media to determine which
-                # media plugin should handle processing
-                media_type, media_manager = sniff_media(
-                    request.files['file'])
-
-                # create entry and save in database
-                entry = new_upload_entry(request.user)
-                entry.media_type = unicode(media_type)
-                entry.title = (
-                    unicode(submit_form.title.data)
-                    or unicode(splitext(filename)[0]))
-
-                entry.description = unicode(submit_form.description.data)
-
-                entry.license = unicode(submit_form.license.data) or None
-
-                # Process the user's folksonomy "tags"
-                entry.tags = convert_to_tag_list_of_dicts(
-                    submit_form.tags.data)
-
-                # Generate a slug from the title
-                entry.generate_slug()
-
-                queue_file = prepare_queue_task(request.app, entry, filename)
-
-                with queue_file:
-                    queue_file.write(request.files['file'].stream.read())
-
-                # Save now so we have this data before kicking off processing
-                entry.save()
-
-                # Pass off to processing
-                #
-                # (... don't change entry after this point to avoid race
-                # conditions with changes to the document via processing code)
-                feed_url = request.urlgen(
-                    'mediagoblin.user_pages.atom_feed',
-                    qualified=True, user=request.user.username)
-                run_process_media(entry, feed_url)
                 add_message(request, SUCCESS, _('Woohoo! Submitted!'))
 
-                add_comment_subscription(request.user, entry)
+                return redirect(request, "mediagoblin.user_pages.user_home",
+                            user=request.user.username)
 
+
+            # Handle upload limit issues
+            except FileUploadLimit:
+                submit_form.file.errors.append(
+                    _(u'Sorry, the file size is too big.'))
+            except UserUploadLimit:
+                submit_form.file.errors.append(
+                    _('Sorry, uploading this file will put you over your'
+                      ' upload limit.'))
+            except UserPastUploadLimit:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    _('Sorry, you have reached your upload limit.'))
                 return redirect(request, "mediagoblin.user_pages.user_home",
                                 user=request.user.username)
+            except FileTypeNotSupported as e:
+                submit_form.file.errors.append(e)
             except Exception as e:
-                '''
-                This section is intended to catch exceptions raised in
-                mediagoblin.media_types
-                '''
-                if isinstance(e, InvalidFileType) or \
-                        isinstance(e, FileTypeNotSupported):
-                    submit_form.file.errors.append(
-                        e)
-                else:
-                    raise
+                raise
 
     return render_to_response(
         request,
@@ -127,15 +110,15 @@ def add_collection(request, media=None):
     if request.method == 'POST' and submit_form.validate():
         collection = request.db.Collection()
 
-        collection.title = unicode(submit_form.title.data)
-        collection.description = unicode(submit_form.description.data)
+        collection.title = six.text_type(submit_form.title.data)
+        collection.description = six.text_type(submit_form.description.data)
         collection.creator = request.user.id
         collection.generate_slug()
 
         # Make sure this user isn't duplicating an existing collection
-        existing_collection = request.db.Collection.find_one({
-                'creator': request.user.id,
-                'title':collection.title})
+        existing_collection = request.db.Collection.query.filter_by(
+                creator=request.user.id,
+                title=collection.title).first()
 
         if existing_collection:
             add_message(request, messages.ERROR,

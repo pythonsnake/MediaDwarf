@@ -13,15 +13,44 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+from pkg_resources import resource_filename
+import os
+
 from mediagoblin.plugins.basic_auth import forms as auth_forms
 from mediagoblin.plugins.basic_auth import tools as auth_tools
+from mediagoblin.auth.tools import create_basic_user
 from mediagoblin.db.models import User
 from mediagoblin.tools import pluginapi
 from sqlalchemy import or_
+from mediagoblin.tools.staticdirect import PluginStatic
+
+
+PLUGIN_DIR = os.path.dirname(__file__)
 
 
 def setup_plugin():
-    config = pluginapi.get_config('mediagoblin.pluginapi.basic_auth')
+    config = pluginapi.get_config('mediagoblin.plugins.basic_auth')
+
+    routes = [
+        ('mediagoblin.plugins.basic_auth.edit.pass',
+         '/edit/password/',
+         'mediagoblin.plugins.basic_auth.views:change_pass'),
+        ('mediagoblin.plugins.basic_auth.forgot_password',
+         '/auth/forgot_password/',
+         'mediagoblin.plugins.basic_auth.views:forgot_password'),
+        ('mediagoblin.plugins.basic_auth.verify_forgot_password',
+         '/auth/forgot_password/verify/',
+         'mediagoblin.plugins.basic_auth.views:verify_forgot_password')]
+
+    pluginapi.register_routes(routes)
+    pluginapi.register_template_path(os.path.join(PLUGIN_DIR, 'templates'))
+
+    pluginapi.register_template_hooks(
+        {'edit_link': 'mediagoblin/plugins/basic_auth/edit_link.html',
+         'fp_link': 'mediagoblin/plugins/basic_auth/fp_link.html',
+         'fp_head': 'mediagoblin/plugins/basic_auth/fp_head.html',
+         'create_account':
+            'mediagoblin/plugins/basic_auth/create_account_link.html'})
 
 
 def get_user(**kwargs):
@@ -38,9 +67,7 @@ def get_user(**kwargs):
 def create_user(registration_form):
     user = get_user(username=registration_form.username.data)
     if not user and 'password' in registration_form:
-        user = User()
-        user.username = registration_form.username.data
-        user.email = registration_form.email.data
+        user = create_basic_user(registration_form)
         user.pw_hash = gen_password_hash(
             registration_form.password.data)
         user.save()
@@ -60,7 +87,10 @@ def gen_password_hash(raw_pass, extra_salt=None):
 
 
 def check_password(raw_pass, stored_hash, extra_salt=None):
-    return auth_tools.bcrypt_check_password(raw_pass, stored_hash, extra_salt)
+    if stored_hash:
+        return auth_tools.bcrypt_check_password(raw_pass,
+                                                stored_hash, extra_salt)
+    return None
 
 
 def auth():
@@ -69,11 +99,6 @@ def auth():
 
 def append_to_global_context(context):
     context['pass_auth'] = True
-    return context
-
-
-def add_to_form_context(context):
-    context['pass_auth_link'] = True
     return context
 
 
@@ -88,8 +113,7 @@ hooks = {
     'auth_check_password': check_password,
     'auth_fake_login_attempt': auth_tools.fake_login_attempt,
     'template_global_context': append_to_global_context,
-    ('mediagoblin.plugins.openid.register',
-    'mediagoblin/auth/register.html'): add_to_form_context,
-    ('mediagoblin.plugins.openid.login',
-     'mediagoblin/auth/login.html'): add_to_form_context,
+    'static_setup': lambda: PluginStatic(
+        'coreplugin_basic_auth',
+        resource_filename('mediagoblin.plugins.basic_auth', 'static'))
 }

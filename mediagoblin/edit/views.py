@@ -14,23 +14,30 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import six
+
 from datetime import datetime
 
 from itsdangerous import BadSignature
+from pyld import jsonld
 from werkzeug.exceptions import Forbidden
 from werkzeug.utils import secure_filename
+from jsonschema import ValidationError, Draft4Validator
 
 from mediagoblin import messages
 from mediagoblin import mg_globals
 
-from mediagoblin import auth
-from mediagoblin.auth import tools as auth_tools
+from mediagoblin.auth import (check_password,
+                              tools as auth_tools)
 from mediagoblin.edit import forms
 from mediagoblin.edit.lib import may_edit_media
 from mediagoblin.decorators import (require_active_login, active_user_from_url,
                             get_media_entry_by_id, user_may_alter_collection,
-                            get_user_collection)
+                            get_user_collection, user_has_privilege,
+                            user_not_banned)
 from mediagoblin.tools.crypto import get_timed_signer_url
+from mediagoblin.tools.metadata import (compact_and_validate, DEFAULT_CHECKER,
+                                        DEFAULT_SCHEMA)
 from mediagoblin.tools.mail import email_debug_message
 from mediagoblin.tools.response import (render_to_response,
                                         redirect, redirect_obj, render_404)
@@ -40,7 +47,7 @@ from mediagoblin.tools.text import (
     convert_to_tag_list_of_dicts, media_tags_as_string)
 from mediagoblin.tools.url import slugify
 from mediagoblin.db.util import check_media_slug_used, check_collection_slug_used
-from mediagoblin.db.models import User
+from mediagoblin.db.models import User, Client, AccessToken, Location
 
 import mimetypes
 
@@ -77,13 +84,13 @@ def edit_media(request, media):
             media.tags = convert_to_tag_list_of_dicts(
                                    form.tags.data)
 
-            media.license = unicode(form.license.data) or None
+            media.license = six.text_type(form.license.data) or None
             media.slug = slug
             media.save()
 
             return redirect_obj(request, media)
 
-    if request.user.is_admin \
+    if request.user.has_privilege(u'admin') \
             and media.uploader != request.user.id \
             and request.method != 'POST':
         messages.add_message(
@@ -135,7 +142,7 @@ def edit_attachments(request, media):
 
             attachment_public_filepath \
                 = mg_globals.public_store.get_unique_filepath(
-                ['media_entries', unicode(media.id), 'attachment',
+                ['media_entries', six.text_type(media.id), 'attachment',
                  public_filename])
 
             attachment_public_file = mg_globals.public_store.get_file(
@@ -184,7 +191,7 @@ def legacy_edit_profile(request):
 def edit_profile(request, url_user=None):
     # admins may edit any user profile
     if request.user.username != url_user.username:
-        if not request.user.is_admin:
+        if not request.user.has_privilege(u'admin'):
             raise Forbidden(_("You can only edit your own profile."))
 
         # No need to warn again if admin just submitted an edited profile
@@ -195,13 +202,28 @@ def edit_profile(request, url_user=None):
 
     user = url_user
 
+    # Get the location name
+    if user.location is None:
+        location = ""
+    else:
+        location = user.get_location.name
+
     form = forms.EditProfileForm(request.form,
         url=user.url,
-        bio=user.bio)
+        bio=user.bio,
+        location=location)
 
     if request.method == 'POST' and form.validate():
-        user.url = unicode(form.url.data)
-        user.bio = unicode(form.bio.data)
+        user.url = six.text_type(form.url.data)
+        user.bio = six.text_type(form.bio.data)
+
+        # Save location
+        if form.location.data and user.location is None:
+            user.get_location = Location(name=unicode(form.location.data))
+        elif form.location.data:
+            location = user.get_location
+            location.name = unicode(form.location.data)
+            location.save()
 
         user.save()
 
@@ -228,47 +250,22 @@ def edit_account(request):
     user = request.user
     form = forms.EditAccountForm(request.form,
         wants_comment_notification=user.wants_comment_notification,
-        license_preference=user.license_preference)
+        license_preference=user.license_preference,
+        wants_notifications=user.wants_notifications)
 
     if request.method == 'POST' and form.validate():
         user.wants_comment_notification = form.wants_comment_notification.data
+        user.wants_notifications = form.wants_notifications.data
 
         user.license_preference = form.license_preference.data
 
-        if form.new_email.data:
-            new_email = form.new_email.data
-            users_with_email = User.query.filter_by(
-                email=new_email).count()
-            if users_with_email:
-                form.new_email.errors.append(
-                    _('Sorry, a user with that email address'
-                      ' already exists.'))
-            else:
-                verification_key = get_timed_signer_url(
-                    'mail_verification_token').dumps({
-                        'user': user.id,
-                        'email': new_email})
-
-                rendered_email = render_template(
-                    request, 'mediagoblin/edit/verification.txt',
-                    {'username': user.username,
-                     'verification_url': EMAIL_VERIFICATION_TEMPLATE.format(
-                        uri=request.urlgen('mediagoblin.edit.verify_email',
-                                           qualified=True),
-                        verification_key=verification_key)})
-
-                email_debug_message(request)
-                auth_tools.send_verification_email(user, request, new_email,
-                                                 rendered_email)
-
-        if not form.errors:
-            user.save()
-            messages.add_message(request,
-                                 messages.SUCCESS,
-                                 _("Account settings saved"))
-            return redirect(request,
-                            'mediagoblin.user_pages.user_home',
-                            user=user.username)
+        user.save()
+        messages.add_message(request,
+                             messages.SUCCESS,
+                             _("Account settings saved"))
+        return redirect(request,
+                        'mediagoblin.user_pages.user_home',
+                        user=user.username)
 
     return render_to_response(
         request,
@@ -276,6 +273,34 @@ def edit_account(request):
         {'user': user,
          'form': form})
 
+@require_active_login
+def deauthorize_applications(request):
+    """ Deauthroize OAuth applications """
+    if request.method == 'POST' and "application" in request.form:
+        token = request.form["application"]
+        access_token = AccessToken.query.filter_by(token=token).first()
+        if access_token is None:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                _("Unknown application, not able to deauthorize")
+            )
+        else:
+            access_token.delete()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("Application has been deauthorized")
+            )
+
+    access_tokens = AccessToken.query.filter_by(user=request.user.id)
+    applications = [(a.get_requesttoken, a) for a in access_tokens]
+
+    return render_to_response(
+        request,
+        'mediagoblin/edit/deauthorize_applications.html',
+        {'applications': applications}
+    )
 
 @require_active_login
 def delete_account(request):
@@ -328,9 +353,9 @@ def edit_collection(request, collection):
                 form.slug.data, collection.id)
 
         # Make sure there isn't already a Collection with this title
-        existing_collection = request.db.Collection.find_one({
-                'creator': request.user.id,
-                'title':form.title.data})
+        existing_collection = request.db.Collection.query.filter_by(
+                creator=request.user.id,
+                title=form.title.data).first()
 
         if existing_collection and existing_collection.id != collection.id:
             messages.add_message(
@@ -341,15 +366,15 @@ def edit_collection(request, collection):
             form.slug.errors.append(
                 _(u'A collection with that slug already exists for this user.'))
         else:
-            collection.title = unicode(form.title.data)
-            collection.description = unicode(form.description.data)
-            collection.slug = unicode(form.slug.data)
+            collection.title = six.text_type(form.title.data)
+            collection.description = six.text_type(form.description.data)
+            collection.slug = six.text_type(form.slug.data)
 
             collection.save()
 
             return redirect_obj(request, collection)
 
-    if request.user.is_admin \
+    if request.user.has_privilege(u'admin') \
             and collection.creator != request.user.id \
             and request.method != 'POST':
         messages.add_message(
@@ -361,42 +386,6 @@ def edit_collection(request, collection):
         'mediagoblin/edit/edit_collection.html',
         {'collection': collection,
          'form': form})
-
-
-@require_active_login
-def change_pass(request):
-    form = forms.ChangePassForm(request.form)
-    user = request.user
-
-    if request.method == 'POST' and form.validate():
-
-        if not auth.check_password(
-                form.old_password.data, user.pw_hash):
-            form.old_password.errors.append(
-                _('Wrong password'))
-
-            return render_to_response(
-                request,
-                'mediagoblin/edit/change_pass.html',
-                {'form': form,
-                 'user': user})
-
-        # Password matches
-        user.pw_hash = auth.gen_password_hash(
-            form.new_password.data)
-        user.save()
-
-        messages.add_message(
-            request, messages.SUCCESS,
-            _('Your password was changed successfully'))
-
-        return redirect(request, 'mediagoblin.edit.account')
-
-    return render_to_response(
-        request,
-        'mediagoblin/edit/change_pass.html',
-        {'form': form,
-         'user': user})
 
 
 def verify_email(request):
@@ -442,3 +431,81 @@ def verify_email(request):
     return redirect(
         request, 'mediagoblin.user_pages.user_home',
         user=user.username)
+
+
+def change_email(request):
+    """ View to change the user's email """
+    form = forms.ChangeEmailForm(request.form)
+    user = request.user
+
+    # If no password authentication, no need to enter a password
+    if 'pass_auth' not in request.template_env.globals or not user.pw_hash:
+        form.__delitem__('password')
+
+    if request.method == 'POST' and form.validate():
+        new_email = form.new_email.data
+        users_with_email = User.query.filter_by(
+            email=new_email).count()
+
+        if users_with_email:
+            form.new_email.errors.append(
+                _('Sorry, a user with that email address'
+                    ' already exists.'))
+
+        if form.password and user.pw_hash and not check_password(
+                form.password.data, user.pw_hash):
+            form.password.errors.append(
+                _('Wrong password'))
+
+        if not form.errors:
+            verification_key = get_timed_signer_url(
+                'mail_verification_token').dumps({
+                    'user': user.id,
+                    'email': new_email})
+
+            rendered_email = render_template(
+                request, 'mediagoblin/edit/verification.txt',
+                {'username': user.username,
+                    'verification_url': EMAIL_VERIFICATION_TEMPLATE.format(
+                    uri=request.urlgen('mediagoblin.edit.verify_email',
+                                    qualified=True),
+                    verification_key=verification_key)})
+
+            email_debug_message(request)
+            auth_tools.send_verification_email(user, request, new_email,
+                                            rendered_email)
+
+            return redirect(request, 'mediagoblin.edit.account')
+
+    return render_to_response(
+        request,
+        'mediagoblin/edit/change_email.html',
+        {'form': form,
+         'user': user})
+
+@user_has_privilege(u'admin')
+@require_active_login
+@get_media_entry_by_id
+def edit_metadata(request, media):
+    form = forms.EditMetaDataForm(request.form)
+    if request.method == "POST" and form.validate():
+        metadata_dict = dict([(row['identifier'],row['value'])
+                            for row in form.media_metadata.data])
+        json_ld_metadata = None
+        json_ld_metadata = compact_and_validate(metadata_dict)
+        media.media_metadata = json_ld_metadata
+        media.save()
+        return redirect_obj(request, media)
+
+    if len(form.media_metadata) == 0:
+        for identifier, value in six.iteritems(media.media_metadata):
+            if identifier == "@context": continue
+            form.media_metadata.append_entry({
+                'identifier':identifier,
+                'value':value})
+
+    return render_to_response(
+        request,
+        'mediagoblin/edit/metadata.html',
+        {'form':form,
+         'media':media})

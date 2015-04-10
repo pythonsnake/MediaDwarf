@@ -16,6 +16,7 @@
 
 import os
 import logging
+from contextlib import contextmanager
 
 from mediagoblin.routing import get_url_map
 from mediagoblin.tools.routing import endpoint_to_controller
@@ -23,12 +24,15 @@ from mediagoblin.tools.routing import endpoint_to_controller
 from werkzeug.wrappers import Request
 from werkzeug.exceptions import HTTPException
 from werkzeug.routing import RequestRedirect
+from werkzeug.wsgi import SharedDataMiddleware
 
 from mediagoblin import meddleware, __version__
+from mediagoblin.db.util import check_db_up_to_date
 from mediagoblin.tools import common, session, translate, template
 from mediagoblin.tools.response import render_http_exception
 from mediagoblin.tools.theme import register_themes
 from mediagoblin.tools import request as mg_request
+from mediagoblin.media_types.tools import media_type_warning
 from mediagoblin.mg_globals import setup_globals
 from mediagoblin.init.celery import setup_celery_from_config
 from mediagoblin.init.plugins import setup_plugins
@@ -38,10 +42,24 @@ from mediagoblin.init import (get_jinja_loader, get_staticdirector,
 from mediagoblin.tools.pluginapi import PluginManager, hook_transform
 from mediagoblin.tools.crypto import setup_crypto
 from mediagoblin.auth.tools import check_auth_enabled, no_auth_logout
-from mediagoblin import notifications
+
+from mediagoblin.tools.transition import DISABLE_GLOBALS
 
 
 _log = logging.getLogger(__name__)
+
+
+class Context(object):
+    """
+    MediaGoblin context object.
+
+    If a web request is being used, a Flask Request object is used
+    instead, otherwise (celery tasks, etc), attach things to this
+    object.
+
+    Usually appears as "ctx" in utilities as first argument.
+    """
+    pass
 
 
 class MediaGoblinApp(object):
@@ -67,9 +85,11 @@ class MediaGoblinApp(object):
         ##############
 
         # Open and setup the config
-        global_config, app_config = setup_global_and_app_config(config_path)
+        self.global_config, self.app_config = setup_global_and_app_config(config_path)
 
-        setup_crypto()
+        media_type_warning()
+
+        setup_crypto(self.app_config)
 
         ##########################################
         # Setup other connections / useful objects
@@ -87,14 +107,22 @@ class MediaGoblinApp(object):
         setup_plugins()
 
         # Set up the database
-        self.db = setup_database()
+        if DISABLE_GLOBALS:
+            self.db_manager = setup_database(self)
+        else:
+            self.db = setup_database(self)
+
+        # Quit app if need to run dbupdate
+        ## NOTE: This is currently commented out due to session errors..
+        ##  We'd like to re-enable!
+        # check_db_up_to_date()
 
         # Register themes
-        self.theme_registry, self.current_theme = register_themes(app_config)
+        self.theme_registry, self.current_theme = register_themes(self.app_config)
 
         # Get the template environment
         self.template_loader = get_jinja_loader(
-            app_config.get('local_templates'),
+            self.app_config.get('local_templates'),
             self.current_theme,
             PluginManager().get_template_paths()
             )
@@ -102,7 +130,7 @@ class MediaGoblinApp(object):
         # Check if authentication plugin is enabled and respond accordingly.
         self.auth = check_auth_enabled()
         if not self.auth:
-            app_config['allow_comments'] = False
+            self.app_config['allow_comments'] = False
 
         # Set up storage systems
         self.public_store, self.queue_store = setup_storage()
@@ -111,16 +139,16 @@ class MediaGoblinApp(object):
         self.url_map = get_url_map()
 
         # set up staticdirector tool
-        self.staticdirector = get_staticdirector(app_config)
+        self.staticdirector = get_staticdirector(self.app_config)
 
         # Setup celery, if appropriate
-        if setup_celery and not app_config.get('celery_setup_elsewhere'):
+        if setup_celery and not self.app_config.get('celery_setup_elsewhere'):
             if os.environ.get('CELERY_ALWAYS_EAGER', 'false').lower() == 'true':
                 setup_celery_from_config(
-                    app_config, global_config,
+                    self.app_config, self.global_config,
                     force_celery_always_eager=True)
             else:
-                setup_celery_from_config(app_config, global_config)
+                setup_celery_from_config(self.app_config, self.global_config)
 
         #######################################################
         # Insert appropriate things into mediagoblin.mg_globals
@@ -128,26 +156,104 @@ class MediaGoblinApp(object):
         # certain properties need to be accessed globally eg from
         # validators, etc, which might not access to the request
         # object.
+        #
+        # Note, we are trying to transition this out;
+        # run with environment variable DISABLE_GLOBALS=true
+        # to work on it
         #######################################################
 
-        setup_globals(app=self)
+        if not DISABLE_GLOBALS:
+            setup_globals(app=self)
 
         # Workbench *currently* only used by celery, so this only
         # matters in always eager mode :)
-        setup_workbench()
+        self.workbench_manager = setup_workbench()
 
         # instantiate application meddleware
         self.meddleware = [common.import_component(m)(self)
                            for m in meddleware.ENABLED_MEDDLEWARE]
+
+    @contextmanager
+    def gen_context(self, ctx=None, **kwargs):
+        """
+        Attach contextual information to request, or generate a context object
+
+        This avoids global variables; various utilities and contextual
+        information (current translation, etc) are attached to this
+        object.
+        """
+        if DISABLE_GLOBALS:
+            with self.db_manager.session_scope() as db:
+                yield self._gen_context(db, ctx)
+        else:
+            yield self._gen_context(self.db, ctx)
+
+    def _gen_context(self, db, ctx, **kwargs):
+        # Set up context
+        # --------------
+
+        # Is a context provided?
+        if ctx is None:
+            ctx = Context()
+        
+        # Attach utilities
+        # ----------------
+
+        # Attach self as request.app
+        # Also attach a few utilities from request.app for convenience?
+        ctx.app = self
+
+        ctx.db = db
+
+        ctx.staticdirect = self.staticdirector
+
+        # Do special things if this is a request
+        # --------------------------------------
+        if isinstance(ctx, Request):
+            ctx = self._request_only_gen_context(ctx)
+
+        return ctx
+
+    def _request_only_gen_context(self, request):
+        """
+        Requests get some extra stuff attached to them that's not relevant
+        otherwise.
+        """
+        # Do we really want to load this via middleware?  Maybe?
+        request.session = self.session_manager.load_session_from_cookie(request)
+
+        request.locale = translate.get_locale_from_request(request)
+
+        # This should be moved over for certain, but how to deal with
+        # request.locale?
+        request.template_env = template.get_jinja_env(
+            self, self.template_loader, request.locale)
+
+        mg_request.setup_user_in_request(request)
+
+        ## Routing / controller loading stuff
+        request.map_adapter = self.url_map.bind_to_environ(request.environ)
+
+        def build_proxy(endpoint, **kw):
+            try:
+                qualified = kw.pop('qualified')
+            except KeyError:
+                qualified = False
+
+            return request.map_adapter.build(
+                    endpoint,
+                    values=dict(**kw),
+                    force_external=qualified)
+
+        request.urlgen = build_proxy
+
+        return request
 
     def call_backend(self, environ, start_response):
         request = Request(environ)
 
         # Compatibility with django, use request.args preferrably
         request.GET = request.args
-
-        ## Routing / controller loading stuff
-        map_adapter = self.url_map.bind_to_environ(request.environ)
 
         # By using fcgi, mediagoblin can run under a base path
         # like /mediagoblin/. request.path_info contains the
@@ -166,43 +272,16 @@ class MediaGoblinApp(object):
             environ.pop('HTTPS')
 
         ## Attach utilities to the request object
-        # Do we really want to load this via middleware?  Maybe?
-        session_manager = self.session_manager
-        request.session = session_manager.load_session_from_cookie(request)
-        # Attach self as request.app
-        # Also attach a few utilities from request.app for convenience?
-        request.app = self
+        with self.gen_context(request) as request:
+            return self._finish_call_backend(request, environ, start_response)
 
-        request.db = self.db
-        request.staticdirect = self.staticdirector
-
-        request.locale = translate.get_locale_from_request(request)
-        request.template_env = template.get_jinja_env(
-            self.template_loader, request.locale)
-
-        def build_proxy(endpoint, **kw):
-            try:
-                qualified = kw.pop('qualified')
-            except KeyError:
-                qualified = False
-
-            return map_adapter.build(
-                    endpoint,
-                    values=dict(**kw),
-                    force_external=qualified)
-
-        request.urlgen = build_proxy
-
+    def _finish_call_backend(self, request, environ, start_response):
         # Log user out if authentication_disabled
         no_auth_logout(request)
 
-        request.notifications = notifications
-
-        mg_request.setup_user_in_request(request)
-
         request.controller_name = None
         try:
-            found_rule, url_values = map_adapter.match(return_rule=True)
+            found_rule, url_values = request.map_adapter.match(return_rule=True)
             request.matchdict = url_values
         except RequestRedirect as response:
             # Deal with 301 responses eg due to missing final slash
@@ -218,6 +297,7 @@ class MediaGoblinApp(object):
         # used for lazy context modification
         request.controller_name = found_rule.endpoint
 
+        ## TODO: get rid of meddleware, turn it into hooks only
         # pass the request through our meddleware classes
         try:
             for m in self.meddleware:
@@ -228,6 +308,8 @@ class MediaGoblinApp(object):
             return render_http_exception(
                 request, e,
                 e.get_description(environ))(environ, start_response)
+
+        request = hook_transform("modify_request", request)
 
         request.start_response = start_response
 
@@ -246,8 +328,9 @@ class MediaGoblinApp(object):
             response = render_http_exception(
                 request, e, e.get_description(environ))
 
-        session_manager.save_session_to_cookie(request.session,
-                                               request, response)
+        self.session_manager.save_session_to_cookie(
+            request.session,
+            request, response)
 
         return response(environ, start_response)
 
@@ -258,9 +341,10 @@ class MediaGoblinApp(object):
         try:
             return self.call_backend(environ, start_response)
         finally:
-            # Reset the sql session, so that the next request
-            # gets a fresh session
-            self.db.reset_after_request()
+            if not DISABLE_GLOBALS:
+                # Reset the sql session, so that the next request
+                # gets a fresh session
+                self.db.reset_after_request()
 
 
 def paste_app_factory(global_config, **app_config):
@@ -273,8 +357,42 @@ def paste_app_factory(global_config, **app_config):
 
     if not mediagoblin_config:
         raise IOError("Usable mediagoblin config not found.")
+    del app_config['config']
 
     mgoblin_app = MediaGoblinApp(mediagoblin_config)
+    mgoblin_app.call_backend = SharedDataMiddleware(mgoblin_app.call_backend,
+                                                    exports=app_config)
     mgoblin_app = hook_transform('wrap_wsgi', mgoblin_app)
 
     return mgoblin_app
+
+
+def paste_server_selector(wsgi_app, global_config=None, **app_config):
+    """
+    Select between gunicorn and paste depending on what ia available
+    """
+    # See if we can import the gunicorn server...
+    # otherwise we'll use the paste server
+    try:
+        import gunicorn
+    except ImportError:
+        gunicorn = None
+
+    if gunicorn is None:
+        # use paste
+        from paste.httpserver import server_runner
+
+        cleaned_app_config = dict(
+            [(key, app_config[key])
+             for key in app_config
+             if key in ["host", "port", "handler", "ssl_pem", "ssl_context",
+                        "server_version", "protocol_version", "start_loop",
+                        "daemon_threads", "socket_timeout", "use_threadpool",
+                        "threadpool_workers", "threadpool_options",
+                        "request_queue_size"]])
+
+        return server_runner(wsgi_app, global_config, **cleaned_app_config)
+    else:
+        # use gunicorn
+        from gunicorn.app.pasterapp import PasterServerApplication
+        return PasterServerApplication(wsgi_app, global_config, **app_config)

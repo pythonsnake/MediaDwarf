@@ -14,14 +14,15 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+import shutil
+
+import six.moves.urllib.parse as urlparse
+
 from mediagoblin.storage import (
     StorageInterface,
     clean_listy_filepath,
     NoWebServing)
-
-import os
-import shutil
-import urlparse
 
 
 class BasicFileStorage(StorageInterface):
@@ -111,3 +112,6 @@ class BasicFileStorage(StorageInterface):
                 os.makedirs(directory)
         # This uses chunked copying of 16kb buffers (Py2.7):
         shutil.copy(filename, self.get_local_path(filepath))
+
+    def get_file_size(self, filepath):
+        return os.stat(self._resolve_filepath(filepath)).st_size

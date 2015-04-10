@@ -1,6 +1,6 @@
 .. MediaGoblin Documentation
 
-   Written in 2011, 2012 by MediaGoblin contributors
+   Written in 2011, 2012, 2013 by MediaGoblin contributors
 
    To the extent possible under law, the author(s) have dedicated all
    copyright and related and neighboring rights to this software to
@@ -45,7 +45,7 @@ Dependencies
 
 MediaGoblin has the following core dependencies:
 
-- Python 2.6 or 2.7
+- Python 2.7
 - `python-lxml <http://lxml.de/>`_
 - `git <http://git-scm.com/>`_
 - `SQLite <http://www.sqlite.org/>`_/`PostgreSQL <http://www.postgresql.org/>`_
@@ -77,7 +77,7 @@ Configure PostgreSQL
 
    If you don't want/need postgres, skip this section.
 
-These are the packages needed for Debian Wheezy (testing)::
+These are the packages needed for Debian Wheezy (stable)::
 
     sudo apt-get install postgresql postgresql-client python-psycopg2
 
@@ -91,13 +91,7 @@ name will be ``mediagoblin`` too.
 
 To create our new user, run::
 
-    sudo -u postgres createuser mediagoblin
-
-then answer NO to *all* the questions::
-
-    Shall the new role be a superuser? (y/n) n
-    Shall the new role be allowed to create databases? (y/n) n
-    Shall the new role be allowed to create more new roles? (y/n) n
+    sudo -u postgres createuser -A -D mediagoblin
 
 then create the database all our MediaGoblin data should be stored in::
 
@@ -121,25 +115,62 @@ where the first ``mediagoblin`` is the database owner and the second
 Drop Privileges for MediaGoblin
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-As MediaGoblin does not require special permissions or elevated
-access, you should run MediaGoblin under an existing non-root user or
-preferably create a dedicated user for the purpose of running
-MediaGoblin. Consult your distribution's documentation on how to
-create "system account" or dedicated service user. Ensure that it is
-not possible to log in to your system with as this user.
+MediaGoblin does not require special permissions or elevated
+access to run. As such, the preferred way to run MediaGoblin is to
+create a dedicated, unprivileged system user for the sole purpose of running
+MediaGoblin. Running MediaGoblin processes under an unpriviledged system user
+helps to keep it more secure. 
+
+The following command (entered as root or with sudo) will create a
+system account with a username of ``mediagoblin``. You may choose a different
+username if you wish.::
+
+   adduser --system mediagoblin
+
+No password will be assigned to this account, and you will not be able
+to log in as this user. To switch to this account, enter either::
+
+  sudo -u mediagoblin /bin/bash  # (if you have sudo permissions)
+
+or::
+
+  su mediagoblin -s /bin/bash  # (if you have to use root permissions)
+
+You may get a warning similar to this when entering these commands::
+
+  warning: cannot change directory to /home/mediagoblin: No such file or directory
+
+You can disregard this warning. To return to your regular user account after
+using the system account, just enter ``exit``.
+
+.. note::
+
+    Unless otherwise noted, the remainder of this document assumes that all
+    operations are performed using this unpriviledged account.
+
+.. _create-mediagoblin-directory:
+
+Create a MediaGoblin Directory
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You should create a working directory for MediaGoblin. This document
 assumes your local git repository will be located at 
-``/srv/mediagoblin.example.org/mediagoblin/`` for this documentation.
-Substitute your prefer ed local deployment path as needed.
+``/srv/mediagoblin.example.org/mediagoblin/``.
+Substitute your prefered local deployment path as needed.
 
-This document assumes that all operations are performed as this
-user. To drop privileges to this user, run the following command::
+Setting up the working directory requires that we first create the directory
+with elevated priviledges, and then assign ownership of the directory
+to the unpriviledged system account.
 
-      su - [mediagoblin]
+To do this, enter either of the following commands, changing the defaults
+to suit your particular requirements::
 
-Where, "``[mediagoblin]``" is the username of the system user that will
-run MediaGoblin.
+  sudo mkdir -p /srv/mediagoblin.example.org && sudo chown -hR mediagoblin: /srv/mediagoblin.example.org
+
+or (as the root user)::
+
+  mkdir -p /srv/mediagoblin.example.org && chown -hR mediagoblin: /srv/mediagoblin.example.org
+
 
 Install MediaGoblin and Virtualenv
 ----------------------------------
@@ -151,28 +182,41 @@ Install MediaGoblin and Virtualenv
    branch of the git repository. Eventually production deployments will
    want to transition to running from more consistent releases.
 
-Issue the following commands, to create and change the working
-directory. Modify these commands to reflect your own environment::
+We will now clone the MediaGoblin source code repository and setup and
+configure the necessary services. Modify these commands to
+suit your own environment. As a reminder, you should enter these
+commands using your unpriviledged system account.
 
-    mkdir -p /srv/mediagoblin.example.org/
-    cd /srv/mediagoblin.example.org/
+Change to the MediaGoblin directory that you just created::
 
-Clone the MediaGoblin repository::
+    cd /srv/mediagoblin.example.org
 
-    git clone git://gitorious.org/mediagoblin/mediagoblin.git
+Clone the MediaGoblin repository and set up the git submodules::
+
+    git clone git://gitorious.org/mediagoblin/mediagoblin.git -b stable
+    cd mediagoblin
+    git submodule init && git submodule update
+
 
 And set up the in-package virtualenv::
 
-    cd mediagoblin
-    (virtualenv --system-site-packages . || virtualenv .) && ./bin/python setup.py develop
+    (virtualenv --python=python2 --system-site-packages . || virtualenv --python=python2 .) && ./bin/python setup.py develop
 
 .. note::
 
-   If you have problems here, consider trying to install virtualenv
-   with the ``--distribute`` or ``--no-site-packages`` options. If
-   your system's default Python is in the 3.x series you may need to
-   run ``virtualenv`` with the  ``--python=python2.7`` or
-   ``--python=python2.6`` options.
+   We presently have an **experimental** make-style deployment system.  if
+   you'd like to try it, instead of the above command, you can run::
+
+     ./bootstrap.sh && ./configure && make
+
+   This also includes a number of nice features, such as keeping your
+   viratualenv up to date by simply running `make update`.
+
+   Note: this is liable to break.  Use this method with caution.
+
+You then need to make a local copy of mediagoblin.ini, if you don't have one::
+
+   cp --no-clobber mediagoblin.example.ini mediagoblin.ini
 
 The above provides an in-package install of ``virtualenv``. While this
 is counter to the conventional ``virtualenv`` configuration, it is
@@ -194,7 +238,7 @@ This concludes the initial configuration of the development
 environment. In the future, when you update your
 codebase, you should also run::
 
-    ./bin/python setup.py develop --upgrade && ./bin/gmg dbupdate
+    git submodule update && ./bin/python setup.py develop --upgrade && ./bin/gmg dbupdate
 
 Note: If you are running an active site, depending on your server
 configuration, you may need to stop it first or the dbupdate command
@@ -344,6 +388,18 @@ this ``nginx.conf`` file should be modeled on the following::
      }
     }
 
+The first four ``location`` directives instruct Nginx to serve the
+static and uploaded files directly rather than through the MediaGoblin
+process. This approach is faster and requires less memory.
+
+.. note::
+
+   The user who owns the Nginx process, normally ``www-data``,
+   requires execute permission on the directories ``static``,
+   ``public``, ``theme_static`` and ``plugin_static`` plus all their
+   parent directories. This user also requires read permission on all
+   the files within these directories. This is normally the default.
+
 Now, nginx instance is configured to serve the MediaGoblin
 application. Perform a quick test to ensure that this configuration
 works. Restart nginx so it picks up your changes, with a command that
@@ -387,4 +443,9 @@ Security Considerations
    for session security. Make sure not to leak its contents anywhere.
    If the contents gets leaked nevertheless, delete your file
    and restart the server, so that it creates a new secret key.
-   All previous sessions will be invalifated then.
+   All previous sessions will be invalidated.
+
+..
+   Local variables:
+   fill-column: 70
+   End:

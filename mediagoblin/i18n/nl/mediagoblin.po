@@ -1,0 +1,2632 @@
+# Translations template for PROJECT.
+# Copyright (C) 2015 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# 
+# Translators:
+# André Koot <meneer@tken.net>, 2014
+# schendje <mail@jefvanschendel.nl>, 2011, 2012
+# mvanderboom <mvanderboom@gmail.com>, 2012
+msgid ""
+msgstr ""
+"Project-Id-Version: GNU MediaGoblin\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2015-01-16 15:13-0600\n"
+"PO-Revision-Date: 2015-01-16 21:13+0000\n"
+"Last-Translator: cwebber <cwebber@dustycloud.org>\n"
+"Language-Team: Dutch (http://www.transifex.com/projects/p/mediagoblin/language/nl/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 1.3\n"
+"Language: nl\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: mediagoblin/decorators.py:304 mediagoblin/plugins/openid/views.py:205
+msgid "Sorry, registration is disabled on this instance."
+msgstr "Sorry, registratie is uitgeschakeld op deze goblin."
+
+#: mediagoblin/decorators.py:319
+msgid "Sorry, reporting is disabled on this instance."
+msgstr "Sorry, rapportage is uitgeschakeld op deze goblin."
+
+#: mediagoblin/decorators.py:362 mediagoblin/plugins/ldap/views.py:58
+#: mediagoblin/plugins/persona/views.py:79
+msgid "Sorry, authentication is disabled on this instance."
+msgstr "Sorry, authenticatie is uitgeschakeld op deze goblin."
+
+#: mediagoblin/auth/tools.py:45
+msgid "Invalid User name or email address."
+msgstr "Ongeldige gebruikersnaam of e-mailadres."
+
+#: mediagoblin/auth/tools.py:46
+msgid "This field does not take email addresses."
+msgstr "Dit veld accepteert geen e-mailadressen."
+
+#: mediagoblin/auth/tools.py:47
+msgid "This field requires an email address."
+msgstr "Dit veld vereist een e-mailadres."
+
+#: mediagoblin/auth/tools.py:118
+msgid "Sorry, a user with that name already exists."
+msgstr "Sorry, er bestaat al een gebruiker met die naam."
+
+#: mediagoblin/auth/tools.py:122 mediagoblin/edit/views.py:452
+msgid "Sorry, a user with that email address already exists."
+msgstr "Sorry, een gebruiker met dat e-mailadres bestaat al."
+
+#: mediagoblin/auth/views.py:145 mediagoblin/edit/views.py:408
+#: mediagoblin/edit/views.py:429 mediagoblin/plugins/basic_auth/views.py:110
+msgid "The verification key or user id is incorrect."
+msgstr "De verificatiecode of gebruikersnaam is onjuist."
+
+#: mediagoblin/auth/views.py:164
+msgid ""
+"Your email address has been verified. You may now login, edit your profile, "
+"and submit images!"
+msgstr "Uw e-mailadres is geverifieerd. U kunt nu inloggen, uw profiel bewerken, en afbeeldingen toevoegen!"
+
+#: mediagoblin/auth/views.py:170
+msgid "The verification key or user id is incorrect"
+msgstr "De verificatiecode of gebruikersnaam is onjuist"
+
+#: mediagoblin/auth/views.py:188
+msgid "You must be logged in so we know who to send the email to!"
+msgstr "Je moet ingelogd zijn, anders weten we niet waar we de e-mail naartoe moeten sturen!"
+
+#: mediagoblin/auth/views.py:196
+msgid "You've already verified your email address!"
+msgstr "Je hebt je e-mailadres al geverifieerd!"
+
+#: mediagoblin/auth/views.py:206
+msgid "Resent your verification email."
+msgstr "Verificatie e-mail opnieuw opgestuurd."
+
+#: mediagoblin/db/mixin.py:404
+msgid "{username} added {object}"
+msgstr "{username} voegde toe {object}"
+
+#: mediagoblin/db/mixin.py:405
+msgid "{username} added {object} to {target}"
+msgstr "{username} voegde {object} toe aan {target}"
+
+#: mediagoblin/db/mixin.py:407
+msgid "{username} authored {object}"
+msgstr "{username} bewerkte {object}"
+
+#: mediagoblin/db/mixin.py:408
+msgid "{username} created {object}"
+msgstr "{username} creëerde {object}"
+
+#: mediagoblin/db/mixin.py:409
+msgid "{username} deleted {object}"
+msgstr "{username} verwijderde {object}"
+
+#: mediagoblin/db/mixin.py:410
+msgid "{username} disliked {object}"
+msgstr "{username} vond {object} niet meer leuk"
+
+#: mediagoblin/db/mixin.py:411
+msgid "{username} favorited {object}"
+msgstr "{username} maakte {object} favoriet"
+
+#: mediagoblin/db/mixin.py:412
+msgid "{username} followed {object}"
+msgstr "{username} volgde {object}"
+
+#: mediagoblin/db/mixin.py:413
+msgid "{username} liked {object}"
+msgstr "{username} vond {object} leuk"
+
+#: mediagoblin/db/mixin.py:415
+msgid "{username} posted {object}"
+msgstr "{username} plaatste {object}"
+
+#: mediagoblin/db/mixin.py:416
+msgid "{username} posted {object} to {target}"
+msgstr "{username} plaatste {object} in {target}"
+
+#: mediagoblin/db/mixin.py:418
+msgid "{username} shared {object}"
+msgstr "{username} deelde {object}"
+
+#: mediagoblin/db/mixin.py:419
+msgid "{username} unfavorited {object}"
+msgstr "{username} verwijderde {object} als favoriet"
+
+#: mediagoblin/db/mixin.py:420
+msgid "{username} stopped following {object}"
+msgstr "{username} beëindigde volgen {object}"
+
+#: mediagoblin/db/mixin.py:421
+msgid "{username} unliked {object}"
+msgstr "{username} vond {object} niet leuk"
+
+#: mediagoblin/db/mixin.py:422
+msgid "{username} unshared {object}"
+msgstr "{username} beëindigde delen {object}"
+
+#: mediagoblin/db/mixin.py:423
+msgid "{username} updated {object}"
+msgstr "{username} werkte {object} bij"
+
+#: mediagoblin/db/mixin.py:424
+msgid "{username} tagged {object}"
+msgstr "{username} tagde {object}"
+
+#: mediagoblin/db/mixin.py:428
+msgid "an image"
+msgstr ""
+
+#: mediagoblin/db/mixin.py:429
+msgid "a comment"
+msgstr ""
+
+#: mediagoblin/db/mixin.py:430
+msgid "a collection"
+msgstr ""
+
+#: mediagoblin/db/mixin.py:431
+msgid "a video"
+msgstr ""
+
+#: mediagoblin/db/mixin.py:432
+msgid "audio"
+msgstr ""
+
+#: mediagoblin/db/mixin.py:433
+msgid "a person"
+msgstr ""
+
+#: mediagoblin/db/mixin.py:450 mediagoblin/db/mixin.py:459
+msgid "an object"
+msgstr ""
+
+#: mediagoblin/edit/forms.py:29 mediagoblin/edit/forms.py:90
+#: mediagoblin/media_types/blog/forms.py:24
+#: mediagoblin/media_types/blog/forms.py:33 mediagoblin/submit/forms.py:37
+#: mediagoblin/submit/forms.py:61
+#: mediagoblin/templates/mediagoblin/moderation/media_panel.html:40
+#: mediagoblin/templates/mediagoblin/moderation/media_panel.html:69
+#: mediagoblin/templates/mediagoblin/moderation/media_panel.html:100
+#: mediagoblin/user_pages/forms.py:45
+msgid "Title"
+msgstr "Titel"
+
+#: mediagoblin/edit/forms.py:32 mediagoblin/submit/forms.py:40
+msgid "Description of this work"
+msgstr "Beschrijving van dit werk"
+
+#: mediagoblin/edit/forms.py:33 mediagoblin/edit/forms.py:56
+#: mediagoblin/edit/forms.py:94 mediagoblin/submit/forms.py:65
+msgid ""
+"You can use\n"
+"                      <a href=\"http://daringfireball.net/projects/markdown/basics\">\n"
+"                      Markdown</a> for formatting."
+msgstr "Voor opmaak kun je <a href=\"http://daringfireball.net/projects/markdown/basics\">Markdown</a> gebruiken."
+
+#: mediagoblin/edit/forms.py:37 mediagoblin/media_types/blog/forms.py:27
+#: mediagoblin/submit/forms.py:45
+msgid "Tags"
+msgstr "Tags"
+
+#: mediagoblin/edit/forms.py:39 mediagoblin/submit/forms.py:47
+msgid "Separate tags by commas."
+msgstr "Hou labels gescheiden met komma's."
+
+#: mediagoblin/edit/forms.py:42 mediagoblin/edit/forms.py:98
+msgid "Slug"
+msgstr "Slug"
+
+#: mediagoblin/edit/forms.py:43 mediagoblin/edit/forms.py:99
+msgid "The slug can't be empty"
+msgstr "De slug kan niet leeg zijn"
+
+#: mediagoblin/edit/forms.py:44
+msgid ""
+"The title part of this media's address. You usually don't need to change "
+"this."
+msgstr "Het titelgedeelte van het adres van deze media. Normaal gesproken hoef je deze niet te veranderen."
+
+#: mediagoblin/edit/forms.py:48 mediagoblin/media_types/blog/forms.py:29
+#: mediagoblin/submit/forms.py:50
+#: mediagoblin/templates/mediagoblin/utils/license.html:20
+msgid "License"
+msgstr "Licentie"
+
+#: mediagoblin/edit/forms.py:54
+msgid "Bio"
+msgstr "Bio"
+
+#: mediagoblin/edit/forms.py:60
+msgid "Website"
+msgstr "Website"
+
+#: mediagoblin/edit/forms.py:62
+msgid "This address contains errors"
+msgstr "Dit adres bevat fouten"
+
+#: mediagoblin/edit/forms.py:64
+msgid "Hometown"
+msgstr "Thuis"
+
+#: mediagoblin/edit/forms.py:68
+msgid "Email me when others comment on my media"
+msgstr "Notificeer me per e-mail bij reacties op mijn media"
+
+#: mediagoblin/edit/forms.py:70
+msgid "Enable insite notifications about events."
+msgstr "Activeer notificaties over gebeurtenissen op de site."
+
+#: mediagoblin/edit/forms.py:72
+msgid "License preference"
+msgstr "Licentievoorkeuren"
+
+#: mediagoblin/edit/forms.py:78
+msgid "This will be your default license on upload forms."
+msgstr "Dit wordt de standaardlicentie op uploadformulieren."
+
+#: mediagoblin/edit/forms.py:91
+msgid "The title can't be empty"
+msgstr "De titel mag niet leeg zijn"
+
+#: mediagoblin/edit/forms.py:93 mediagoblin/submit/forms.py:64
+#: mediagoblin/user_pages/forms.py:48
+msgid "Description of this collection"
+msgstr "Beschrijving van deze verzameling"
+
+#: mediagoblin/edit/forms.py:100
+msgid ""
+"The title part of this collection's address. You usually don't need to "
+"change this."
+msgstr "Het titelgedeelte van het adres van deze verzameling. Normaal gesproken hoef je deze niet te veranderen."
+
+#: mediagoblin/edit/forms.py:107 mediagoblin/plugins/basic_auth/forms.py:68
+msgid "Old password"
+msgstr "Oud wachtwoord"
+
+#: mediagoblin/edit/forms.py:109 mediagoblin/plugins/basic_auth/forms.py:70
+msgid "Enter your old password to prove you own this account."
+msgstr "Vul je oude wachtwoord in om te bewijzen dat dit jouw account is"
+
+#: mediagoblin/edit/forms.py:112 mediagoblin/plugins/basic_auth/forms.py:73
+msgid "New password"
+msgstr "Nieuw wachtwoord"
+
+#: mediagoblin/edit/forms.py:120
+msgid "New email address"
+msgstr "Nieuw e-mailadres"
+
+#: mediagoblin/edit/forms.py:124 mediagoblin/plugins/basic_auth/forms.py:28
+#: mediagoblin/plugins/basic_auth/forms.py:43
+#: mediagoblin/plugins/ldap/forms.py:39
+#: mediagoblin/templates/mediagoblin/edit/edit_account.html:67
+#: mediagoblin/tests/test_util.py:148
+msgid "Password"
+msgstr "Wachtwoord"
+
+#: mediagoblin/edit/forms.py:126
+msgid "Enter your password to prove you own this account."
+msgstr "Vul je wachtwoord in om te bewijzen dat dit jouw account is."
+
+#: mediagoblin/edit/forms.py:156
+msgid "Identifier"
+msgstr "Identificatie"
+
+#: mediagoblin/edit/forms.py:157
+msgid "Value"
+msgstr "Waarde"
+
+#: mediagoblin/edit/views.py:80
+msgid "An entry with that slug already exists for this user."
+msgstr "Er bestaat al een onderwerp met die slug voor deze gebruiker."
+
+#: mediagoblin/edit/views.py:98
+msgid "You are editing another user's media. Proceed with caution."
+msgstr "U bent de media van een andere gebruiker aan het aanpassen. Ga voorzichtig te werk."
+
+#: mediagoblin/edit/views.py:168
+#, python-format
+msgid "You added the attachment %s!"
+msgstr "Je hebt bijlage %s toegevoegd!"
+
+#: mediagoblin/edit/views.py:195
+msgid "You can only edit your own profile."
+msgstr "Je kunt alleen je eigen profiel bijwerken."
+
+#: mediagoblin/edit/views.py:201
+msgid "You are editing a user's profile. Proceed with caution."
+msgstr "U bent een gebruikersprofiel aan het aanpassen. Ga voorzichtig te werk."
+
+#: mediagoblin/edit/views.py:232
+msgid "Profile changes saved"
+msgstr "Profielaanpassingen opgeslagen"
+
+#: mediagoblin/edit/views.py:265
+msgid "Account settings saved"
+msgstr "Accountinstellingen opgeslagen"
+
+#: mediagoblin/edit/views.py:286
+msgid "Unknown application, not able to deauthorize"
+msgstr "Onbekende applicatie, kon autorisatie niet intrekken"
+
+#: mediagoblin/edit/views.py:293
+msgid "Application has been deauthorized"
+msgstr "Autorisatie voor applicatie is ingetrokken"
+
+#: mediagoblin/edit/views.py:327
+msgid "You need to confirm the deletion of your account."
+msgstr "Je moet het verwijderen van je account bevestigen."
+
+#: mediagoblin/edit/views.py:363 mediagoblin/submit/views.py:134
+#: mediagoblin/user_pages/views.py:254
+#, python-format
+msgid "You already have a collection called \"%s\"!"
+msgstr "Je hebt al een verzameling met de naam \"%s\"!"
+
+#: mediagoblin/edit/views.py:367
+msgid "A collection with that slug already exists for this user."
+msgstr "Er bestaat al een verzameling met die slug voor deze gebruiker."
+
+#: mediagoblin/edit/views.py:382
+msgid "You are editing another user's collection. Proceed with caution."
+msgstr "Je bewerkt de verzameling van een andere gebruiker. Ga voorzichtig te werk."
+
+#: mediagoblin/edit/views.py:423
+msgid "Your email address has been verified."
+msgstr "Je e-mailadres is geverifieerd."
+
+#: mediagoblin/edit/views.py:458 mediagoblin/plugins/basic_auth/views.py:200
+msgid "Wrong password"
+msgstr "Verkeerd wachtwoord"
+
+#: mediagoblin/gmg_commands/assetlink.py:60
+msgid "Cannot link theme... no theme set\n"
+msgstr "Kan thema niet linken... nog geen thema ingesteld\n"
+
+#: mediagoblin/gmg_commands/assetlink.py:73
+msgid "No asset directory for this theme\n"
+msgstr "Geen objectendirectory voor dit thema\n"
+
+#: mediagoblin/gmg_commands/assetlink.py:76
+msgid "However, old link directory symlink found; removed.\n"
+msgstr "Maar, symlink naar oude link directory gevonden; verwijderd.\n"
+
+#: mediagoblin/gmg_commands/assetlink.py:112
+#, python-format
+msgid "Could not link \"%s\": %s exists and is not a symlink\n"
+msgstr "Kon \"%s\" niet linken: %s bestaat al en is geen symlink\n"
+
+#: mediagoblin/gmg_commands/assetlink.py:119
+#, python-format
+msgid "Skipping \"%s\"; already set up.\n"
+msgstr "Overslaan \"%s\"; is al ingesteld\n"
+
+#: mediagoblin/gmg_commands/assetlink.py:124
+#, python-format
+msgid "Old link found for \"%s\"; removing.\n"
+msgstr "Oude link gevonden voor \"%s\"; verwijderen.\n"
+
+#: mediagoblin/gmg_commands/batchaddmedia.py:40
+msgid ""
+"For more information about how to properly run this\n"
+"script (and how to format the metadata csv file), read the MediaGoblin\n"
+"documentation page on command line uploading\n"
+"<http://docs.mediagoblin.org/siteadmin/commandline-upload.html>"
+msgstr "Voor meer informatie over het juist uitvoeren van dit \nscript (en het opmaken van het metadata csv bestand), lees de MediaGoblin\ndocumentatie over commandoregel uploaden\n<http://docs.mediagoblin.org/siteadmin/commandline-upload.html>"
+
+#: mediagoblin/gmg_commands/batchaddmedia.py:46
+msgid "Name of user these media entries belong to"
+msgstr "Gebruikersnaam van de eigenaar van deze nummers"
+
+#: mediagoblin/gmg_commands/batchaddmedia.py:49
+msgid "Path to the csv file containing metadata information."
+msgstr "Pad naar het csv-bestand met metadata informatie."
+
+#: mediagoblin/gmg_commands/batchaddmedia.py:54
+msgid "Don't process eagerly, pass off to celery"
+msgstr "Geen haast, rustig, dan breekt het lijntje niet"
+
+#: mediagoblin/gmg_commands/batchaddmedia.py:69
+msgid "Sorry, no user by username '{username}' exists"
+msgstr "Sorry, er bestaat geen gebruiker met de naam '{username}'"
+
+#: mediagoblin/gmg_commands/batchaddmedia.py:80
+msgid "File at {path} not found, use -h flag for help"
+msgstr "Bestand op {path} niet gevonden, gebruik de -h flag voor hulp"
+
+#: mediagoblin/gmg_commands/batchaddmedia.py:121
+msgid ""
+"Error with media '{media_id}' value '{error_path}': {error_msg}\n"
+"Metadata was not uploaded."
+msgstr "Fout met media '{media_id}' waarde '{error_path}': {error_msg}\nMetadata niet geüpload."
+
+#: mediagoblin/gmg_commands/batchaddmedia.py:147
+msgid ""
+"FAIL: Local file {filename} could not be accessed.\n"
+"{filename} will not be uploaded."
+msgstr "FOUT: Lokaal bestand {filename} kon niet worden benaderd.\n{filename} wordt niet geüpload."
+
+#: mediagoblin/gmg_commands/batchaddmedia.py:163
+msgid ""
+"Successfully submitted {filename}!\n"
+"Be sure to look at the Media Processing Panel on your website to be sure it\n"
+"uploaded successfully."
+msgstr "Succesvol aangemeld {filename}!\nKijk in het Mediaverwerking panel op je website om te zien\nof het succesvol werd geüpload."
+
+#: mediagoblin/gmg_commands/batchaddmedia.py:166
+msgid "FAIL: This file is larger than the upload limits for this site."
+msgstr "FOUT: Dit bestand is groter dan de uploadlimiet voor deze site."
+
+#: mediagoblin/gmg_commands/batchaddmedia.py:169
+msgid "FAIL: This file will put this user past their upload limits."
+msgstr "FOUT: Dit bestand laat de gebruiker voorbij de uploadlimiet gaan."
+
+#: mediagoblin/gmg_commands/batchaddmedia.py:172
+msgid "FAIL: This user is already past their upload limits."
+msgstr "FOUT: Deze gebruiker is al voorbij de uploadlimiet."
+
+#: mediagoblin/gmg_commands/batchaddmedia.py:174
+msgid "{files_uploaded} out of {files_attempted} files successfully submitted"
+msgstr "{files_uploaded} van {files_attempted} bestanden succesvol aangemeld"
+
+#: mediagoblin/meddleware/csrf.py:134
+msgid ""
+"CSRF cookie not present. This is most likely the result of a cookie blocker "
+"or somesuch.<br/>Make sure to permit the settings of cookies for this "
+"domain."
+msgstr "CSRF cookie niet aanwezig. Dit komt waarschijnlijk door een cookie blocker of iets dergelijks.<br/>Zorg ervoor dat je browser cookies van dit domein wel accepteert.."
+
+#: mediagoblin/media_types/__init__.py:79
+#: mediagoblin/media_types/__init__.py:101
+msgid "Sorry, I don't support that file type :("
+msgstr "Sorry, dat bestandstype wordt niet ondersteunt."
+
+#: mediagoblin/media_types/blog/forms.py:26
+#: mediagoblin/media_types/blog/forms.py:35
+#: mediagoblin/plugins/oauth/forms.py:36
+msgid "Description"
+msgstr "Beschrijving"
+
+#: mediagoblin/media_types/blog/forms.py:40 mediagoblin/user_pages/forms.py:31
+msgid "I am sure I want to delete this"
+msgstr "Ik weet zeker dat ik dit wil verwijderen."
+
+#: mediagoblin/media_types/blog/views.py:158 mediagoblin/submit/views.py:71
+msgid "Woohoo! Submitted!"
+msgstr "Mooizo! Toegevoegd!"
+
+#: mediagoblin/media_types/blog/views.py:200
+msgid "Woohoo! edited blogpost is submitted"
+msgstr "Zohee! bijgewerkt blogbericht geplaatst"
+
+#: mediagoblin/media_types/blog/views.py:322
+msgid "You deleted the Blog."
+msgstr "Je hebt het blogbericht verwijderd."
+
+#: mediagoblin/media_types/blog/views.py:328
+#: mediagoblin/user_pages/views.py:332
+msgid "The media was not deleted because you didn't check that you were sure."
+msgstr "Deze media was niet verwijderd omdat je niet hebt aangegeven dat je het zeker weet."
+
+#: mediagoblin/media_types/blog/views.py:335
+msgid "You are about to delete another user's Blog. Proceed with caution."
+msgstr "Je staat op het punt het Blog van iemand anders te verwijderen. Pas op."
+
+#: mediagoblin/media_types/blog/views.py:346
+msgid "The blog was not deleted because you have no rights."
+msgstr "Het blog werd niet verwijderd omdat je niet de juiste rechten hebt."
+
+#: mediagoblin/media_types/blog/templates/mediagoblin/blog/blog_admin_dashboard.html:43
+msgid "Add Blog Post"
+msgstr "Toevoegen Blogbericht"
+
+#: mediagoblin/media_types/blog/templates/mediagoblin/blog/blog_admin_dashboard.html:50
+msgid "Edit Blog"
+msgstr "Bewerk blog"
+
+#: mediagoblin/media_types/blog/templates/mediagoblin/blog/blog_admin_dashboard.html:57
+msgid "Delete Blog"
+msgstr "Verwijder Blog"
+
+#: mediagoblin/media_types/blog/templates/mediagoblin/blog/blog_admin_dashboard.html:92
+#: mediagoblin/media_types/blog/templates/mediagoblin/blog/blogpost_draft_view.html:35
+#: mediagoblin/templates/mediagoblin/user_pages/blog_media.html:76
+#: mediagoblin/templates/mediagoblin/user_pages/collection.html:52
+#: mediagoblin/templates/mediagoblin/user_pages/media.html:85
+msgid "Edit"
+msgstr "Pas aan"
+
+#: mediagoblin/media_types/blog/templates/mediagoblin/blog/blog_admin_dashboard.html:93
+#: mediagoblin/media_types/blog/templates/mediagoblin/blog/blogpost_draft_view.html:36
+#: mediagoblin/plugins/openid/templates/mediagoblin/plugins/openid/delete.html:39
+#: mediagoblin/plugins/persona/templates/mediagoblin/plugins/persona/edit.html:39
+#: mediagoblin/templates/mediagoblin/user_pages/blog_media.html:80
+#: mediagoblin/templates/mediagoblin/user_pages/collection.html:56
+#: mediagoblin/templates/mediagoblin/user_pages/media.html:89
+msgid "Delete"
+msgstr "Verwijderen"
+
+#: mediagoblin/media_types/blog/templates/mediagoblin/blog/blog_admin_dashboard.html:102
+msgid "<em> Go to list view </em>"
+msgstr "<em> Ga naar lijstoverzicht </em>"
+
+#: mediagoblin/media_types/blog/templates/mediagoblin/blog/blog_admin_dashboard.html:104
+msgid " No blog post yet. "
+msgstr "Nog geen blogbericht"
+
+#: mediagoblin/media_types/blog/templates/mediagoblin/blog/blog_confirm_delete.html:30
+#: mediagoblin/templates/mediagoblin/user_pages/media_confirm_delete.html:30
+#, python-format
+msgid "Really delete %(title)s?"
+msgstr "Zeker weten dat je %(title)s wil verwijderen?"
+
+#: mediagoblin/media_types/blog/templates/mediagoblin/blog/blog_confirm_delete.html:47
+#: mediagoblin/templates/mediagoblin/edit/attachments.html:61
+#: mediagoblin/templates/mediagoblin/edit/delete_account.html:42
+#: mediagoblin/templates/mediagoblin/edit/edit.html:41
+#: mediagoblin/templates/mediagoblin/edit/edit_collection.html:32
+#: mediagoblin/templates/mediagoblin/user_pages/collection_confirm_delete.html:54
+#: mediagoblin/templates/mediagoblin/user_pages/collection_item_confirm_remove.html:60
+#: mediagoblin/templates/mediagoblin/user_pages/media_collect.html:67
+#: mediagoblin/templates/mediagoblin/user_pages/media_confirm_delete.html:48
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: mediagoblin/media_types/blog/templates/mediagoblin/blog/blog_confirm_delete.html:48
+#: mediagoblin/templates/mediagoblin/edit/delete_account.html:44
+#: mediagoblin/templates/mediagoblin/user_pages/collection_confirm_delete.html:56
+#: mediagoblin/templates/mediagoblin/user_pages/media_confirm_delete.html:49
+msgid "Delete permanently"
+msgstr "Permanent verwijderen"
+
+#: mediagoblin/media_types/blog/templates/mediagoblin/blog/blog_edit_create.html:26
+msgid "Create/Edit a Blog"
+msgstr "Maak/bewerk een Blog"
+
+#: mediagoblin/media_types/blog/templates/mediagoblin/blog/blog_edit_create.html:37
+#: mediagoblin/plugins/oauth/templates/oauth/client/register.html:29
+#: mediagoblin/plugins/openid/templates/mediagoblin/plugins/openid/add.html:39
+#: mediagoblin/templates/mediagoblin/submit/collection.html:30
+#: mediagoblin/templates/mediagoblin/submit/start.html:39
+#: mediagoblin/templates/mediagoblin/user_pages/media_collect.html:68
+msgid "Add"
+msgstr "Voeg toe"
+
+#: mediagoblin/media_types/blog/templates/mediagoblin/blog/blog_post_edit_create.html:23
+msgid "Create/Edit a blog post."
+msgstr "Maak/bewerk een blogbericht"
+
+#: mediagoblin/media_types/blog/templates/mediagoblin/blog/blog_post_edit_create.html:29
+msgid "Create/Edit a Blog Post."
+msgstr "Maak/bewerk een blogbericht"
+
+#: mediagoblin/media_types/blog/templates/mediagoblin/blog/blog_post_listing.html:24
+#, python-format
+msgid "%(blog_owner_name)s's Blog"
+msgstr "%(blog_owner_name)s's Blog"
+
+#: mediagoblin/media_types/blog/templates/mediagoblin/blog/list_of_blogs.html:46
+msgid "View"
+msgstr "Bekijk"
+
+#: mediagoblin/media_types/blog/templates/mediagoblin/blog/list_of_blogs.html:65
+msgid "Create a Blog"
+msgstr "Maak een Blog"
+
+#: mediagoblin/media_types/blog/templates/mediagoblin/blog/url_to_dashboard.html:20
+msgid " Blog Dashboard "
+msgstr " Blog Dashboard "
+
+#: mediagoblin/media_types/pdf/processing.py:142
+msgid "unoconv failing to run, check log file"
+msgstr "unoconv kon niet starten, controleer het logbestand"
+
+#: mediagoblin/media_types/video/processing.py:44
+msgid "Video transcoding failed"
+msgstr "Video transcoderen mislukt"
+
+#: mediagoblin/moderation/forms.py:21
+msgid "Take away privilege"
+msgstr "Neem rechten af"
+
+#: mediagoblin/moderation/forms.py:22
+msgid "Ban the user"
+msgstr "Blokkeer deze gebruiker"
+
+#: mediagoblin/moderation/forms.py:23
+msgid "Send the user a message"
+msgstr "Stuur de gebruiker een bericht"
+
+#: mediagoblin/moderation/forms.py:24
+msgid "Delete the content"
+msgstr "Verwijder de inhoud"
+
+#: mediagoblin/moderation/forms.py:53 mediagoblin/moderation/forms.py:118
+msgid "User will be banned until:"
+msgstr "De gebruiker wordt geblokkeerd tot:"
+
+#: mediagoblin/moderation/forms.py:57
+msgid "Why are you banning this User?"
+msgstr "Waarom blokkeer je deze gebruiker?"
+
+#: mediagoblin/moderation/forms.py:109
+msgid "What action will you take to resolve the report?"
+msgstr "Welke actie voer je uit om de melding af te handelen?"
+
+#: mediagoblin/moderation/forms.py:115
+msgid "What privileges will you take away?"
+msgstr "Welke rechten neem je af?"
+
+#: mediagoblin/moderation/forms.py:122
+msgid "Why user was banned:"
+msgstr "Waarom de gebruiker werd geblokkeerd:"
+
+#: mediagoblin/moderation/forms.py:125
+msgid "Message to user:"
+msgstr "Bericht aan de gebruiker:"
+
+#: mediagoblin/moderation/forms.py:128
+msgid "Resolution content:"
+msgstr "Oplossing inhoud:"
+
+#: mediagoblin/moderation/tools.py:37
+msgid ""
+"\n"
+"{mod} took away {user}'s {privilege} privileges."
+msgstr "\n{mod} nam van {user} de {privilege} rechten af."
+
+#: mediagoblin/moderation/tools.py:50
+msgid ""
+"\n"
+"{mod} banned user {user} {expiration_date}."
+msgstr "\n{mod} blokkeerde de gebruiker {user} {expiration_date}."
+
+#: mediagoblin/moderation/tools.py:54
+msgid "until {date}"
+msgstr "tot {date}"
+
+#: mediagoblin/moderation/tools.py:56
+#: mediagoblin/templates/mediagoblin/banned.html:30
+msgid "indefinitely"
+msgstr "onbepaalde tijd"
+
+#: mediagoblin/moderation/tools.py:65
+msgid ""
+"\n"
+"{mod} sent a warning email to the {user}."
+msgstr "\n{mod} stuurde een waarschuwingsbericht naar {user}."
+
+#: mediagoblin/moderation/tools.py:74
+msgid ""
+"\n"
+"{mod} deleted the comment."
+msgstr "\n{mod} verwijderde de reactie."
+
+#: mediagoblin/moderation/tools.py:81
+msgid ""
+"\n"
+"{mod} deleted the media entry."
+msgstr "\n{mod} verwijderde het mediaonderwerp."
+
+#: mediagoblin/moderation/tools.py:94
+msgid "Warning from"
+msgstr "Waarschuwing van"
+
+#: mediagoblin/notifications/tools.py:54 mediagoblin/user_pages/lib.py:60
+msgid "commented on your post"
+msgstr "reageerde op je bericht"
+
+#: mediagoblin/notifications/views.py:35
+#, python-format
+msgid "Subscribed to comments on %s!"
+msgstr "Geabonneerd op reacties op %s!"
+
+#: mediagoblin/notifications/views.py:48
+#, python-format
+msgid "You will not receive notifications for comments on %s."
+msgstr "Je ontvangt geen meldingen over reacties op %s."
+
+#: mediagoblin/oauth/views.py:239
+msgid "Must provide an oauth_token."
+msgstr "Moet een oauth_token leveren."
+
+#: mediagoblin/oauth/views.py:244 mediagoblin/oauth/views.py:295
+msgid "No request token found."
+msgstr "Geen aanvraagtoken gevonden."
+
+#: mediagoblin/plugins/api/views.py:78 mediagoblin/plugins/piwigo/views.py:157
+#: mediagoblin/submit/views.py:80
+msgid "Sorry, the file size is too big."
+msgstr "Sorry, het bestand is te groot."
+
+#: mediagoblin/plugins/api/views.py:81 mediagoblin/plugins/piwigo/views.py:160
+#: mediagoblin/submit/views.py:83
+msgid "Sorry, uploading this file will put you over your upload limit."
+msgstr "Sorry, door te uploaden zou je over je uploadlimiet gaan."
+
+#: mediagoblin/plugins/api/views.py:85 mediagoblin/plugins/piwigo/views.py:164
+#: mediagoblin/submit/views.py:89
+msgid "Sorry, you have reached your upload limit."
+msgstr "Sorry, je hebt je uploadlimiet bereikt."
+
+#: mediagoblin/plugins/archivalook/forms.py:21
+msgid "Enter the URL for the media to be featured"
+msgstr "Geef de URL op van de aanbevolen media"
+
+#: mediagoblin/plugins/archivalook/tools.py:132
+msgid "Primary"
+msgstr "Primair"
+
+#: mediagoblin/plugins/archivalook/tools.py:133
+msgid "Secondary"
+msgstr "Secundair"
+
+#: mediagoblin/plugins/archivalook/tools.py:134
+msgid "Tertiary"
+msgstr "Tertiair"
+
+#: mediagoblin/plugins/archivalook/tools.py:135
+msgid "-----------{display_type}-Features---------------------------\n"
+msgstr "-----------{display_type}-Mogelijkheden---------------------------\n"
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/feature.html:33
+msgid "How does this work?"
+msgstr "Hoe werkt het?"
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/feature.html:34
+msgid "How to feature media?"
+msgstr "Hoe kun je media aanbevelen?"
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/feature.html:37
+msgid ""
+"\n"
+"      Go to the page of the media entry you want to feature. Copy it's URL and\n"
+"      then paste it into a new line in the text box above. There should be only\n"
+"      one url per line. The url that you paste into the text box should be under\n"
+"      the header describing how prominent a feature it will be (whether Primary,\n"
+"      Secondary, or Tertiary). Once all of the media that you want to feature are\n"
+"      inside the text box, click the Submit Query button, and your media should be\n"
+"      displayed on the front page.\n"
+"    "
+msgstr "\n      Ga naar de pagina van het mediabestand dat je wilt aanbevelen. Kopieer de URL en\n      plak die in een nieuwe regel in het bovenstaande invulveld. Er mag maar één url in een regel staan. De url die je in het veld plakte moet staan onder de koptekst die aangeeft hoe prominent de aanbeveling is (ofwel Primair,\n      Secundair, of Tertiair). Wanneer al je aanbevolen media in het invoerveld staan, druk je op de Verwerk Aanvraag knop en je media zouden moeten worden getoond op de voorpagina.\n    "
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/feature.html:48
+msgid "Is there another way to manage featured media?"
+msgstr "Bestaat er een andere manier om media aan te bevelen?"
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/feature.html:51
+msgid ""
+"\n"
+"        Yes. If you would prefer, you may go to the media homepage of the piece\n"
+"        of media you would like to feature or unfeature and look at the bar to\n"
+"        the side of the media entry. If the piece of media has not been featured\n"
+"        yet you should see a button that says \"Feature\". Press that button and\n"
+"        the media will be featured as a Primary Feature at the top of the page.\n"
+"        All other featured media entries will remain as features, but will be\n"
+"        pushed further down the page.<br /><br />\n"
+"\n"
+"        If you go to the media homepage of a piece of media that is currently\n"
+"        featured, you will see the options \"Unfeature\", \"Promote\" and \"Demote\"\n"
+"        where previously there was the button which said \"Feature\". Click\n"
+"        Unfeature and that media entry will no longer be displayed on the\n"
+"        front page, although you can feature it again at any point. Promote\n"
+"        moves the featured media higher up on the page and makes it more\n"
+"        prominent and Demote moves the featured media lower down and makes it\n"
+"        less prominent.\n"
+"    "
+msgstr "\n        Ja. als dat liever hebt, kun je naar de media hoofdpagina gaan van het\n        nummer dat je wilt aanbevelen, of wat je niet langer wilt aanbevelen en\n        kijk naar de balk naast de inhoud. Als het nummer nog niet is\n        aanbevolen, zie je een knop met de tekst \"Aanbevelen\". Druk op die\n        knop en het nummer wordt als een Primaire aanbeveling bovenaan\n        de pagina getoond.\n        Alle andere aanbevelen nummers blijven aanbevelingen, maar worden\n        naar beneden gedrukt.<br /><br />\n\n        Als je naar de media homepagina van een nummer dat momenteel is\n        aanbevolen gaat, zie je de opties \"Intrekken\", \"Promoveren\" en\n        \"Demoveren\" waar eerst alleen de knop \"Aanbevelen\" stond.\n        Klik op \"Intrekken\" en het nummer wordt niet langer op de voorpagina \n        getoond. Je kunt het later altijd weer aanbevelen. Promoveren\n        verplaatst het nummer naar boven op de pagina en Demoveren\n        verplaatst het omlaag en maakt het minder prominent.\n    "
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/feature.html:70
+msgid "What is a Primary Feature? What is a Secondary Feature?"
+msgstr "Wat is een Primaire aanbeveling? Wat is een secundaire aanbeveling?"
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/feature.html:74
+msgid ""
+"\n"
+"      These categories just describe how prominent a feature will be on your\n"
+"      front page. Primary Features are placed at the top of the front page and are\n"
+"      much larger. Next are Secondary Features, which are slightly smaller.\n"
+"      Tertiary Features make up a grid at the bottom of the page.<br /><br />\n"
+"\n"
+"      Primary Features also can display longer descriptions than Secondary\n"
+"      Features, and Secondary Features can display longer descriptions than\n"
+"      Tertiary Features."
+msgstr "\n      Deze categorieën geven aan hoe prominent een aanbeveling op jouw voorpagina wordt getoond. Primaire Aanbevelingen worden bovenaan en groter je voorpagina getoond. Daarna komen de Secundaire aanbevelingen, iets kleiner ook.\n      Tertiaure aanbevelingen worden in een tabel ondaraan de pagina getoond.<br /><br />\n\n      Van Primaire aanbevelingen wordt ook meer tekst getoond dan van secundaire aanbevelingen, die weer meer tekst tonen dan de Tertiaire aanbevelingen."
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/feature.html:85
+msgid ""
+"How to decide what information is displayed when a media entry is\n"
+"    featured?"
+msgstr "Hoe bepaal je welke informatie wordt getoond als een mediabestand is\n    aanbevolen?"
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/feature.html:88
+msgid ""
+"\n"
+"      When a media entry is featured, the entry's title, it's thumbnail and a\n"
+"      portion of its description will be displayed on your website's front page.\n"
+"      The number of characters displayed varies on the prominence of the feature.\n"
+"      Primary Features display the first 512 characters of their description,\n"
+"      Secondary Features display the first 256 characters of their description,\n"
+"      and Tertiary Features display the first 128 characters of their description.\n"
+"    "
+msgstr "\n      Als een nummer wordt aanbevolen, worden de titel, een miniatuurafbeelding en een deel van de omschrijving op de voorpagina van je website getoond.\n      Het aantal weergegeven tekens hangt af van de prioriteit van de aanbeveling.\n      Van een Primaire aanbeveling worden de eerste 512 tekens van de omschrijving getoond,\n      Secundaire aanbevelingen omvatten 256 tekens van de omschrijving.\n      Tertiaire aanbevelingen omvatten de eerste 128 tekens van de omschrijving.\n    "
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/feature.html:98
+msgid "How to unfeature a piece of media?"
+msgstr "Hoe verwijder je een aanbeveling?"
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/feature.html:102
+msgid ""
+"\n"
+"      Unfeature a media by removing its line from the above textarea and then\n"
+"      pressing the Submit Query button.\n"
+"    "
+msgstr "\n      Een medium uit de aanbevelingen verwijderen gebeurt door de regel uit het bovenstaande tekstveld te verwijderen en dan\n      de Verwerken Query knop in te drukken.\n    "
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/feature.html:108
+msgid "CAUTION:"
+msgstr "WAARSCHUWING:"
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/feature.html:110
+msgid ""
+"\n"
+"      When copying and pasting urls into the above text box, be aware that if\n"
+"      you make a typo, once you press Submit Query, your media entry will NOT be\n"
+"      featured. Make sure that all your intended Media Entries are featured.\n"
+"    "
+msgstr "\n      Let er bij knippen en plakken van url's in bovenstaande invoerveld op dat als je een typefout maakt, het nummer niet worden aanbevolen als je op Verwerk Query drukt. Zorg er voor dat de bedoelde nummer worden aanbevolen.\n    "
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/feature_media_sidebar.html:26
+msgid ""
+"\n"
+"Feature Media "
+msgstr "\nMedia aanbevelen"
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/feature_media_sidebar.html:28
+msgid "Feature"
+msgstr "Aanbevolen"
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/feature_media_sidebar.html:34
+msgid ""
+"\n"
+"Unfeature Media "
+msgstr "\nMedia niet meer aanbevelen"
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/feature_media_sidebar.html:36
+msgid "Unfeature"
+msgstr "Intrekken"
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/feature_media_sidebar.html:42
+msgid ""
+"\n"
+"Promote Feature "
+msgstr "\nPromoveer aanbeveling "
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/feature_media_sidebar.html:44
+msgid "Promote"
+msgstr "Promoveren"
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/feature_media_sidebar.html:50
+msgid ""
+"\n"
+"Demote Feature "
+msgstr "\nDemoveer aanbeveling"
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/feature_media_sidebar.html:52
+msgid "Demote"
+msgstr "Demoveren"
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/recent_media.html:30
+#: mediagoblin/templates/mediagoblin/root.html:32
+msgid "Most recent media"
+msgstr "Nieuwste media"
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/root.html:61
+msgid "Nothing is currently featured."
+msgstr "Momenteel is niets aanbevolen."
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/root.html:62
+msgid ""
+"If you would like to feature a\n"
+"        piece of media, go to that media entry's homepage and click the button\n"
+"        that says <a class=\"button_action\">Feature</a>."
+msgstr "Als je een nummer wilt aanbevelen,\n        ga dan naar de homepagina van dat nummer en klik op de knop  \n<a class=\"button_action\">Aanbevelen</a>."
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/root.html:67
+#, python-format
+msgid ""
+"You're seeing this page because you are a user capable of\n"
+"        featuring media, a regular user would see a blank page, so be sure to\n"
+"        have media featured as long as your instance has the 'archivalook'\n"
+"        plugin enabled. A more advanced tool to manage features can be found\n"
+"        in the <a href=\"%(featured_media_url)s\">feature management panel.</a>"
+msgstr "Je ziet deze pagina om dat je een gebruiker bent met het recht nummers aan te bevelen, een gewone gebruiker ziet alleen een blanco pagina. Dus let erop je nummer aan te bevelen zolang jouw goblin de 'archivalook'\n        plugin heeft geactiveerd. Een meer geavanceerde plugin voor het aanbevelen kan worden gevonden in het <a href=\"%(featured_media_url)s\">Aanbevelingenbeheer paneel.</a>"
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/root.html:79
+msgid "View most recent media"
+msgstr "Bekijk de meest recente media"
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/bits/feature_dropdown.html:22
+msgid "Feature management panel"
+msgstr "Aanbevelingenbeheer panel"
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/feature_displays/audio_primary.html:43
+msgid ""
+"Sorry, this audio will not work because\n"
+"\tyour web browser does not support HTML5\n"
+"\taudio."
+msgstr "Sorry, dit geluidsfragment zal niet werken omdat\n\tje web-browser geen HTML5 audio ondersteunt."
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/feature_displays/audio_primary.html:46
+msgid ""
+"You can get a modern web browser that\n"
+"\tcan play the audio at <a href=\"http://getfirefox.com\">\n"
+"\t  http://getfirefox.com</a>!"
+msgstr "Je kunt een moderne web browser die\n\taudio kan afspelen krijgen op at <a href=\"http://getfirefox.com\">\n\t  http://getfirefox.com</a>!"
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/feature_displays/video_primary.html:43
+#: mediagoblin/plugins/archivalook/templates/archivalook/feature_displays/video_secondary.html:43
+msgid ""
+"Sorry, this video will not work because\n"
+"          your web browser does not support HTML5 \n"
+"          video."
+msgstr "Sorry, deze video werkt niet omdat je\nwebbrowser geen HTML5 video ondersteunt."
+
+#: mediagoblin/plugins/archivalook/templates/archivalook/feature_displays/video_primary.html:46
+#: mediagoblin/plugins/archivalook/templates/archivalook/feature_displays/video_secondary.html:46
+msgid ""
+"You can get a modern web browser that \n"
+"          can play this video at <a href=\"http://getfirefox.com\">\n"
+"          http://getfirefox.com</a>!"
+msgstr "Je kunt een moderne web browser die deze\n\tvideo kan afspelen krijgen op at <a href=\"http://getfirefox.com\">\n\t  http://getfirefox.com</a>!"
+
+#: mediagoblin/plugins/basic_auth/forms.py:24
+#: mediagoblin/plugins/ldap/forms.py:35 mediagoblin/plugins/openid/forms.py:27
+#: mediagoblin/plugins/persona/forms.py:24
+#: mediagoblin/templates/mediagoblin/moderation/user_panel.html:76
+msgid "Username"
+msgstr "Gebruikersnaam"
+
+#: mediagoblin/plugins/basic_auth/forms.py:32
+#: mediagoblin/plugins/ldap/forms.py:28 mediagoblin/plugins/openid/forms.py:31
+#: mediagoblin/plugins/persona/forms.py:28
+#: mediagoblin/plugins/persona/forms.py:39
+msgid "Email address"
+msgstr "E-mailadres"
+
+#: mediagoblin/plugins/basic_auth/forms.py:39
+msgid "Username or Email"
+msgstr "Gebruikersnaam of email-adres"
+
+#: mediagoblin/plugins/basic_auth/forms.py:46
+msgid "Stay logged in"
+msgstr "Blijf ingelogd"
+
+#: mediagoblin/plugins/basic_auth/forms.py:51
+msgid "Username or email"
+msgstr "Gebruikersnaam of e-mailadres"
+
+#: mediagoblin/plugins/basic_auth/views.py:54
+msgid ""
+"If that email address (case sensitive!) is registered an email has been sent"
+" with instructions on how to change your password."
+msgstr "Als dat e-mailadres (hoofdlettergevoelig!) is geregistreerd, dan wordt een e-mailbericht verstuurd met instructies voor het wijzigen van je wachtwoord."
+
+#: mediagoblin/plugins/basic_auth/views.py:65
+msgid "Couldn't find someone with that username."
+msgstr "Kon niemand vinden met die gebruikersnaam."
+
+#: mediagoblin/plugins/basic_auth/views.py:68
+msgid ""
+"An email has been sent with instructions on how to change your password."
+msgstr "Een e-mail met instructies om je wachtwoord te veranderen is verstuurd."
+
+#: mediagoblin/plugins/basic_auth/views.py:75
+msgid ""
+"Could not send password recovery email as your username is inactive or your "
+"account's email address has not been verified."
+msgstr "E-mail kon niet verstuurd worden omdat je gebruikersnaam inactief is of omdat je e-mailadres nog niet geverifieerd is."
+
+#: mediagoblin/plugins/basic_auth/views.py:123
+msgid "The user id is incorrect."
+msgstr "De gebruikersID is onjuist."
+
+#: mediagoblin/plugins/basic_auth/views.py:139
+msgid "You can now log in using your new password."
+msgstr "Je kunt nu inloggen met je nieuwe wachtwoord."
+
+#: mediagoblin/plugins/basic_auth/views.py:163
+msgid ""
+"You are no longer an active user. Please contact the system admin to "
+"reactivate your account."
+msgstr "Je bent geen actieve gebruiker meer. Neem contact op met de beheerder om je account te heractiveren."
+
+#: mediagoblin/plugins/basic_auth/views.py:215
+msgid "Your password was changed successfully"
+msgstr "Je wachtwoord is succesvol gewijzigd"
+
+#: mediagoblin/plugins/basic_auth/templates/mediagoblin/plugins/basic_auth/change_fp.html:28
+#: mediagoblin/plugins/basic_auth/templates/mediagoblin/plugins/basic_auth/change_fp.html:36
+msgid "Set your new password"
+msgstr "Voer je nieuwe wachtwoord in"
+
+#: mediagoblin/plugins/basic_auth/templates/mediagoblin/plugins/basic_auth/change_fp.html:39
+msgid "Set password"
+msgstr "Wachtwoord opslaan"
+
+#: mediagoblin/plugins/basic_auth/templates/mediagoblin/plugins/basic_auth/change_pass.html:28
+#: mediagoblin/plugins/basic_auth/templates/mediagoblin/plugins/basic_auth/change_pass.html:38
+#, python-format
+msgid "Changing %(username)s's password"
+msgstr "Wijzigen %(username)s's wachtwoord"
+
+#: mediagoblin/plugins/basic_auth/templates/mediagoblin/plugins/basic_auth/change_pass.html:45
+#: mediagoblin/templates/mediagoblin/edit/change_email.html:40
+msgid "Save"
+msgstr "Bewaren"
+
+#: mediagoblin/plugins/basic_auth/templates/mediagoblin/plugins/basic_auth/create_account_link.html:22
+msgid "Don't have an account yet?"
+msgstr "Heb je nog geen account?"
+
+#: mediagoblin/plugins/basic_auth/templates/mediagoblin/plugins/basic_auth/create_account_link.html:24
+msgid "Create one here!"
+msgstr "Maak er hier een!"
+
+#: mediagoblin/plugins/basic_auth/templates/mediagoblin/plugins/basic_auth/edit_link.html:22
+msgid "Change your password."
+msgstr "Wijzig je wachtwoord:"
+
+#: mediagoblin/plugins/basic_auth/templates/mediagoblin/plugins/basic_auth/forgot_password.html:23
+#: mediagoblin/plugins/basic_auth/templates/mediagoblin/plugins/basic_auth/forgot_password.html:31
+msgid "Recover password"
+msgstr "Wachtwoord herstellen"
+
+#: mediagoblin/plugins/basic_auth/templates/mediagoblin/plugins/basic_auth/forgot_password.html:34
+msgid "Send instructions"
+msgstr "Stuur instructies"
+
+#: mediagoblin/plugins/basic_auth/templates/mediagoblin/plugins/basic_auth/fp_link.html:22
+msgid "Forgot your password?"
+msgstr "Wachtwoord vergeten?"
+
+#: mediagoblin/plugins/geolocation/templates/mediagoblin/plugins/geolocation/map.html:51
+#, python-format
+msgid "View on <a href=\"%(osm_url)s\">OpenStreetMap</a>"
+msgstr "Bekijken op <a href=\"%(osm_url)s\">OpenStreetMap</a>"
+
+#: mediagoblin/plugins/ldap/templates/mediagoblin/plugins/ldap/create_account_link.html:22
+msgid "Sign in to create an account!"
+msgstr "Log in om een account te maken!"
+
+#: mediagoblin/plugins/metadata_display/templates/mediagoblin/plugins/metadata_display/metadata_table.html:22
+msgid "Metadata"
+msgstr "Metadata"
+
+#: mediagoblin/plugins/metadata_display/templates/mediagoblin/plugins/metadata_display/metadata_table.html:40
+msgid "Edit Metadata"
+msgstr "Bewerk Metadata"
+
+#: mediagoblin/plugins/oauth/forms.py:29
+msgid "Allow"
+msgstr "Toestaan"
+
+#: mediagoblin/plugins/oauth/forms.py:30
+msgid "Deny"
+msgstr "Verbieden"
+
+#: mediagoblin/plugins/oauth/forms.py:34
+msgid "Name"
+msgstr "Naam"
+
+#: mediagoblin/plugins/oauth/forms.py:35
+msgid "The name of the OAuth client"
+msgstr "De naam van de OAuth client"
+
+#: mediagoblin/plugins/oauth/forms.py:38
+msgid ""
+"This will be visible to users allowing your\n"
+"                application to authenticate as them."
+msgstr "Dit is zichtbaar voor gebruikers waardoor je\n                applicatie als hen kan inloggen."
+
+#: mediagoblin/plugins/oauth/forms.py:40
+msgid "Type"
+msgstr "Type"
+
+#: mediagoblin/plugins/oauth/forms.py:45
+msgid ""
+"<strong>Confidential</strong> - The client can\n"
+"                make requests to the GNU MediaGoblin instance that can not be\n"
+"                intercepted by the user agent (e.g. server-side client).<br />\n"
+"                <strong>Public</strong> - The client can't make confidential\n"
+"                requests to the GNU MediaGoblin instance (e.g. client-side\n"
+"                JavaScript client)."
+msgstr "<strong>Vertrouwelijk</strong> - De client kan\n                aanvragen doen bij de GNU MediaGoblin server die niet kunnen worden afgevangen door de user agent (bijv. server-side client).<br />\n                <strong>Openbaar</strong> - De client kan geen vertrouwelijke aanvragen bij de GNU MediaGoblin server maken (bijv. client-side\n                JavaScript client)."
+
+#: mediagoblin/plugins/oauth/forms.py:52
+msgid "Redirect URI"
+msgstr "Redirect URI"
+
+#: mediagoblin/plugins/oauth/forms.py:54
+msgid ""
+"The redirect URI for the applications, this field\n"
+"            is <strong>required</strong> for public clients."
+msgstr "De verwijs URI voor de applicaties, dit veld\n            is <strong>verplicht</strong> voor openbare clients."
+
+#: mediagoblin/plugins/oauth/forms.py:66
+msgid "This field is required for public clients"
+msgstr "Dit is een verplicht veld voor openbare clients"
+
+#: mediagoblin/plugins/oauth/views.py:57
+msgid "The client {0} has been registered!"
+msgstr "De client {0} is geregistereerd!"
+
+#: mediagoblin/plugins/oauth/templates/oauth/client/connections.html:22
+msgid "OAuth client connections"
+msgstr "OAuth client verbindingen"
+
+#: mediagoblin/plugins/oauth/templates/oauth/client/list.html:22
+msgid "Your OAuth clients"
+msgstr "Je OAuth clients"
+
+#: mediagoblin/plugins/openid/__init__.py:97
+#: mediagoblin/plugins/openid/views.py:271
+#: mediagoblin/plugins/openid/views.py:300
+msgid "Sorry, an account is already registered to that OpenID."
+msgstr "Sorry, er is al een account geregistreerd met die OpenID"
+
+#: mediagoblin/plugins/openid/forms.py:38
+msgid "OpenID"
+msgstr "OpenID"
+
+#: mediagoblin/plugins/openid/views.py:51
+msgid "Sorry, the OpenID server could not be found"
+msgstr "Sorry, de OpenID server kon niet worden gevonden"
+
+#: mediagoblin/plugins/openid/views.py:64
+#, python-format
+msgid "No OpenID service was found for %s"
+msgstr "Geen OpenID service gevonden voor %s"
+
+#: mediagoblin/plugins/openid/views.py:109
+#, python-format
+msgid "Verification of %s failed: %s"
+msgstr "Verificatie van %s mislukt\"%s"
+
+#: mediagoblin/plugins/openid/views.py:120
+msgid "Verification cancelled"
+msgstr "Verificatie geannuleerd"
+
+#: mediagoblin/plugins/openid/views.py:317
+msgid "Your OpenID url was saved successfully."
+msgstr "Je OpenID URL is succesvol bewaard."
+
+#: mediagoblin/plugins/openid/views.py:341
+#: mediagoblin/plugins/openid/views.py:396
+msgid "You can't delete your only OpenID URL unless you have a password set"
+msgstr "Je kunt je OpenID URL alleen verwijderen als je een wachtwoord hebt ingesteld."
+
+#: mediagoblin/plugins/openid/views.py:346
+#: mediagoblin/plugins/openid/views.py:405
+msgid "That OpenID is not registered to this account."
+msgstr "Die OpenID is niet geregistreerd voor dit account."
+
+#: mediagoblin/plugins/openid/views.py:388
+msgid "OpenID was successfully removed."
+msgstr "OpenID succesvol verwijderd."
+
+#: mediagoblin/plugins/openid/templates/mediagoblin/plugins/openid/add.html:23
+#: mediagoblin/plugins/openid/templates/mediagoblin/plugins/openid/add.html:31
+#: mediagoblin/plugins/openid/templates/mediagoblin/plugins/openid/delete.html:34
+#: mediagoblin/plugins/persona/templates/mediagoblin/plugins/persona/edit.html:23
+msgid "Add an OpenID"
+msgstr "OpenID toevoegen"
+
+#: mediagoblin/plugins/openid/templates/mediagoblin/plugins/openid/add.html:34
+#: mediagoblin/plugins/openid/templates/mediagoblin/plugins/openid/delete.html:23
+#: mediagoblin/plugins/openid/templates/mediagoblin/plugins/openid/delete.html:31
+msgid "Delete an OpenID"
+msgstr "OpenID verwijderen"
+
+#: mediagoblin/plugins/openid/templates/mediagoblin/plugins/openid/edit_link.html:21
+msgid "OpenID's"
+msgstr "OpenID's"
+
+#: mediagoblin/plugins/openid/templates/mediagoblin/plugins/openid/login.html:28
+#: mediagoblin/plugins/openid/templates/mediagoblin/plugins/openid/login.html:36
+#: mediagoblin/plugins/openid/templates/mediagoblin/plugins/openid/login.html:57
+#: mediagoblin/templates/mediagoblin/base.html:124
+#: mediagoblin/templates/mediagoblin/auth/login.html:28
+#: mediagoblin/templates/mediagoblin/auth/login.html:36
+#: mediagoblin/templates/mediagoblin/auth/login.html:47
+msgid "Log in"
+msgstr "Inloggen"
+
+#: mediagoblin/plugins/openid/templates/mediagoblin/plugins/openid/login.html:39
+#: mediagoblin/templates/mediagoblin/auth/login.html:39
+msgid "Logging in failed!"
+msgstr "Inloggen is mislukt!"
+
+#: mediagoblin/plugins/openid/templates/mediagoblin/plugins/openid/login.html:44
+msgid "Log in to create an account!"
+msgstr "Log in om een account te maken!"
+
+#: mediagoblin/plugins/openid/templates/mediagoblin/plugins/openid/login.html:51
+msgid "Or login with a password!"
+msgstr "Of login met een wachtwoord!"
+
+#: mediagoblin/plugins/openid/templates/mediagoblin/plugins/openid/login_link.html:23
+msgid "Or login with OpenID!"
+msgstr "Of login met OpenID"
+
+#: mediagoblin/plugins/openid/templates/mediagoblin/plugins/openid/register_link.html:23
+msgid "Or register with OpenID!"
+msgstr "Of registreer met een OpenID!"
+
+#: mediagoblin/plugins/persona/__init__.py:90
+msgid "Sorry, an account is already registered to that Persona email."
+msgstr "Sorry, er is al een account geregistreerd met dat Persona e-mailadres."
+
+#: mediagoblin/plugins/persona/views.py:140
+msgid "The Persona email address was successfully removed."
+msgstr "Het Persona e-mailadres is succesvol verwijderd."
+
+#: mediagoblin/plugins/persona/views.py:146
+msgid ""
+"You can't delete your only Persona email address unless you have a password "
+"set."
+msgstr "Je kunt je Persona e-mailadres alleen verwijderen als je een wachtwoord hebt ingesteld."
+
+#: mediagoblin/plugins/persona/views.py:151
+msgid "That Persona email address is not registered to this account."
+msgstr "Dat Persona e-mailadres is niet geregistreerd voor dit account."
+
+#: mediagoblin/plugins/persona/views.py:178
+msgid ""
+"Sorry, an account is already registered with that Persona email address."
+msgstr "Sorry, er is al een account geregistreerd met dat Persona e-mailadrers."
+
+#: mediagoblin/plugins/persona/views.py:194
+msgid "Your Persona email address was saved successfully."
+msgstr "Je Persona e-mailadres is succesvol bewaard."
+
+#: mediagoblin/plugins/persona/templates/mediagoblin/plugins/persona/edit.html:31
+msgid "Delete a Persona email address"
+msgstr "Verwijder een Persona e-mailadres"
+
+#: mediagoblin/plugins/persona/templates/mediagoblin/plugins/persona/edit.html:34
+msgid "Add a Persona email address"
+msgstr "Voeg een Persona e-mailadres toe"
+
+#: mediagoblin/plugins/persona/templates/mediagoblin/plugins/persona/edit_link.html:21
+msgid "Persona's"
+msgstr "Persona's"
+
+#: mediagoblin/plugins/persona/templates/mediagoblin/plugins/persona/login_link.html:22
+msgid "Or login with Persona!"
+msgstr "Of login met Persona!"
+
+#: mediagoblin/plugins/persona/templates/mediagoblin/plugins/persona/register_link.html:22
+msgid "Or register with Persona!"
+msgstr "Of registreer mer Persona!"
+
+#: mediagoblin/processing/__init__.py:422
+msgid "Invalid file given for media type."
+msgstr "Verkeerd bestandsformaat voor mediatype opgegeven."
+
+#: mediagoblin/processing/__init__.py:429
+msgid "Copying to public storage failed."
+msgstr "Kopiëren naar openbare opslag mislukt."
+
+#: mediagoblin/processing/__init__.py:437
+msgid "An acceptable processing file was not found"
+msgstr "Een acceptabel verwerkingsbestand is niet aanwezig"
+
+#: mediagoblin/submit/forms.py:30
+msgid "Max file size: {0} mb"
+msgstr "Max bestandsgrootte: {0} mb"
+
+#: mediagoblin/submit/forms.py:34
+msgid "File"
+msgstr "Bestand"
+
+#: mediagoblin/submit/forms.py:41
+msgid ""
+"You can use\n"
+"                        <a href=\"http://daringfireball.net/projects/markdown/basics\">\n"
+"                        Markdown</a> for formatting."
+msgstr "Je kunt\n                        <a href=\"http://daringfireball.net/projects/markdown/basics\">\n                        Markdown</a> gebruiken voor opmaak."
+
+#: mediagoblin/submit/views.py:57
+msgid "You must provide a file."
+msgstr "Je moet een bestand opgeven."
+
+#: mediagoblin/submit/views.py:140
+#, python-format
+msgid "Collection \"%s\" added!"
+msgstr "Verzameling \"%s\" toegevoegd!"
+
+#: mediagoblin/templates/mediagoblin/banned.html:20
+msgid "You are Banned."
+msgstr "Je bent geblokkeerd."
+
+#: mediagoblin/templates/mediagoblin/banned.html:24
+#: mediagoblin/templates/mediagoblin/error.html:24
+msgid "Image of goblin stressing out"
+msgstr "Afbeelding van uitgestrekte goblin"
+
+#: mediagoblin/templates/mediagoblin/banned.html:26
+msgid "You have been banned"
+msgstr "Je bent geblokkeerd"
+
+#: mediagoblin/templates/mediagoblin/banned.html:28
+#, python-format
+msgid "until %(until_when)s"
+msgstr "tot %(until_when)s"
+
+#: mediagoblin/templates/mediagoblin/base.html:99
+msgid "Verify your email!"
+msgstr "Verifieer je e-mailadres!"
+
+#: mediagoblin/templates/mediagoblin/base.html:106
+#: mediagoblin/templates/mediagoblin/base.html:114
+msgid "log out"
+msgstr "uitloggen"
+
+#: mediagoblin/templates/mediagoblin/base.html:133
+#, python-format
+msgid "<a href=\"%(user_url)s\">%(user_name)s</a>'s account"
+msgstr "<a href=\"%(user_url)s\">%(user_name)s</a>'s account"
+
+#: mediagoblin/templates/mediagoblin/base.html:140
+msgid "Change account settings"
+msgstr "Accountinstellingen aanpassen"
+
+#: mediagoblin/templates/mediagoblin/base.html:144
+#: mediagoblin/templates/mediagoblin/base.html:167
+#: mediagoblin/templates/mediagoblin/moderation/media_panel.html:21
+#: mediagoblin/templates/mediagoblin/moderation/media_panel.html:27
+#: mediagoblin/templates/mediagoblin/user_pages/processing_panel.html:21
+#: mediagoblin/templates/mediagoblin/user_pages/processing_panel.html:26
+msgid "Media processing panel"
+msgstr "Mediaverwerkingspaneel"
+
+#: mediagoblin/templates/mediagoblin/base.html:154
+msgid "Log out"
+msgstr "Afmelden"
+
+#: mediagoblin/templates/mediagoblin/base.html:157
+#: mediagoblin/templates/mediagoblin/user_pages/user.html:113
+msgid "Add media"
+msgstr "Voeg media toe"
+
+#: mediagoblin/templates/mediagoblin/base.html:160
+#: mediagoblin/templates/mediagoblin/user_pages/collection_list.html:41
+msgid "Create new collection"
+msgstr "Creëer een nieuwe verzameling"
+
+#: mediagoblin/templates/mediagoblin/base.html:165
+msgid "Moderation powers:"
+msgstr "Moderator mogelijkheden:"
+
+#: mediagoblin/templates/mediagoblin/base.html:171
+msgid "User management panel"
+msgstr "Gebruikersbeheer panel"
+
+#: mediagoblin/templates/mediagoblin/base.html:175
+msgid "Report management panel"
+msgstr "Meldingenbeheer panel"
+
+#: mediagoblin/templates/mediagoblin/api/authorize.html:21
+msgid "Authorization"
+msgstr "Autorisatie"
+
+#: mediagoblin/templates/mediagoblin/api/authorize.html:26
+#: mediagoblin/templates/mediagoblin/api/authorize.html:53
+msgid "Authorize"
+msgstr "Autoriseer"
+
+#: mediagoblin/templates/mediagoblin/api/authorize.html:29
+msgid "You are logged in as"
+msgstr "Je bent ingelogd als"
+
+#: mediagoblin/templates/mediagoblin/api/authorize.html:33
+msgid "Do you want to authorize "
+msgstr "Sta je toegang toe"
+
+#: mediagoblin/templates/mediagoblin/api/authorize.html:37
+msgid "an unknown application"
+msgstr "voor een onbekende app"
+
+#: mediagoblin/templates/mediagoblin/api/authorize.html:39
+msgid " to access your account? "
+msgstr "om je account te gebruiken?"
+
+#: mediagoblin/templates/mediagoblin/api/authorize.html:41
+msgid "Applications with access to your account can: "
+msgstr "Apps met toegang tot jouw account kunnen:"
+
+#: mediagoblin/templates/mediagoblin/api/authorize.html:43
+msgid "Post new media as you"
+msgstr "Nieuwe media namens jou plaatsen"
+
+#: mediagoblin/templates/mediagoblin/api/authorize.html:44
+msgid "See your information (e.g profile, media, etc...)"
+msgstr "Je informatie zien (bv. profiel, media etc.)"
+
+#: mediagoblin/templates/mediagoblin/api/authorize.html:45
+msgid "Change your information"
+msgstr "Je informatie wijzigen"
+
+#: mediagoblin/templates/mediagoblin/api/oob.html:21
+msgid "Authorization Finished"
+msgstr "Autorisatie gereed"
+
+#: mediagoblin/templates/mediagoblin/api/oob.html:26
+msgid "Authorization Complete"
+msgstr "Autorisatie compleet"
+
+#: mediagoblin/templates/mediagoblin/api/oob.html:28
+msgid "Copy and paste this <strong>verifier code</strong> into your client:"
+msgstr "Kopieer en plak deze <strong>verificatiecode</strong> in je client:"
+
+#: mediagoblin/templates/mediagoblin/auth/register.html:28
+#: mediagoblin/templates/mediagoblin/auth/register.html:36
+msgid "Create an account!"
+msgstr "Maak een account aan!"
+
+#: mediagoblin/templates/mediagoblin/auth/register.html:41
+msgid "Create"
+msgstr "Creëer"
+
+#: mediagoblin/templates/mediagoblin/auth/verification_email.txt:19
+#, python-format
+msgid ""
+"Hi %(username)s,\n"
+"\n"
+"to activate your GNU MediaGoblin account, open the following URL in\n"
+"your web browser:\n"
+"\n"
+"%(verification_url)s"
+msgstr "Hallo %(username)s , open de volgende URL in je webbrowser om je GNU MediaGoblin account te activeren: %(verification_url)s "
+
+#: mediagoblin/templates/mediagoblin/bits/base_footer.html:21
+#, python-format
+msgid ""
+"Powered by <a href=\"http://mediagoblin.org/\" title='Version "
+"%(version)s'>MediaGoblin</a>, a <a href=\"http://gnu.org/\">GNU</a> project."
+msgstr "Powered by <a href=\"http://mediagoblin.org/\" title='Version %(version)s'>MediaGoblin</a>, een <a href=\"http://gnu.org/\">GNU</a> project."
+
+#: mediagoblin/templates/mediagoblin/bits/base_footer.html:24
+#, python-format
+msgid ""
+"Released under the <a "
+"href=\"http://www.fsf.org/licensing/licenses/agpl-3.0.html\">AGPL</a>. <a "
+"href=\"%(source_link)s\">Source code</a> available."
+msgstr "Uitgegeven onder de <a href=\"http://www.fsf.org/licensing/licenses/agpl-3.0.html\">AGPL</a>-licentie. <a href=\"%(source_link)s\">Broncode</a> available."
+
+#: mediagoblin/templates/mediagoblin/bits/base_footer.html:30
+msgid "Terms of Service"
+msgstr "Gebruiksvoorwaarden"
+
+#: mediagoblin/templates/mediagoblin/bits/frontpage_welcome.html:20
+msgid "Explore"
+msgstr "Verkennen"
+
+#: mediagoblin/templates/mediagoblin/bits/frontpage_welcome.html:24
+msgid "Hi there, welcome to this MediaGoblin site!"
+msgstr "Hoi, welkom op deze MediaGoblin website!"
+
+#: mediagoblin/templates/mediagoblin/bits/frontpage_welcome.html:25
+msgid ""
+"This site is running <a href=\"http://mediagoblin.org\">MediaGoblin</a>, an "
+"extraordinarily great piece of media hosting software."
+msgstr "Deze website draait <a href=\"http://mediagoblin.org\">MediaGoblin</a>, een buitengewoon goed stuk software voor mediahosting."
+
+#: mediagoblin/templates/mediagoblin/bits/frontpage_welcome.html:27
+msgid ""
+"To add your own media, place comments, and more, you can log in with your "
+"MediaGoblin account."
+msgstr "Om je eigen media toe te voegen, te reageren en meer, kun je inloggen met je MediaGoblin account."
+
+#: mediagoblin/templates/mediagoblin/bits/frontpage_welcome.html:29
+msgid "Don't have one yet? It's easy!"
+msgstr "Heb je er nog geen? Het is heel eenvoudig!"
+
+#: mediagoblin/templates/mediagoblin/bits/frontpage_welcome.html:36
+msgid ""
+"\n"
+"            >Create an account at this site</a>\n"
+"            or"
+msgstr "\n            >Creëer een account op deze site</a>\n            of"
+
+#: mediagoblin/templates/mediagoblin/bits/frontpage_welcome.html:42
+msgid ""
+"\n"
+"            <a class=\"button_action\" href=\"http://mediagoblin.readthedocs.org/\">Set up MediaGoblin on your own server</a>"
+msgstr "\n            <a class=\"button_action\" href=\"http://mediagoblin.readthedocs.org/\">Installeer MediaGoblin op je eigen server</a>"
+
+#: mediagoblin/templates/mediagoblin/bits/logo.html:23
+#: mediagoblin/themes/airy/templates/mediagoblin/bits/logo.html:23
+msgid "MediaGoblin logo"
+msgstr "MediaGoblin logo"
+
+#: mediagoblin/templates/mediagoblin/edit/attachments.html:23
+#: mediagoblin/templates/mediagoblin/edit/attachments.html:35
+#, python-format
+msgid "Editing attachments for %(media_title)s"
+msgstr "Aanpassen bijlagen voor %(media_title)s"
+
+#: mediagoblin/templates/mediagoblin/edit/attachments.html:44
+#: mediagoblin/templates/mediagoblin/user_pages/media.html:205
+#: mediagoblin/templates/mediagoblin/user_pages/media.html:221
+msgid "Attachments"
+msgstr "Bijlagen"
+
+#: mediagoblin/templates/mediagoblin/edit/attachments.html:57
+#: mediagoblin/templates/mediagoblin/user_pages/media.html:227
+msgid "Add attachment"
+msgstr "Voeg een bijlage toe"
+
+#: mediagoblin/templates/mediagoblin/edit/attachments.html:63
+#: mediagoblin/templates/mediagoblin/edit/edit.html:42
+#: mediagoblin/templates/mediagoblin/edit/edit_account.html:47
+#: mediagoblin/templates/mediagoblin/edit/edit_collection.html:33
+#: mediagoblin/templates/mediagoblin/edit/edit_profile.html:40
+msgid "Save changes"
+msgstr "Wijzigingen opslaan"
+
+#: mediagoblin/templates/mediagoblin/edit/change_email.html:23
+#: mediagoblin/templates/mediagoblin/edit/change_email.html:33
+#, python-format
+msgid "Changing %(username)s's email"
+msgstr "Wijzigen %(username)s's e-mailadres"
+
+#: mediagoblin/templates/mediagoblin/edit/deauthorize_applications.html:21
+#: mediagoblin/templates/mediagoblin/edit/edit_account.html:58
+msgid "Deauthorize applications"
+msgstr "Intrekken applicatieautorisaties"
+
+#: mediagoblin/templates/mediagoblin/edit/deauthorize_applications.html:27
+msgid "Deauthorize Applications"
+msgstr "Intrekken applicatieautorisaties"
+
+#: mediagoblin/templates/mediagoblin/edit/deauthorize_applications.html:28
+msgid ""
+"These applications can access your GNU MediaGoblin account. Deauthorizing the\n"
+"    application will prevent the application from accessing your account."
+msgstr "Deze applicaties kunnen je GNU MediaGoblin account gebruiken.\nDeautoriseren van de applicatie betekent dat die je account niet kan gebruiken."
+
+#: mediagoblin/templates/mediagoblin/edit/deauthorize_applications.html:37
+msgid "There are no applications authorized."
+msgstr "Er zijn geen applicaties geautoriseerd."
+
+#: mediagoblin/templates/mediagoblin/edit/deauthorize_applications.html:53
+msgid "Type:"
+msgstr "Type:"
+
+#: mediagoblin/templates/mediagoblin/edit/deauthorize_applications.html:58
+msgid "Authorized:"
+msgstr "Geautoriseerd:"
+
+#: mediagoblin/templates/mediagoblin/edit/deauthorize_applications.html:60
+#: mediagoblin/templates/mediagoblin/fragments/header_notifications.html:24
+#: mediagoblin/templates/mediagoblin/media_displays/image.html:39
+#: mediagoblin/templates/mediagoblin/moderation/report.html:57
+#: mediagoblin/templates/mediagoblin/moderation/report.html:120
+#: mediagoblin/templates/mediagoblin/user_pages/blog_media.html:131
+#: mediagoblin/templates/mediagoblin/user_pages/blog_media.html:151
+#: mediagoblin/templates/mediagoblin/user_pages/media.html:147
+#: mediagoblin/templates/mediagoblin/user_pages/media.html:182
+#: mediagoblin/templates/mediagoblin/user_pages/report.html:48
+#, python-format
+msgid "%(formatted_time)s ago"
+msgstr "%(formatted_time)s geleden"
+
+#: mediagoblin/templates/mediagoblin/edit/delete_account.html:28
+#, python-format
+msgid "Really delete user '%(user_name)s' and all related media/comments?"
+msgstr "Echt gebruiker '%(user_name)s' en alle gerelateerde media/reacties verwijderen?"
+
+#: mediagoblin/templates/mediagoblin/edit/delete_account.html:35
+msgid "Yes, really delete my account"
+msgstr "Ja, verwijder mijn account"
+
+#: mediagoblin/templates/mediagoblin/edit/edit.html:23
+#: mediagoblin/templates/mediagoblin/edit/edit.html:35
+#, python-format
+msgid "Editing %(media_title)s"
+msgstr "%(media_title)s aanpassen"
+
+#: mediagoblin/templates/mediagoblin/edit/edit_account.html:28
+#: mediagoblin/templates/mediagoblin/edit/edit_account.html:40
+#, python-format
+msgid "Changing %(username)s's account settings"
+msgstr "%(username)ss accountinstellingen aanpassen"
+
+#: mediagoblin/templates/mediagoblin/edit/edit_account.html:54
+msgid "Delete my account"
+msgstr "Verwijder mijn account"
+
+#: mediagoblin/templates/mediagoblin/edit/edit_account.html:62
+msgid "Email"
+msgstr "E-mailadres"
+
+#: mediagoblin/templates/mediagoblin/edit/edit_collection.html:29
+#, python-format
+msgid "Editing %(collection_title)s"
+msgstr "Bewerken %(collection_title)s"
+
+#: mediagoblin/templates/mediagoblin/edit/edit_profile.html:23
+#: mediagoblin/templates/mediagoblin/edit/edit_profile.html:34
+#, python-format
+msgid "Editing %(username)s's profile"
+msgstr "Het profiel aanpassen van %(username)s"
+
+#: mediagoblin/templates/mediagoblin/edit/metadata.html:67
+#, python-format
+msgid "Metadata for \"%(media_name)s\""
+msgstr "Metadata voor \"%(media_name)s\""
+
+#: mediagoblin/templates/mediagoblin/edit/metadata.html:72
+msgid "MetaData"
+msgstr "MetaData"
+
+#: mediagoblin/templates/mediagoblin/edit/metadata.html:80
+msgid "Add new Row"
+msgstr "Voeg nieuwe rij toe"
+
+#: mediagoblin/templates/mediagoblin/edit/metadata.html:83
+msgid "Update Metadata"
+msgstr "Metadata bijwerken"
+
+#: mediagoblin/templates/mediagoblin/edit/metadata.html:87
+msgid "Clear empty Rows"
+msgstr "Lege rijen opschonen"
+
+#: mediagoblin/templates/mediagoblin/edit/verification.txt:19
+#, python-format
+msgid ""
+"Hi,\n"
+"\n"
+"We wanted to verify that you are %(username)s. If this is the case, then \n"
+"please follow the link below to verify your new email address.\n"
+"\n"
+"%(verification_url)s\n"
+"\n"
+"If you are not %(username)s or didn't request an email change, you can ignore\n"
+"this email."
+msgstr "Hallo,\n\nWe willen verifiëren dat jij %(username)s bent. Als dat zo is, dan \nkun je de onderstaande link volgens om je e-mailadres te verifiëren.\n\n%(verification_url)s\n\nAls je niet %(username)s bent, of geen e-mailadreswijziging aanvroeg, dan kun je dit bericht negeren."
+
+#: mediagoblin/templates/mediagoblin/fragments/header_notifications.html:4
+msgid "New comments"
+msgstr "Nieuwe reacties"
+
+#: mediagoblin/templates/mediagoblin/fragments/header_notifications.html:41
+msgid "Mark all read"
+msgstr "Alles markeren als gelezen"
+
+#: mediagoblin/templates/mediagoblin/listings/collection.html:30
+#: mediagoblin/templates/mediagoblin/listings/collection.html:35
+#: mediagoblin/templates/mediagoblin/listings/tag.html:30
+#: mediagoblin/templates/mediagoblin/listings/tag.html:35
+#, python-format
+msgid "Media tagged with: %(tag_name)s"
+msgstr "Media met het label: %(tag_name)s"
+
+#: mediagoblin/templates/mediagoblin/media_displays/ascii.html:36
+#: mediagoblin/templates/mediagoblin/media_displays/audio.html:58
+#: mediagoblin/templates/mediagoblin/media_displays/pdf.html:69
+#: mediagoblin/templates/mediagoblin/media_displays/video.html:76
+msgid "Download"
+msgstr "Download"
+
+#: mediagoblin/templates/mediagoblin/media_displays/ascii.html:40
+msgid "Original"
+msgstr "Origineel"
+
+#: mediagoblin/templates/mediagoblin/media_displays/audio.html:45
+msgid ""
+"Sorry, this audio will not work because \n"
+"\t  your web browser does not support HTML5 \n"
+"\t  audio."
+msgstr "Sorry, dit geluidsfragment zal niet werken omdat\n⇥ je webbrowser geen HTML5 audio ondersteunt"
+
+#: mediagoblin/templates/mediagoblin/media_displays/audio.html:48
+msgid ""
+"You can get a modern web browser that \n"
+"\t  can play the audio at <a href=\"http://getfirefox.com\">\n"
+"\t    http://getfirefox.com</a>!"
+msgstr "Je kunt een moderne web-browser die wel\n⇥ audio kan afspelen vinden op <a href=\"http://getfirefox.com\">\n⇥ http://getfirefox.com</a>!"
+
+#: mediagoblin/templates/mediagoblin/media_displays/audio.html:62
+#: mediagoblin/templates/mediagoblin/media_displays/pdf.html:75
+#: mediagoblin/templates/mediagoblin/media_displays/video.html:82
+msgid "Original file"
+msgstr "Origineel bestand"
+
+#: mediagoblin/templates/mediagoblin/media_displays/audio.html:65
+msgid "WebM file (Vorbis codec)"
+msgstr "WebM bestand (Vorbis codec)"
+
+#: mediagoblin/templates/mediagoblin/media_displays/image.html:36
+msgid "Created"
+msgstr "Aangemaakt"
+
+#: mediagoblin/templates/mediagoblin/media_displays/pdf.html:60
+#: mediagoblin/templates/mediagoblin/media_displays/stl.html:90
+#: mediagoblin/templates/mediagoblin/media_displays/stl.html:96
+#: mediagoblin/templates/mediagoblin/media_displays/stl.html:102
+#: mediagoblin/templates/mediagoblin/media_displays/stl.html:108
+#: mediagoblin/templates/mediagoblin/user_pages/blog_media.html:59
+#: mediagoblin/templates/mediagoblin/user_pages/blog_media.html:65
+#: mediagoblin/templates/mediagoblin/user_pages/media.html:63
+#: mediagoblin/templates/mediagoblin/user_pages/media.html:69
+#, python-format
+msgid "Image for %(media_title)s"
+msgstr "Afbeelding voor %(media_title)s"
+
+#: mediagoblin/templates/mediagoblin/media_displays/pdf.html:83
+msgid "PDF file"
+msgstr "PDF bestand"
+
+#: mediagoblin/templates/mediagoblin/media_displays/stl.html:117
+msgid "Perspective"
+msgstr "Perspectief"
+
+#: mediagoblin/templates/mediagoblin/media_displays/stl.html:120
+msgid "Front"
+msgstr "Voorkant"
+
+#: mediagoblin/templates/mediagoblin/media_displays/stl.html:123
+msgid "Top"
+msgstr "Bovenkant"
+
+#: mediagoblin/templates/mediagoblin/media_displays/stl.html:126
+msgid "Side"
+msgstr "Zijkant"
+
+#: mediagoblin/templates/mediagoblin/media_displays/stl.html:131
+msgid "WebGL"
+msgstr "WebGL"
+
+#: mediagoblin/templates/mediagoblin/media_displays/stl.html:137
+msgid "Download model"
+msgstr "Download model"
+
+#: mediagoblin/templates/mediagoblin/media_displays/stl.html:146
+msgid "File Format"
+msgstr "Bestandsformaat"
+
+#: mediagoblin/templates/mediagoblin/media_displays/stl.html:148
+msgid "Object Height"
+msgstr "Object hoogte"
+
+#: mediagoblin/templates/mediagoblin/media_displays/video.html:64
+msgid ""
+"Sorry, this video will not work because\n"
+"      your web browser does not support HTML5 \n"
+"      video."
+msgstr "Sorry, deze video werkt niet omdat\nje webbrowser geen HTML5 video ondersteunt."
+
+#: mediagoblin/templates/mediagoblin/media_displays/video.html:67
+msgid ""
+"You can get a modern web browser that \n"
+"      can play this video at <a href=\"http://getfirefox.com\">\n"
+"      http://getfirefox.com</a>!"
+msgstr "Je kunt een moderne webbrowser die\ndeze video af kan spelen krijgen op\n<a href=\"http://getfirefox.com\">http://getfirefox.com</a>!"
+
+#: mediagoblin/templates/mediagoblin/media_displays/video.html:90
+msgid "WebM file (VP8/Vorbis)"
+msgstr "WebM bestand (VP8/Vorbis)"
+
+#: mediagoblin/templates/mediagoblin/moderation/media_panel.html:30
+msgid ""
+"Here you can track the state of media being processed on this instance."
+msgstr "Hier kun je de status zien van de media die verwerkt worden op deze Goblin."
+
+#: mediagoblin/templates/mediagoblin/moderation/media_panel.html:33
+#: mediagoblin/templates/mediagoblin/user_pages/processing_panel.html:32
+msgid "Media in-processing"
+msgstr "Media te verwerken"
+
+#: mediagoblin/templates/mediagoblin/moderation/media_panel.html:38
+#: mediagoblin/templates/mediagoblin/moderation/media_panel.html:67
+#: mediagoblin/templates/mediagoblin/moderation/media_panel.html:98
+#: mediagoblin/templates/mediagoblin/moderation/user_panel.html:75
+msgid "ID"
+msgstr "ID"
+
+#: mediagoblin/templates/mediagoblin/moderation/media_panel.html:39
+#: mediagoblin/templates/mediagoblin/moderation/media_panel.html:68
+#: mediagoblin/templates/mediagoblin/moderation/media_panel.html:99
+msgid "User"
+msgstr "Gebruiker"
+
+#: mediagoblin/templates/mediagoblin/moderation/media_panel.html:41
+#: mediagoblin/templates/mediagoblin/moderation/media_panel.html:70
+msgid "When submitted"
+msgstr "Wanneer toegevoegd"
+
+#: mediagoblin/templates/mediagoblin/moderation/media_panel.html:42
+msgid "Transcoding progress"
+msgstr "Transcoderen voortgang"
+
+#: mediagoblin/templates/mediagoblin/moderation/media_panel.html:53
+msgid "Unknown"
+msgstr "Onbekend"
+
+#: mediagoblin/templates/mediagoblin/moderation/media_panel.html:59
+#: mediagoblin/templates/mediagoblin/user_pages/processing_panel.html:56
+msgid "No media in-processing"
+msgstr "Geen media om te verwerken"
+
+#: mediagoblin/templates/mediagoblin/moderation/media_panel.html:62
+#: mediagoblin/templates/mediagoblin/user_pages/processing_panel.html:59
+msgid "These uploads failed to process:"
+msgstr "Deze toevoegingen konden niet verwerkt worden:"
+
+#: mediagoblin/templates/mediagoblin/moderation/media_panel.html:71
+msgid "Reason for failure"
+msgstr "Reden voor mislukken"
+
+#: mediagoblin/templates/mediagoblin/moderation/media_panel.html:72
+msgid "Failure metadata"
+msgstr "Mislukken metadata"
+
+#: mediagoblin/templates/mediagoblin/moderation/media_panel.html:91
+#: mediagoblin/templates/mediagoblin/user_pages/processing_panel.html:86
+msgid "No failed entries!"
+msgstr "Geen fouten!"
+
+#: mediagoblin/templates/mediagoblin/moderation/media_panel.html:93
+msgid "Last 10 successful uploads"
+msgstr "Laatste 10 geslaagde uploads"
+
+#: mediagoblin/templates/mediagoblin/moderation/media_panel.html:101
+msgid "Submitted"
+msgstr "Aangemeld"
+
+#: mediagoblin/templates/mediagoblin/moderation/media_panel.html:113
+#: mediagoblin/templates/mediagoblin/user_pages/processing_panel.html:107
+msgid "No processed entries, yet!"
+msgstr "Niets verwerkt, nog niet!"
+
+#: mediagoblin/templates/mediagoblin/moderation/report.html:27
+msgid "Sorry, no such report found."
+msgstr "Sorry, geen melding gevonden."
+
+#: mediagoblin/templates/mediagoblin/moderation/report.html:33
+msgid "Return to Reports Panel"
+msgstr "Terug naar Meldingenpanel"
+
+#: mediagoblin/templates/mediagoblin/moderation/report.html:35
+#: mediagoblin/templates/mediagoblin/user_pages/media.html:163
+msgid "Report"
+msgstr "Melden"
+
+#: mediagoblin/templates/mediagoblin/moderation/report.html:38
+msgid "Reported comment"
+msgstr "Gemelde reactie"
+
+#: mediagoblin/templates/mediagoblin/moderation/report.html:83
+#, python-format
+msgid ""
+"\n"
+"        ❖ Reported media by <a href=\"%(user_url)s\">%(user_name)s</a>\n"
+"    "
+msgstr "\n        ❖ Gemelde media door <a href=\"%(user_url)s\">%(user_name)s</a>\n    "
+
+#: mediagoblin/templates/mediagoblin/moderation/report.html:92
+#, python-format
+msgid ""
+"\n"
+"          CONTENT BY\n"
+"            <a href=\"%(user_url)s\"> %(user_name)s</a>\n"
+"          HAS BEEN DELETED\n"
+"        "
+msgstr "\n          INHOUD VAN\n            <a href=\"%(user_url)s\"> %(user_name)s</a>\n          IS VERWIJDERD\n        "
+
+#: mediagoblin/templates/mediagoblin/moderation/report.html:102
+msgid "Reason for report:"
+msgstr "Reden voor melding:"
+
+#: mediagoblin/templates/mediagoblin/moderation/report.html:133
+#: mediagoblin/templates/mediagoblin/moderation/user.html:136
+msgid "Resolve"
+msgstr "Oplossen"
+
+#: mediagoblin/templates/mediagoblin/moderation/report.html:137
+#: mediagoblin/templates/mediagoblin/moderation/report.html:157
+msgid "Resolve This Report"
+msgstr "Los deze melding op"
+
+#: mediagoblin/templates/mediagoblin/moderation/report.html:149
+msgid "Status"
+msgstr "Status"
+
+#: mediagoblin/templates/mediagoblin/moderation/report.html:151
+msgid "RESOLVED"
+msgstr "OPGELOST"
+
+#: mediagoblin/templates/mediagoblin/moderation/report.html:159
+msgid "You cannot take action against an administrator"
+msgstr "Je kunt geen actie nemen tegenover een beheerder"
+
+#: mediagoblin/templates/mediagoblin/moderation/report_panel.html:22
+#: mediagoblin/templates/mediagoblin/moderation/report_panel.html:27
+msgid "Report panel"
+msgstr "Meldingenpanel"
+
+#: mediagoblin/templates/mediagoblin/moderation/report_panel.html:30
+msgid ""
+"\n"
+"    Here you can look up open reports that have been filed by users.\n"
+"  "
+msgstr "\n    Hier kun je de door gebruikers ingestuurde open meldingen zien.\n  "
+
+#: mediagoblin/templates/mediagoblin/moderation/report_panel.html:35
+msgid "Active Reports Filed"
+msgstr "Actieve ingestuurde meldingen"
+
+#: mediagoblin/templates/mediagoblin/moderation/report_panel.html:77
+#: mediagoblin/templates/mediagoblin/moderation/report_panel.html:173
+msgid "Offender"
+msgstr "Overtreder"
+
+#: mediagoblin/templates/mediagoblin/moderation/report_panel.html:78
+msgid "When Reported"
+msgstr "Wanneer gemeld"
+
+#: mediagoblin/templates/mediagoblin/moderation/report_panel.html:79
+#: mediagoblin/templates/mediagoblin/moderation/report_panel.html:175
+msgid "Reported By"
+msgstr "Gemeld door"
+
+#: mediagoblin/templates/mediagoblin/moderation/report_panel.html:80
+#: mediagoblin/templates/mediagoblin/moderation/report_panel.html:176
+msgid "Reason"
+msgstr "Reden"
+
+#: mediagoblin/templates/mediagoblin/moderation/report_panel.html:95
+#, python-format
+msgid ""
+"\n"
+"                Comment Report #%(report_id)s\n"
+"              "
+msgstr "\n                Gemelde Reactie #%(report_id)s\n              "
+
+#: mediagoblin/templates/mediagoblin/moderation/report_panel.html:111
+#, python-format
+msgid ""
+"\n"
+"                Media Report #%(report_id)s\n"
+"              "
+msgstr "\n                Gemelde Media #%(report_id)s\n              "
+
+#: mediagoblin/templates/mediagoblin/moderation/report_panel.html:125
+msgid "No open reports found."
+msgstr "Geen open meldingen gevonden."
+
+#: mediagoblin/templates/mediagoblin/moderation/report_panel.html:127
+msgid "Closed Reports"
+msgstr "Afgesloten meldingen"
+
+#: mediagoblin/templates/mediagoblin/moderation/report_panel.html:172
+msgid "Resolved"
+msgstr "Opgelost"
+
+#: mediagoblin/templates/mediagoblin/moderation/report_panel.html:174
+msgid "Action Taken"
+msgstr "Actie"
+
+#: mediagoblin/templates/mediagoblin/moderation/report_panel.html:188
+#, python-format
+msgid ""
+"\n"
+"              Closed Report #%(report_id)s\n"
+"            "
+msgstr "\n              Afgesloten melding #%(report_id)s\n            "
+
+#: mediagoblin/templates/mediagoblin/moderation/report_panel.html:202
+msgid "No closed reports found."
+msgstr "Geen afgesloten meldingen gevonden."
+
+#: mediagoblin/templates/mediagoblin/moderation/user.html:23
+#, python-format
+msgid "User: %(username)s"
+msgstr "Gebruiker: %(username)s"
+
+#: mediagoblin/templates/mediagoblin/moderation/user.html:42
+msgid "Return to Users Panel"
+msgstr "Terug naar gebruikerspanel"
+
+#: mediagoblin/templates/mediagoblin/moderation/user.html:49
+msgid "Sorry, no such user found."
+msgstr "Sorry, die gebruiker kon niet worden gevonden."
+
+#: mediagoblin/templates/mediagoblin/moderation/user.html:53
+#: mediagoblin/templates/mediagoblin/user_pages/user_nonactive.html:40
+#: mediagoblin/templates/mediagoblin/user_pages/user_nonactive.html:60
+msgid "Email verification needed"
+msgstr "E-mailverificatie is nodig"
+
+#: mediagoblin/templates/mediagoblin/moderation/user.html:55
+msgid ""
+"Someone has registered an account with this username, but it still has\n"
+"        to be activated."
+msgstr "Iemand heeft een account met deze gebruikersnaam gemaakt, maar die moet nog geactiveerd worden."
+
+#: mediagoblin/templates/mediagoblin/moderation/user.html:66
+#: mediagoblin/templates/mediagoblin/user_pages/user.html:34
+#: mediagoblin/templates/mediagoblin/user_pages/user.html:46
+#: mediagoblin/templates/mediagoblin/user_pages/user_nonactive.html:25
+#, python-format
+msgid "%(username)s's profile"
+msgstr "Profiel van %(username)s"
+
+#: mediagoblin/templates/mediagoblin/moderation/user.html:68
+#, python-format
+msgid "BANNED until %(expiration_date)s"
+msgstr "GEBLOKKEERD tot %(expiration_date)s"
+
+#: mediagoblin/templates/mediagoblin/moderation/user.html:72
+msgid "Banned Indefinitely"
+msgstr "Geblokkeerd voor onbepaalde tijd"
+
+#: mediagoblin/templates/mediagoblin/moderation/user.html:78
+#: mediagoblin/templates/mediagoblin/user_pages/user.html:62
+msgid "This user hasn't filled in their profile (yet)."
+msgstr "Deze gebruiker heeft zijn of haar profiel (nog) niet ingevuld."
+
+#: mediagoblin/templates/mediagoblin/moderation/user.html:89
+#: mediagoblin/templates/mediagoblin/user_pages/user.html:57
+#: mediagoblin/templates/mediagoblin/user_pages/user.html:74
+msgid "Edit profile"
+msgstr "Profiel aanpassen."
+
+#: mediagoblin/templates/mediagoblin/moderation/user.html:96
+#: mediagoblin/templates/mediagoblin/user_pages/user.html:81
+msgid "Browse collections"
+msgstr "Blader door verzamelingen"
+
+#: mediagoblin/templates/mediagoblin/moderation/user.html:105
+#, python-format
+msgid "Active Reports on %(username)s"
+msgstr "Actieve meldingen voor %(username)s"
+
+#: mediagoblin/templates/mediagoblin/moderation/user.html:112
+msgid "Report ID"
+msgstr "Melding ID"
+
+#: mediagoblin/templates/mediagoblin/moderation/user.html:113
+msgid "Reported Content"
+msgstr "Gemelde inhoud"
+
+#: mediagoblin/templates/mediagoblin/moderation/user.html:114
+msgid "Description of Report"
+msgstr "Beschrijving van melding"
+
+#: mediagoblin/templates/mediagoblin/moderation/user.html:122
+#, python-format
+msgid "Report #%(report_number)s"
+msgstr "Melding #%(report_number)s"
+
+#: mediagoblin/templates/mediagoblin/moderation/user.html:129
+msgid "Reported Comment"
+msgstr "Gemelde reactie"
+
+#: mediagoblin/templates/mediagoblin/moderation/user.html:131
+msgid "Reported Media Entry"
+msgstr "Gemelde media"
+
+#: mediagoblin/templates/mediagoblin/moderation/user.html:142
+#, python-format
+msgid "No active reports filed on %(username)s"
+msgstr "Geen actieve meldingen gedaan voor %(username)s"
+
+#: mediagoblin/templates/mediagoblin/moderation/user.html:150
+#, python-format
+msgid "All reports on %(username)s"
+msgstr "Alle meldingen voor %(username)s"
+
+#: mediagoblin/templates/mediagoblin/moderation/user.html:155
+#, python-format
+msgid "All reports that %(username)s has filed"
+msgstr "Alle meldingen die %(username)s heeft ingestuurd"
+
+#: mediagoblin/templates/mediagoblin/moderation/user.html:164
+#, python-format
+msgid "%(username)s's Privileges"
+msgstr "%(username)s's rechten"
+
+#: mediagoblin/templates/mediagoblin/moderation/user.html:172
+msgid "Privilege"
+msgstr "Recht"
+
+#: mediagoblin/templates/mediagoblin/moderation/user.html:173
+msgid "Granted"
+msgstr "Toegekend"
+
+#: mediagoblin/templates/mediagoblin/moderation/user.html:180
+msgid "Yes"
+msgstr "Ja"
+
+#: mediagoblin/templates/mediagoblin/moderation/user.html:182
+msgid "No"
+msgstr "Nee"
+
+#: mediagoblin/templates/mediagoblin/moderation/user.html:213
+msgid "Ban User"
+msgstr "Blokkeer gebruiker"
+
+#: mediagoblin/templates/mediagoblin/moderation/user.html:218
+msgid "UnBan User"
+msgstr "Deblokkeer gebruiker"
+
+#: mediagoblin/templates/mediagoblin/moderation/user_panel.html:21
+#: mediagoblin/templates/mediagoblin/moderation/user_panel.html:26
+msgid "User panel"
+msgstr "Gebruikerspanel"
+
+#: mediagoblin/templates/mediagoblin/moderation/user_panel.html:29
+msgid ""
+"\n"
+"    Here you can look up users in order to take punitive actions on them.\n"
+"  "
+msgstr "\n    Hier kun je je gebruikers opzoeken om eventueel acties te ondernemen.\n  "
+
+#: mediagoblin/templates/mediagoblin/moderation/user_panel.html:34
+msgid "Active Users"
+msgstr "Actieve gebruikers"
+
+#: mediagoblin/templates/mediagoblin/moderation/user_panel.html:77
+msgid "When Joined"
+msgstr "Wanneer aangemeld"
+
+#: mediagoblin/templates/mediagoblin/moderation/user_panel.html:78
+msgid "# of Comments Posted"
+msgstr "# geplaatste reacties"
+
+#: mediagoblin/templates/mediagoblin/moderation/user_panel.html:95
+msgid "No users found."
+msgstr "Geen gebruikers gevonden."
+
+#: mediagoblin/templates/mediagoblin/submit/collection.html:26
+msgid "Add a collection"
+msgstr "Voeg een collectie toe"
+
+#: mediagoblin/templates/mediagoblin/submit/start.html:28
+#: mediagoblin/templates/mediagoblin/submit/start.html:35
+msgid "Add your media"
+msgstr "Voeg media toe"
+
+#: mediagoblin/templates/mediagoblin/user_pages/blog_media.html:38
+#, python-format
+msgid "❖ Blog post by <a href=\"%(user_url)s\">%(username)s</a>"
+msgstr "❖ Blogbericht door <a href=\"%(user_url)s\">%(username)s</a>"
+
+#: mediagoblin/templates/mediagoblin/user_pages/blog_media.html:92
+#: mediagoblin/templates/mediagoblin/user_pages/media.html:105
+msgid "Add a comment"
+msgstr "Geef een reactie"
+
+#: mediagoblin/templates/mediagoblin/user_pages/blog_media.html:103
+#: mediagoblin/templates/mediagoblin/user_pages/media.html:116
+msgid "Add this comment"
+msgstr "Voeg dit bericht toe"
+
+#: mediagoblin/templates/mediagoblin/user_pages/blog_media.html:149
+#: mediagoblin/templates/mediagoblin/user_pages/media.html:180
+msgid "Added"
+msgstr "Toegevoegd"
+
+#: mediagoblin/templates/mediagoblin/user_pages/collection.html:30
+#, python-format
+msgid "%(collection_title)s (%(username)s's collection)"
+msgstr "%(collection_title)s (%(username)s's collectie)"
+
+#: mediagoblin/templates/mediagoblin/user_pages/collection.html:39
+#, python-format
+msgid "%(collection_title)s by <a href=\"%(user_url)s\">%(username)s</a>"
+msgstr "%(collection_title)s van <a href=\"%(user_url)s\">%(username)s</a>"
+
+#: mediagoblin/templates/mediagoblin/user_pages/collection_confirm_delete.html:23
+#, python-format
+msgid "Delete collection %(collection_title)s"
+msgstr "Verwijder collectie %(collection_title)s"
+
+#: mediagoblin/templates/mediagoblin/user_pages/collection_confirm_delete.html:38
+#, python-format
+msgid "Really delete collection: %(title)s?"
+msgstr "Collectie %(title)s echt verwijderen?"
+
+#: mediagoblin/templates/mediagoblin/user_pages/collection_item_confirm_remove.html:23
+#, python-format
+msgid "Remove %(media_title)s from %(collection_title)s"
+msgstr "Verwijder %(media_title)s uit %(collection_title)s"
+
+#: mediagoblin/templates/mediagoblin/user_pages/collection_item_confirm_remove.html:39
+#, python-format
+msgid "Really remove %(media_title)s from %(collection_title)s?"
+msgstr "Echt %(media_title)s verwijderen uit %(collection_title)s?"
+
+#: mediagoblin/templates/mediagoblin/user_pages/collection_item_confirm_remove.html:62
+msgid "Remove"
+msgstr "Verwijderen"
+
+#: mediagoblin/templates/mediagoblin/user_pages/collection_list.html:21
+#, python-format
+msgid "%(username)s's collections"
+msgstr "%(username)s's verzamelingen"
+
+#: mediagoblin/templates/mediagoblin/user_pages/collection_list.html:28
+#, python-format
+msgid "<a href=\"%(user_url)s\">%(username)s</a>'s collections"
+msgstr "<a href=\"%(user_url)s\">%(username)s</a>'s verzamelingen"
+
+#: mediagoblin/templates/mediagoblin/user_pages/comment_email.txt:19
+#, python-format
+msgid ""
+"Hi %(username)s,\n"
+"%(comment_author)s commented on your post (%(comment_url)s) at %(instance_name)s\n"
+msgstr "Hallo %(username)s,\n%(comment_author)s reageerden op je bericht (%(comment_url)s) op %(instance_name)s\n"
+
+#: mediagoblin/templates/mediagoblin/user_pages/gallery.html:30
+#, python-format
+msgid "%(username)s's media"
+msgstr "Media van %(username)s"
+
+#: mediagoblin/templates/mediagoblin/user_pages/gallery.html:38
+#, python-format
+msgid ""
+"<a href=\"%(user_url)s\">%(username)s</a>'s media with tag <a "
+"href=\"%(tag_url)s\">%(tag)s</a>"
+msgstr "<a href=\"%(user_url)s\">%(username)s</a>'s media met tag <a href=\"%(tag_url)s\">%(tag)s</a>"
+
+#: mediagoblin/templates/mediagoblin/user_pages/gallery.html:48
+#, python-format
+msgid "<a href=\"%(user_url)s\">%(username)s</a>'s media"
+msgstr "Media van <a href=\"%(user_url)s\"> %(username)s </a>"
+
+#: mediagoblin/templates/mediagoblin/user_pages/media.html:39
+#, python-format
+msgid "❖ Browsing media by <a href=\"%(user_url)s\">%(username)s</a>"
+msgstr "❖ Blader door media van <a href=\"%(user_url)s\">%(username)s</a>"
+
+#: mediagoblin/templates/mediagoblin/user_pages/media.html:120
+msgid "Comment Preview"
+msgstr "Voorbeeldreactie"
+
+#: mediagoblin/templates/mediagoblin/user_pages/media_collect.html:28
+#: mediagoblin/templates/mediagoblin/user_pages/media_collect.html:40
+#, python-format
+msgid "Add “%(media_title)s” to a collection"
+msgstr "Voeg “%(media_title)s” toe aan collectie"
+
+#: mediagoblin/templates/mediagoblin/user_pages/media_collect.html:54
+msgid "+"
+msgstr "+"
+
+#: mediagoblin/templates/mediagoblin/user_pages/media_collect.html:58
+msgid "Add a new collection"
+msgstr "Voeg een nieuwe collectie toe"
+
+#: mediagoblin/templates/mediagoblin/user_pages/processing_panel.html:29
+msgid ""
+"You can track the state of media being processed for your gallery here."
+msgstr "Hier kun je de status zien van de media die verwerkt worden."
+
+#: mediagoblin/templates/mediagoblin/user_pages/processing_panel.html:89
+msgid "Your last 10 successful uploads"
+msgstr "Je 10 laatste geslaagde uploads"
+
+#: mediagoblin/templates/mediagoblin/user_pages/report.html:21
+msgid "<h2>File a Report</h2>"
+msgstr "<h2>Stuur een melding in</h2>"
+
+#: mediagoblin/templates/mediagoblin/user_pages/report.html:24
+msgid "Reporting this Comment"
+msgstr "Deze reactie wordt gemeld"
+
+#: mediagoblin/templates/mediagoblin/user_pages/report.html:60
+msgid "Reporting this Media Entry"
+msgstr "Dit mediabestand wordt gemeld"
+
+#: mediagoblin/templates/mediagoblin/user_pages/report.html:72
+#, python-format
+msgid ""
+"\n"
+"            ❖ Published by <a href=\"%(user_url)s\"\n"
+"                          class=\"comment_authorlink\">%(username)s</a>\n"
+"      "
+msgstr "\n            ❖ gepubliceerd door <a href=\"%(user_url)s\"\n                          class=\"comment_authorlink\">%(username)s</a>\n      "
+
+#: mediagoblin/templates/mediagoblin/user_pages/report.html:81
+msgid "File Report "
+msgstr "Bestandsmelding"
+
+#: mediagoblin/templates/mediagoblin/user_pages/user.html:53
+msgid "Here's a spot to tell others about yourself."
+msgstr "Hier is een plekje om anderen over jezelf te vertellen."
+
+#: mediagoblin/templates/mediagoblin/user_pages/user.html:94
+#, python-format
+msgid "View all of %(username)s's media"
+msgstr "Bekijk alle media van %(username)s"
+
+#: mediagoblin/templates/mediagoblin/user_pages/user.html:107
+msgid ""
+"This is where your media will appear, but you don't seem to have added "
+"anything yet."
+msgstr "Dit is waar je nieuwe media zal verschijnen, maar het lijkt erop dat je nog niets heb toegevoegd."
+
+#: mediagoblin/templates/mediagoblin/user_pages/user.html:119
+#: mediagoblin/templates/mediagoblin/utils/collection_gallery.html:84
+#: mediagoblin/templates/mediagoblin/utils/object_gallery.html:70
+msgid "There doesn't seem to be any media here yet..."
+msgstr "Het lijkt erop dat er nog geen media is."
+
+#: mediagoblin/templates/mediagoblin/user_pages/user_nonactive.html:43
+msgid "Almost done! Your account still needs to be activated."
+msgstr "Bijna klaar! Je account moet nog geactiveerd worden."
+
+#: mediagoblin/templates/mediagoblin/user_pages/user_nonactive.html:48
+msgid ""
+"An email should arrive in a few moments with instructions on how to do so."
+msgstr "Een e-mail zou in een paar ogenblikken aan moeten komen met instructies hiertoe."
+
+#: mediagoblin/templates/mediagoblin/user_pages/user_nonactive.html:52
+msgid "In case it doesn't:"
+msgstr "Zoniet:"
+
+#: mediagoblin/templates/mediagoblin/user_pages/user_nonactive.html:55
+msgid "Resend verification email"
+msgstr "Stuur de verificatie e-mail opnieuw op."
+
+#: mediagoblin/templates/mediagoblin/user_pages/user_nonactive.html:63
+msgid ""
+"Someone has registered an account with this username, but it still has to be"
+" activated."
+msgstr "Iemand heeft een account met deze gebruikersnaam gemaakt, maar hij moet nog geactiveerd worden."
+
+#: mediagoblin/templates/mediagoblin/user_pages/user_nonactive.html:68
+#, python-format
+msgid ""
+"If you are that person but you've lost your verification email, you can <a "
+"href=\"%(login_url)s\">log in</a> and resend it."
+msgstr "Als jij die persoon bent, maar de verificatie e-mail verloren hebt, kunt je <a href=\"%(login_url)s\">inloggen</a> en het nogmaals verzenden."
+
+#: mediagoblin/templates/mediagoblin/utils/collection_gallery.html:49
+msgid "(remove)"
+msgstr "(verwijdered)"
+
+#: mediagoblin/templates/mediagoblin/utils/collections.html:21
+msgid "Collected in"
+msgstr "Opgenomen in"
+
+#: mediagoblin/templates/mediagoblin/utils/collections.html:40
+msgid "Add to a collection"
+msgstr "Voeg toe aan collectie"
+
+#: mediagoblin/templates/mediagoblin/utils/comment-subscription.html:24
+msgid "Subscribe to comments"
+msgstr "Abonneer op reacties"
+
+#: mediagoblin/templates/mediagoblin/utils/comment-subscription.html:30
+msgid "Silence comments"
+msgstr "Onderdruk reacties"
+
+#: mediagoblin/templates/mediagoblin/utils/feed_link.html:21
+#: mediagoblin/themes/airy/templates/mediagoblin/utils/feed_link.html:21
+msgid "feed icon"
+msgstr "feed pictogram"
+
+#: mediagoblin/templates/mediagoblin/utils/feed_link.html:23
+#: mediagoblin/themes/airy/templates/mediagoblin/utils/feed_link.html:23
+msgid "Atom feed"
+msgstr "Atom feed"
+
+#: mediagoblin/templates/mediagoblin/utils/license.html:25
+msgid "All rights reserved"
+msgstr "Alle rechten voorbehouden"
+
+#: mediagoblin/templates/mediagoblin/utils/pagination.html:39
+msgid "← Newer"
+msgstr "← Nieuwer"
+
+#: mediagoblin/templates/mediagoblin/utils/pagination.html:45
+msgid "Older →"
+msgstr "Ouder →"
+
+#: mediagoblin/templates/mediagoblin/utils/pagination.html:48
+msgid "Go to page:"
+msgstr "Ga naar pagina:"
+
+#: mediagoblin/templates/mediagoblin/utils/prev_next.html:28
+#: mediagoblin/templates/mediagoblin/utils/prev_next.html:33
+msgid "newer"
+msgstr "nieuwer"
+
+#: mediagoblin/templates/mediagoblin/utils/prev_next.html:39
+#: mediagoblin/templates/mediagoblin/utils/prev_next.html:44
+msgid "older"
+msgstr "ouder"
+
+#: mediagoblin/templates/mediagoblin/utils/profile.html:36
+msgid "Location"
+msgstr "Locatie"
+
+#: mediagoblin/templates/mediagoblin/utils/report.html:25
+msgid "Report media"
+msgstr "Meld media"
+
+#: mediagoblin/templates/mediagoblin/utils/tags.html:20
+msgid "Tagged with"
+msgstr "Getagged met"
+
+#: mediagoblin/tools/exif.py:83
+msgid "Could not read the image file."
+msgstr "Kon het afbeeldingsbestand niet lezen."
+
+#: mediagoblin/tools/response.py:40
+msgid "Oops!"
+msgstr "Oeps!"
+
+#: mediagoblin/tools/response.py:41
+msgid "An error occured"
+msgstr "Er trad een fout op"
+
+#: mediagoblin/tools/response.py:55
+msgid "Bad Request"
+msgstr "Verkeerde aanvraag"
+
+#: mediagoblin/tools/response.py:57
+msgid "The request sent to the server is invalid, please double check it"
+msgstr "De aanvraag aan de server is ongeldig, controleer opnieuw"
+
+#: mediagoblin/tools/response.py:65
+msgid "Operation not allowed"
+msgstr "Actie niet toegestaan"
+
+#: mediagoblin/tools/response.py:66
+msgid ""
+"Sorry Dave, I can't let you do that!</p><p>You have tried  to perform a "
+"function that you are not allowed to. Have you been trying to delete all "
+"user accounts again?"
+msgstr "Sorry knul, dat kan ik je niet laten doen!</p><p>Je probeerde iets te doen wat je niet mag. Probeerde je opnieuw alle accounts te verwijderen?"
+
+#: mediagoblin/tools/response.py:74
+msgid ""
+"There doesn't seem to be a page at this address. Sorry!</p><p>If you're sure"
+" the address is correct, maybe the page you're looking for has been moved or"
+" deleted."
+msgstr "Er lijkt geen pagina aanwezig op dit adres. Sorry!</p><p>Als je zeker weet dat het adres goed is, dan is de pagina misschien verplaatst of verwijderd."
+
+#: mediagoblin/tools/timesince.py:62
+msgid "year"
+msgstr "jaar"
+
+#: mediagoblin/tools/timesince.py:63
+msgid "month"
+msgstr "maand"
+
+#: mediagoblin/tools/timesince.py:64
+msgid "week"
+msgstr "week"
+
+#: mediagoblin/tools/timesince.py:65
+msgid "day"
+msgstr "dag"
+
+#: mediagoblin/tools/timesince.py:66
+msgid "hour"
+msgstr "uur"
+
+#: mediagoblin/tools/timesince.py:67
+msgid "minute"
+msgstr "minuut"
+
+#: mediagoblin/user_pages/forms.py:23
+msgid "Comment"
+msgstr "Reactie"
+
+#: mediagoblin/user_pages/forms.py:25
+msgid ""
+"You can use <a href=\"http://daringfireball.net/projects/markdown/basics\" "
+"target=\"_blank\">Markdown</a> for formatting."
+msgstr "Je kunt <a href=\"http://daringfireball.net/projects/markdown/basics\" target=\"_blank\">Markdown</a> gebruiken voor opmaak."
+
+#: mediagoblin/user_pages/forms.py:35
+msgid "I am sure I want to remove this item from the collection"
+msgstr "Ik weet zeker dat ik dit uit de verzameling wil verwijderen."
+
+#: mediagoblin/user_pages/forms.py:39
+msgid "Collection"
+msgstr "Verzameling"
+
+#: mediagoblin/user_pages/forms.py:40
+msgid "-- Select --"
+msgstr "-- Selecteer --"
+
+#: mediagoblin/user_pages/forms.py:42
+msgid "Include a note"
+msgstr "Voeg een notitie toe"
+
+#: mediagoblin/user_pages/forms.py:49
+msgid ""
+"You can use\n"
+"                      <a href=\"http://daringfireball.net/projects/markdown/basics\" target=\"_blank\">\n"
+"                      Markdown</a> for formatting."
+msgstr "Je kunt\n                      <a href=\"http://daringfireball.net/projects/markdown/basics\" target=\"_blank\">\n                      Markdown</a> gebruiken voor opmaak."
+
+#: mediagoblin/user_pages/forms.py:55 mediagoblin/user_pages/forms.py:61
+msgid "Reason for Reporting"
+msgstr "Aanleiding voor melding"
+
+#: mediagoblin/user_pages/views.py:191
+msgid "Sorry, comments are disabled."
+msgstr "Sorry, reageren is uitgeschakeld."
+
+#: mediagoblin/user_pages/views.py:196
+msgid "Oops, your comment was empty."
+msgstr "Oeps, je bericht was leeg."
+
+#: mediagoblin/user_pages/views.py:204
+msgid "Your comment has been posted!"
+msgstr "Je bericht is geplaatst!"
+
+#: mediagoblin/user_pages/views.py:237
+msgid "Please check your entries and try again."
+msgstr "Controleer de nummer en probeer het opnieuw."
+
+#: mediagoblin/user_pages/views.py:278
+msgid "You have to select or add a collection"
+msgstr "Je moet een collectie selecteren of aanmaken"
+
+#: mediagoblin/user_pages/views.py:289
+#, python-format
+msgid "\"%s\" already in collection \"%s\""
+msgstr "\"%s\" zit al in collectie \"%s\""
+
+#: mediagoblin/user_pages/views.py:295
+#, python-format
+msgid "\"%s\" added to collection \"%s\""
+msgstr "\"%s\" toegevoegd aan collectie \"%s\""
+
+#: mediagoblin/user_pages/views.py:320
+msgid "You deleted the media."
+msgstr "Je hebt deze media verwijderd."
+
+#: mediagoblin/user_pages/views.py:339
+msgid "You are about to delete another user's media. Proceed with caution."
+msgstr "Je staat op het punt de media van iemand anders te verwijderen. Pas op."
+
+#: mediagoblin/user_pages/views.py:412
+msgid "You deleted the item from the collection."
+msgstr "Je hebt het nummer uit de collectie verwijderd."
+
+#: mediagoblin/user_pages/views.py:416
+msgid "The item was not removed because you didn't check that you were sure."
+msgstr "Dit nummer is niet verwijderd omdat je niet hebt aangegeven dat je het zeker weet."
+
+#: mediagoblin/user_pages/views.py:424
+msgid ""
+"You are about to delete an item from another user's collection. Proceed with"
+" caution."
+msgstr "Je staat op het punt een nummer uit de collectie van iemand anders te verwijderen. Pas op."
+
+#: mediagoblin/user_pages/views.py:456
+#, python-format
+msgid "You deleted the collection \"%s\""
+msgstr "Je verwijderde collectie \"%s\""
+
+#: mediagoblin/user_pages/views.py:463
+msgid ""
+"The collection was not deleted because you didn't check that you were sure."
+msgstr "De collectie is niet verwijderd omdat je niet hebt aangegeven dat je het zeker weet."
+
+#: mediagoblin/user_pages/views.py:471
+msgid ""
+"You are about to delete another user's collection. Proceed with caution."
+msgstr "Je staat op het punt om de collectie van iemand anders te verwijderen. Pas op."

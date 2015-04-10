@@ -14,8 +14,18 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+try:
+    import mock
+except ImportError:
+    import unittest.mock as mock
 import email
+import pytest
+import smtplib
+import pkg_resources
 
+import six
+
+from mediagoblin.tests.tools import get_app
 from mediagoblin.tools import common, url, translate, mail, text, testing
 
 testing._activate_testing()
@@ -52,7 +62,7 @@ I hope you like unit tests JUST AS MUCH AS I DO!""")
     assert message['From'] == "sender@mediagoblin.example.org"
     assert message['To'] == "amanda@example.org, akila@example.org"
     assert message['Subject'] == "Testing is so much fun!"
-    assert message.get_payload(decode=True) == """HAYYY GUYS!
+    assert message.get_payload(decode=True) == b"""HAYYY GUYS!
 
 I hope you like unit tests JUST AS MUCH AS I DO!"""
 
@@ -65,9 +75,31 @@ I hope you like unit tests JUST AS MUCH AS I DO!"""
     assert mbox_message['From'] == "sender@mediagoblin.example.org"
     assert mbox_message['To'] == "amanda@example.org, akila@example.org"
     assert mbox_message['Subject'] == "Testing is so much fun!"
-    assert mbox_message.get_payload(decode=True) == """HAYYY GUYS!
+    assert mbox_message.get_payload(decode=True) == b"""HAYYY GUYS!
 
 I hope you like unit tests JUST AS MUCH AS I DO!"""
+
+@pytest.fixture()
+def starttls_enabled_app(request):
+    return get_app(
+        request,
+        mgoblin_config=pkg_resources.resource_filename(
+            "mediagoblin.tests",
+            "starttls_config.ini"
+        )
+    )
+
+def test_email_force_starttls(starttls_enabled_app):
+    common.TESTS_ENABLED = False
+    SMTP = lambda *args, **kwargs: mail.FakeMhost()
+    with mock.patch('smtplib.SMTP', SMTP):
+        with pytest.raises(smtplib.SMTPException):
+            mail.send_email(
+                from_addr="notices@my.test.instance.com",
+                to_addrs="someone@someplace.com",
+                subject="Testing is so much fun!",
+                message_body="Ohai ^_^"
+            )
 
 def test_slugify():
     assert url.slugify(u'a walk in the park') == u'a-walk-in-the-park'
@@ -77,6 +109,12 @@ def test_slugify():
     assert url.slugify(u'a w@lk in the park?') == u'a-w-lk-in-the-park'
     assert url.slugify(u'a walk in the par\u0107') == u'a-walk-in-the-parc'
     assert url.slugify(u'\u00E0\u0042\u00E7\u010F\u00EB\u0066') == u'abcdef'
+    # Russian
+    assert url.slugify(u'\u043f\u0440\u043e\u0433\u0443\u043b\u043a\u0430 '
+            u'\u0432 \u043f\u0430\u0440\u043a\u0435') == u'progulka-v-parke'
+    # Korean
+    assert (url.slugify(u'\uacf5\uc6d0\uc5d0\uc11c \uc0b0\ucc45') ==
+            u'gongweoneseo-sancaeg')
 
 def test_locale_to_lower_upper():
     """
@@ -111,13 +149,13 @@ def test_gettext_lazy_proxy():
     orig = u"Password"
 
     set_thread_locale("es")
-    p1 = unicode(proxy)
+    p1 = six.text_type(proxy)
     p1_should = pass_to_ugettext(orig)
     assert p1_should != orig, "Test useless, string not translated"
     assert p1 == p1_should
 
     set_thread_locale("sv")
-    p2 = unicode(proxy)
+    p2 = six.text_type(proxy)
     p2_should = pass_to_ugettext(orig)
     assert p2_should != orig, "Test broken, string not translated"
     assert p2 == p2_should
