@@ -15,22 +15,23 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import urllib
-import urllib2
 
-from celery import registry, task
+from six.moves.urllib import request, parse
+
+import celery
+from celery.registry import tasks
 
 from mediagoblin import mg_globals as mgg
-from mediagoblin.db.models import MediaEntry
-from . import mark_entry_failed, BaseProcessingFail, ProcessingState
+from . import mark_entry_failed, BaseProcessingFail
 from mediagoblin.tools.processing import json_processing_callback
+from mediagoblin.processing import get_entry_and_processing_manager
 
 _log = logging.getLogger(__name__)
 logging.basicConfig()
 _log.setLevel(logging.DEBUG)
 
 
-@task.task(default_retry_delay=2 * 60)
+@celery.task(default_retry_delay=2 * 60)
 def handle_push_urls(feed_url):
     """Subtask, notifying the PuSH servers of new content
 
@@ -41,15 +42,15 @@ def handle_push_urls(feed_url):
     hubparameters = {
         'hub.mode': 'publish',
         'hub.url': feed_url}
-    hubdata = urllib.urlencode(hubparameters)
+    hubdata = parse.urlencode(hubparameters)
     hubheaders = {
         "Content-type": "application/x-www-form-urlencoded",
         "Connection": "close"}
     for huburl in mgg.app_config["push_urls"]:
-        hubrequest = urllib2.Request(huburl, hubdata, hubheaders)
+        hubrequest = request.Request(huburl, hubdata, hubheaders)
         try:
-            hubresponse = urllib2.urlopen(hubrequest)
-        except (urllib2.HTTPError, urllib2.URLError) as exc:
+            hubresponse = request.urlopen(hubrequest)
+        except (request.HTTPError, request.URLError) as exc:
             # We retry by default 3 times before failing
             _log.info("PuSH url %r gave error %r", huburl, exc)
             try:
@@ -60,36 +61,54 @@ def handle_push_urls(feed_url):
                           'Giving up.'.format(feed_url))
                 return False
 
+
 ################################
 # Media processing initial steps
 ################################
-
-class ProcessMedia(task.Task):
+class ProcessMedia(celery.Task):
     """
     Pass this entry off for processing.
     """
-    def run(self, media_id, feed_url):
+    def run(self, media_id, feed_url, reprocess_action, reprocess_info=None):
         """
         Pass the media entry off to the appropriate processing function
         (for now just process_image...)
 
+        :param media_id: MediaEntry().id
         :param feed_url: The feed URL that the PuSH server needs to be
             updated for.
+        :param reprocess_action: What particular action should be run. For
+            example, 'initial'.
+        :param reprocess: A dict containing all of the necessary reprocessing
+            info for the media_type.
         """
-        entry = MediaEntry.query.get(media_id)
+        reprocess_info = reprocess_info or {}
+        entry, manager = get_entry_and_processing_manager(media_id)
 
         # Try to process, and handle expected errors.
         try:
-            entry.state = u'processing'
-            entry.save()
+            processor_class = manager.get_processor(reprocess_action, entry)
 
-            _log.debug('Processing {0}'.format(entry))
+            with processor_class(manager, entry) as processor:
+                # Initial state change has to be here because
+                # the entry.state gets recorded on processor_class init
+                entry.state = u'processing'
+                entry.save()
 
-            proc_state = ProcessingState(entry)
-            with mgg.workbench_manager.create() as workbench:
-                proc_state.set_workbench(workbench)
-                # run the processing code
-                entry.media_manager.processor(proc_state)
+                _log.debug('Processing {0}'.format(entry))
+
+                try:
+                    processor.process(**reprocess_info)
+                except Exception as exc:
+                    if processor.entry_orig_state == 'processed':
+                        _log.error(
+                            'Entry {0} failed to process due to the following'
+                            ' error: {1}'.format(entry.id, exc))
+                        _log.info(
+                            'Setting entry.state back to "processed"')
+                        pass
+                    else:
+                        raise
 
             # We set the state to processed and save the entry here so there's
             # no need to save at the end of the processing stage, probably ;)
@@ -139,7 +158,19 @@ class ProcessMedia(task.Task):
 
         entry = mgg.database.MediaEntry.query.filter_by(id=entry_id).first()
         json_processing_callback(entry)
+        mgg.database.reset_after_request()
 
-# Register the task
-process_media = registry.tasks[ProcessMedia.name]
+    def after_return(self, *args, **kwargs):
+        """
+        This is called after the task has returned, we should clean up.
 
+        We need to rollback the database to prevent ProgrammingError exceptions
+        from being raised.
+        """
+        # In eager mode we get DetachedInstanceError, we do rollback on_failure
+        # to deal with that case though when in eager mode.
+        if not celery.app.default_app.conf['CELERY_ALWAYS_EAGER']:
+            mgg.database.reset_after_request()
+
+
+tasks.register(ProcessMedia)

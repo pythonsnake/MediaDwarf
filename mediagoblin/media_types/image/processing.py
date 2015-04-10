@@ -14,15 +14,25 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
+
 try:
     from PIL import Image
 except ImportError:
     import Image
 import os
 import logging
+import argparse
+
+import six
 
 from mediagoblin import mg_globals as mgg
-from mediagoblin.processing import BadMediaFail, FilenameBuilder
+from mediagoblin.db.models import Location
+from mediagoblin.processing import (
+    BadMediaFail, FilenameBuilder,
+    MediaProcessor, ProcessingManager,
+    request_from_args, get_process_filename,
+    store_public, copy_original)
 from mediagoblin.tools.exif import exif_fix_image_orientation, \
     extract_exif, clean_exif, get_gps_data, get_useful, \
     exif_image_needs_rotation
@@ -35,9 +45,11 @@ PIL_FILTERS = {
     'BICUBIC': Image.BICUBIC,
     'ANTIALIAS': Image.ANTIALIAS}
 
+MEDIA_TYPE = 'mediagoblin.media_types.image'
 
-def resize_image(proc_state, resized, keyname, target_name, new_size,
-                 exif_tags, workdir):
+
+def resize_image(entry, resized, keyname, target_name, new_size,
+                 exif_tags, workdir, quality, filter):
     """
     Store a resized version of an image and return its pathname.
 
@@ -49,128 +61,376 @@ def resize_image(proc_state, resized, keyname, target_name, new_size,
     exif_tags -- EXIF data for the original image
     workdir -- directory path for storing converted image files
     new_size -- 2-tuple size for the resized image
+    quality -- level of compression used when resizing images
+    filter -- One of BICUBIC, BILINEAR, NEAREST, ANTIALIAS
     """
-    config = mgg.global_config['media_type:mediagoblin.media_types.image']
-
     resized = exif_fix_image_orientation(resized, exif_tags)  # Fix orientation
 
-    filter_config = config['resize_filter']
     try:
-        resize_filter = PIL_FILTERS[filter_config.upper()]
+        resize_filter = PIL_FILTERS[filter.upper()]
     except KeyError:
         raise Exception('Filter "{0}" not found, choose one of {1}'.format(
-            unicode(filter_config),
+            six.text_type(filter),
             u', '.join(PIL_FILTERS.keys())))
 
     resized.thumbnail(new_size, resize_filter)
 
     # Copy the new file to the conversion subdir, then remotely.
     tmp_resized_filename = os.path.join(workdir, target_name)
-    with file(tmp_resized_filename, 'w') as resized_file:
-        resized.save(resized_file, quality=config['quality'])
-    proc_state.store_public(keyname, tmp_resized_filename, target_name)
+    with open(tmp_resized_filename, 'wb') as resized_file:
+        resized.save(resized_file, quality=quality)
+    store_public(entry, keyname, tmp_resized_filename, target_name)
+
+    # store the thumb/medium info
+    image_info = {'width': new_size[0],
+                  'height': new_size[1],
+                  'quality': quality,
+                  'filter': filter}
+
+    entry.set_file_metadata(keyname, **image_info)
 
 
-def resize_tool(proc_state, force, keyname, target_name,
-                conversions_subdir, exif_tags):
-    # filename -- the filename of the original image being resized
-    filename = proc_state.get_queued_filename()
-    max_width = mgg.global_config['media:' + keyname]['max_width']
-    max_height = mgg.global_config['media:' + keyname]['max_height']
+def resize_tool(entry,
+                force, keyname, orig_file, target_name,
+                conversions_subdir, exif_tags, quality, filter, new_size=None):
+    # Use the default size if new_size was not given
+    if not new_size:
+        max_width = mgg.global_config['media:' + keyname]['max_width']
+        max_height = mgg.global_config['media:' + keyname]['max_height']
+        new_size = (max_width, max_height)
+
+    # If thumb or medium is already the same quality and size, then don't
+    # reprocess
+    if _skip_resizing(entry, keyname, new_size, quality, filter):
+        _log.info('{0} of same size and quality already in use, skipping '
+                  'resizing of media {1}.'.format(keyname, entry.id))
+        return
+
     # If the size of the original file exceeds the specified size for the desized
     # file, a target_name file is created and later associated with the media
     # entry.
     # Also created if the file needs rotation, or if forced.
     try:
-        im = Image.open(filename)
+        im = Image.open(orig_file)
     except IOError:
         raise BadMediaFail()
     if force \
-        or im.size[0] > max_width \
-        or im.size[1] > max_height \
+        or im.size[0] > new_size[0]\
+        or im.size[1] > new_size[1]\
         or exif_image_needs_rotation(exif_tags):
         resize_image(
-            proc_state, im, unicode(keyname), target_name,
-            (max_width, max_height),
-            exif_tags, conversions_subdir)
+            entry, im, six.text_type(keyname), target_name,
+            tuple(new_size),
+            exif_tags, conversions_subdir,
+            quality, filter)
 
 
-SUPPORTED_FILETYPES = ['png', 'gif', 'jpg', 'jpeg']
-
-
-def sniff_handler(media_file, **kw):
-    if kw.get('media') is not None:  # That's a double negative!
-        name, ext = os.path.splitext(kw['media'].filename)
-        clean_ext = ext[1:].lower()  # Strip the . from ext and make lowercase
-
-        if clean_ext in SUPPORTED_FILETYPES:
-            _log.info('Found file extension in supported filetypes')
-            return True
-        else:
-            _log.debug('Media present, extension not found in {0}'.format(
-                    SUPPORTED_FILETYPES))
-    else:
-        _log.warning('Need additional information (keyword argument \'media\')'
-                     ' to be able to handle sniffing')
-
-    return False
-
-
-def process_image(proc_state):
-    """Code to process an image. Will be run by celery.
-
-    A Workbench() represents a local tempory dir. It is automatically
-    cleaned up when this function exits.
+def _skip_resizing(entry, keyname, size, quality, filter):
     """
-    entry = proc_state.entry
-    workbench = proc_state.workbench
+    Determines wither the saved thumb or medium is of the same quality and size
+    """
+    image_info = entry.get_file_metadata(keyname)
 
-    # Conversions subdirectory to avoid collisions
-    conversions_subdir = os.path.join(
-        workbench.dir, 'conversions')
-    os.mkdir(conversions_subdir)
+    if not image_info:
+        return False
 
-    queued_filename = proc_state.get_queued_filename()
-    name_builder = FilenameBuilder(queued_filename)
+    skip = True
 
-    # EXIF extraction
-    exif_tags = extract_exif(queued_filename)
-    gps_data = get_gps_data(exif_tags)
+    if image_info.get('width') != size[0]:
+        skip = False
 
-    # Always create a small thumbnail
-    resize_tool(proc_state, True, 'thumb',
-                name_builder.fill('{basename}.thumbnail{ext}'),
-                conversions_subdir, exif_tags)
+    elif image_info.get('height') != size[1]:
+        skip = False
 
-    # Possibly create a medium
-    resize_tool(proc_state, False, 'medium',
-                name_builder.fill('{basename}.medium{ext}'),
-                conversions_subdir, exif_tags)
+    elif image_info.get('filter') != filter:
+        skip = False
 
-    # Get the dimensions of the image to save it
-    dimensions = Image.open(queued_filename).size
+    elif image_info.get('quality') != quality:
+        skip = False
 
-    # Copy our queued local workbench to its final destination
-    proc_state.copy_original(name_builder.fill('{basename}{ext}'))
+    return skip
 
-    # Remove queued media file from storage and database
-    proc_state.delete_queue_file()
 
-    # Insert exif data into database
-    exif_all = clean_exif(exif_tags)
+SUPPORTED_FILETYPES = ['png', 'gif', 'jpg', 'jpeg', 'tiff']
 
-    entry.media_data_init(
-        width=dimensions[0],
-        height=dimensions[1])
 
-    if len(exif_all):
-        entry.media_data_init(exif_all=exif_all)
+def sniff_handler(media_file, filename):
+    _log.info('Sniffing {0}'.format(MEDIA_TYPE))
+    name, ext = os.path.splitext(filename)
+    clean_ext = ext[1:].lower()  # Strip the . from ext and make lowercase
 
-    if len(gps_data):
-        for key in list(gps_data.keys()):
-            gps_data['gps_' + key] = gps_data.pop(key)
-        entry.media_data_init(**gps_data)
+    if clean_ext in SUPPORTED_FILETYPES:
+        _log.info('Found file extension in supported filetypes')
+        return MEDIA_TYPE
+    else:
+        _log.debug('Media present, extension not found in {0}'.format(
+                SUPPORTED_FILETYPES))
 
+    return None
+
+
+class CommonImageProcessor(MediaProcessor):
+    """
+    Provides a base for various media processing steps
+    """
+    # list of acceptable file keys in order of prefrence for reprocessing
+    acceptable_files = ['original', 'medium']
+
+    def common_setup(self):
+        """
+        Set up the workbench directory and pull down the original file
+        """
+        self.image_config = mgg.global_config['plugins'][
+            'mediagoblin.media_types.image']
+
+        ## @@: Should this be two functions?
+        # Conversions subdirectory to avoid collisions
+        self.conversions_subdir = os.path.join(
+            self.workbench.dir, 'conversions')
+        os.mkdir(self.conversions_subdir)
+
+        # Pull down and set up the processing file
+        self.process_filename = get_process_filename(
+            self.entry, self.workbench, self.acceptable_files)
+        self.name_builder = FilenameBuilder(self.process_filename)
+
+        # Exif extraction
+        self.exif_tags = extract_exif(self.process_filename)
+
+    def generate_medium_if_applicable(self, size=None, quality=None,
+                                      filter=None):
+        if not quality:
+            quality = self.image_config['quality']
+        if not filter:
+            filter = self.image_config['resize_filter']
+
+        resize_tool(self.entry, False, 'medium', self.process_filename,
+                    self.name_builder.fill('{basename}.medium{ext}'),
+                    self.conversions_subdir, self.exif_tags, quality,
+                    filter, size)
+
+    def generate_thumb(self, size=None, quality=None, filter=None):
+        if not quality:
+            quality = self.image_config['quality']
+        if not filter:
+            filter = self.image_config['resize_filter']
+
+        resize_tool(self.entry, True, 'thumb', self.process_filename,
+                    self.name_builder.fill('{basename}.thumbnail{ext}'),
+                    self.conversions_subdir, self.exif_tags, quality,
+                    filter, size)
+
+    def copy_original(self):
+        copy_original(
+            self.entry, self.process_filename,
+            self.name_builder.fill('{basename}{ext}'))
+
+    def extract_metadata(self, file):
+        """ Extract all the metadata from the image and store """
+        # Extract GPS data and store in Location
+        gps_data = get_gps_data(self.exif_tags)
+
+        if len(gps_data):
+            Location.create({"position": gps_data}, self.entry)
+
+        # Insert exif data into database
+        exif_all = clean_exif(self.exif_tags)
+
+        if len(exif_all):
+            self.entry.media_data_init(exif_all=exif_all)
+
+        # Extract file metadata
+        try:
+            im = Image.open(self.process_filename)
+        except IOError:
+            raise BadMediaFail()
+
+        metadata = {
+            "width": im.size[0],
+            "height": im.size[1],
+        }
+
+        self.entry.set_file_metadata(file, **metadata)
+
+
+class InitialProcessor(CommonImageProcessor):
+    """
+    Initial processing step for new images
+    """
+    name = "initial"
+    description = "Initial processing"
+
+    @classmethod
+    def media_is_eligible(cls, entry=None, state=None):
+        """
+        Determine if this media type is eligible for processing
+        """
+        if entry is None and state is None:
+            raise ValueError("Must specify either entry or state")
+
+        if not state:
+            state = entry.state
+        return state in (
+            "unprocessed", "failed")
+
+    ###############################
+    # Command line interface things
+    ###############################
+
+    @classmethod
+    def generate_parser(cls):
+        parser = argparse.ArgumentParser(
+            description=cls.description,
+            prog=cls.name)
+
+        parser.add_argument(
+            '--size',
+            nargs=2,
+            metavar=('max_width', 'max_height'),
+            type=int)
+
+        parser.add_argument(
+            '--thumb-size',
+            nargs=2,
+            metavar=('max_width', 'max_height'),
+            type=int)
+
+        parser.add_argument(
+            '--filter',
+            choices=['BICUBIC', 'BILINEAR', 'NEAREST', 'ANTIALIAS'])
+
+        parser.add_argument(
+            '--quality',
+            type=int,
+            help='level of compression used when resizing images')
+
+        return parser
+
+    @classmethod
+    def args_to_request(cls, args):
+        return request_from_args(
+            args, ['size', 'thumb_size', 'filter', 'quality'])
+
+    def process(self, size=None, thumb_size=None, quality=None, filter=None):
+        self.common_setup()
+        self.generate_medium_if_applicable(size=size, filter=filter,
+                                           quality=quality)
+        self.generate_thumb(size=thumb_size, filter=filter, quality=quality)
+        self.copy_original()
+        self.extract_metadata('original')
+        self.delete_queue_file()
+
+
+class Resizer(CommonImageProcessor):
+    """
+    Resizing process steps for processed media
+    """
+    name = 'resize'
+    description = 'Resize image'
+    thumb_size = 'size'
+
+    @classmethod
+    def media_is_eligible(cls, entry=None, state=None):
+        """
+        Determine if this media type is eligible for processing
+        """
+        if entry is None and state is None:
+            raise ValueError("Must specify either entry or state")
+
+        if not state:
+            state = entry.state
+        return state in 'processed'
+
+    ###############################
+    # Command line interface things
+    ###############################
+
+    @classmethod
+    def generate_parser(cls):
+        parser = argparse.ArgumentParser(
+            description=cls.description,
+            prog=cls.name)
+
+        parser.add_argument(
+            '--size',
+            nargs=2,
+            metavar=('max_width', 'max_height'),
+            type=int)
+
+        parser.add_argument(
+            '--filter',
+            choices=['BICUBIC', 'BILINEAR', 'NEAREST', 'ANTIALIAS'])
+
+        parser.add_argument(
+            '--quality',
+            type=int,
+            help='level of compression used when resizing images')
+
+        parser.add_argument(
+            'file',
+            choices=['medium', 'thumb'])
+
+        return parser
+
+    @classmethod
+    def args_to_request(cls, args):
+        return request_from_args(
+            args, ['size', 'file', 'quality', 'filter'])
+
+    def process(self, file, size=None, filter=None, quality=None):
+        self.common_setup()
+        if file == 'medium':
+            self.generate_medium_if_applicable(size=size, filter=filter,
+                                              quality=quality)
+        elif file == 'thumb':
+            self.generate_thumb(size=size, filter=filter, quality=quality)
+
+        self.extract_metadata(file)
+
+class MetadataProcessing(CommonImageProcessor):
+    """ Extraction and storage of media's metadata for processed images """
+
+    name = 'metadatabuilder'
+    description = 'Add or update image metadata'
+
+    @classmethod
+    def media_is_eligible(cls, entry=None, state=None):
+        if entry is None and state is None:
+            raise ValueError("Must specify either entry or state")
+
+        if state is None:
+            state = entry.state
+
+        return state == 'processed'
+
+    @classmethod
+    def generate_parser(cls):
+        parser = argparse.ArgumentParser(
+            description=cls.description,
+            prog=cls.name
+        )
+
+        parser.add_argument(
+            'file',
+            choices=['original', 'medium', 'thumb']
+        )
+
+        return parser
+
+    @classmethod
+    def args_to_request(cls, args):
+        return request_from_args(args, ['file'])
+
+    def process(self, file):
+        self.common_setup()
+        self.extract_metadata(file)
+
+class ImageProcessingManager(ProcessingManager):
+    def __init__(self):
+        super(ImageProcessingManager, self).__init__()
+        self.add_processor(InitialProcessor)
+        self.add_processor(Resizer)
+        self.add_processor(MetadataProcessing)
 
 if __name__ == '__main__':
     import sys
@@ -183,5 +443,4 @@ if __name__ == '__main__':
     clean = clean_exif(result)
     useful = get_useful(clean)
 
-    print pp.pprint(
-        clean)
+    print(pp.pprint(clean))

@@ -27,14 +27,26 @@ add_route('mediagoblin.user_pages.media_embed',
           '/u/<string:user>/m/<string:media>/embed/',
           'mediagoblin.user_pages.views:media_embed')
 
+add_route('mediagoblin.user_pages.media_home.report_media',
+          '/u/<string:user>/m/<string:media>/report/',
+          'mediagoblin.user_pages.views:file_a_report')
+
 add_route('mediagoblin.user_pages.media_confirm_delete',
           '/u/<string:user>/m/<int:media_id>/confirm-delete/',
           'mediagoblin.user_pages.views:media_confirm_delete')
+
+add_route('mediagoblin.user_pages.activity_view',
+          '/<string:username>/activity/<string:id>/',
+          'mediagoblin.user_pages.views:activity_view')
 
 # Submission handling of new comments. TODO: only allow for POST methods
 add_route('mediagoblin.user_pages.media_post_comment',
           '/u/<string:user>/m/<int:media_id>/comment/add/',
           'mediagoblin.user_pages.views:media_post_comment')
+
+add_route('mediagoblin.user_pages.media_preview_comment',
+          '/ajax/comment/preview/',
+          'mediagoblin.user_pages.views:media_preview_comment')
 
 add_route('mediagoblin.user_pages.user_gallery',
           '/u/<string:user>/gallery/',
@@ -43,6 +55,10 @@ add_route('mediagoblin.user_pages.user_gallery',
 add_route('mediagoblin.user_pages.media_home.view_comment',
           '/u/<string:user>/m/<string:media>/c/<int:comment>/',
           'mediagoblin.user_pages.views:media_home')
+
+add_route('mediagoblin.user_pages.media_home.report_comment',
+          '/u/<string:user>/m/<string:media>/c/<int:comment>/report/',
+          'mediagoblin.user_pages.views:file_a_report')
 
 # User's tags gallery
 add_route('mediagoblin.user_pages.user_tag_gallery',
@@ -93,3 +109,7 @@ add_route('mediagoblin.edit.edit_media',
 add_route('mediagoblin.edit.attachments',
           '/u/<string:user>/m/<int:media_id>/attachments/',
           'mediagoblin.edit.views:edit_attachments')
+
+add_route('mediagoblin.edit.metadata',
+          '/u/<string:user>/m/<int:media_id>/metadata/',
+          'mediagoblin.edit.views:edit_metadata')

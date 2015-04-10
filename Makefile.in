@@ -1,0 +1,224 @@
+# Makefile.in
+#
+# Copyright © 2012, 2013 Brandon Invergo <brandon@invergo.net>
+# Copyright © 2014, 2015 Christopher Allan Webber <cwebber@dustycloud.org>
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered as-is,
+# without any warranty.
+
+# List whatever files you want to include in your source distribution here.
+# You can include whole directories but note that *everything* under that 
+# directory will be included
+DISTFILES = PKG-INFO Makefile.in configure setup.py install-sh
+
+DESTDIR = 
+VPATH = @srcdir@
+PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
+PACKAGE_NAME = @PACKAGE_NAME@
+PACKAGE_STRING = @PACKAGE_STRING@
+PACKAGE_TARNAME = @PACKAGE_TARNAME@
+PACKAGE_DISTNAME = ${PACKAGE_NAME}-${PACKAGE_VERSION}
+PACKAGE_URL = @PACKAGE_URL@
+PACKAGE_VERSION = @PACKAGE_VERSION@
+PATH_SEPARATOR = @PATH_SEPARATOR@
+PYTHON = @PYTHON@
+VIRTUALENV = @VIRTUALENV@
+SHELL = @SHELL@
+MKDIR_P = @MKDIR_P@
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+docdir = @docdir@
+dvidir = @dvidir@
+exec_prefix = @exec_prefix@
+htmldir = @htmldir@
+includedir = @includedir@
+infodir = @infodir@
+prefix = @prefix@
+srcdir = @srcdir@
+abs_srcdir = @abs_srcdir@
+datadir = @datadir@
+datarootdir = @datarootdir@
+pkgdatadir = $(datadir)/@PACKAGE_NAME@
+pkgincludedir = $(includedir)/@PACKAGE_NAME@
+PYTHONPATH = $(pythondir)$(PATH_SEPARATOR)$(DESTDIR)$(pythondir)
+USE_PYTHON3 = @USE_PYTHON3@
+
+EXTLIB_INSTALLS = extlib/jquery extlib/video.js extlib/leaflet extlib/tinymce
+
+# pkgpythondir = @pkgpythondir@
+# pkgpyexecdir = @pkgpyexecdir@
+# pythondir = @pythondir@
+# pyexecdir = @pyexecdir@
+# SPHINXBUILD = @SPHINXBUILD@
+# POSTGRES = @POSTGRES@
+
+
+# Maybe add a virtualenv prefix to a command
+ifneq ($(VIRTUALENV),no)
+# virtualenv specified to be included by config (default)
+#   ... we only use virtualenv for local development, we don't
+#   auto-deploy to it.
+
+maybe_venved = ./bin/
+maybe_venved_python = ./bin/python
+# Yes, build the virtualenv as a dependency!
+maybe_venv_dep = virtualenv
+# And to clean up!
+maybe_venv_clean = clean-virtualenv
+
+else
+# --without-virtualenv must have been passed in... don't build
+#   a local virtualenv or use such commands
+maybe_venved =
+maybe_venved_python = $(PYTHON)
+# No need for commands to build virtualenv as a dependency!
+maybe_venv_dep = 
+# Nor to clean up!
+maybe_venv_clean = 
+endif
+
+.PHONY: all install uninstall distclean info install-html html \
+install-pdf pdf install-dvi dvi install-ps ps clean dist check \
+installdirs i18n virtualenv docs extlib
+
+# update postgresql
+
+all: develop
+
+docs:
+ifneq ($(VIRTUALENV),no)
+	source bin/activate && cd docs && make html
+else
+	cd docs && make html
+endif
+
+# In the future we may provide more options than just npm/bower here
+# eg, we may support guix updating.
+extlib:
+	./devtools/update_extlib.sh
+
+develop: $(maybe_venv_dep) i18n mediagoblin.ini
+
+# NEVER clobber a user's mediagoblin.ini once they've defined it
+mediagoblin.ini:
+	cp --no-clobber mediagoblin.example.ini mediagoblin.ini
+
+# base-configs: paste.ini mediagoblin.example.ini
+
+install: installdirs
+	$(maybe_venved_python) $(srcdir)/setup.py install --prefix=$(DESTDIR)$(prefix)
+
+
+# In the future, maybe we can compile the individual .po files here?
+i18n: $(maybe_venv_dep)
+	./devtools/compile_translations.sh
+
+
+ifneq ($(VIRTUALENV),no)
+./bin/python:
+	rm -f ./bin/python
+	virtualenv --system-site-packages --python=$(PYTHON) .
+	./bin/python setup.py develop --upgrade
+
+virtualenv: bin/python extlib
+
+clean-virtualenv:
+	rm -rf ./bin/
+	rm -rf ./lib/
+	rm -rf ./include/
+endif
+
+# setup.py doesn't (yet) support an uninstall command, so until it does, you 
+# must manually remove everything that was installed here. The following example
+# should remove a basic package installed via setup.py, but please double- and 
+# triple-check it so that you don't remove something you shouldn't!
+# Be sure to remove any extra files you install, such as binaries or documentation!
+# 
+# uninstall: 
+# 	rm -rvf $(pkgpythondir)
+# 	rm -v $(pythondir)/$(PACKAGE_DISTNAME)-*.egg-info
+# 
+
+# We don't know what this does yet.
+# Originally:
+## Just use the usual setup.py clean command
+#clean:
+#	$(maybe_venved_python) setup.py clean
+clean:
+	@echo "No rule to clean house, yet."
+	@echo "distclean works but might do more than you want. :)"
+
+
+# It's not obvious to me whether the virtualenv/bower/npm things should be
+# auto-cleaned as part of distclean.  I'm leaning towards "yes" for now but
+# I'm not really happy about that.
+
+# Clean up the output of configure
+distclean: $(maybe_venv_clean)
+	rm -vf $(srcdir)/config.log
+	rm -vf $(srcdir)/config.status
+	rm -rvf $(srcdir)/autom4te.cache
+	rm -vf $(srcdir)/aclocal.m4
+	rm -rf $(EXTLIB_INSTALLS)
+	rm -rf node_modules
+	rm -vf $(srcdir)/Makefile
+
+
+###########################################################################
+# These things aren't really tested / supported yet.
+###########################################################################
+
+
+
+# You can either use the setup.py sdist command or you can roll your own here
+dist: extlib
+#	$(maybe_venved_python) setup.py sdist
+	mkdir $(PACKAGE_DISTNAME)
+	cp -r $(DISTFILES) $(PACKAGE_DISTNAME)
+	tar -czf $(PACKAGE_DISTNAME).tar.gz $(PACKAGE_DISTNAME)
+	rm -rf $(PACKAGE_DISTNAME)
+
+# Use the setup.py check command
+check:
+	$(maybe_venved_python) setup.py check
+
+# setup.py might complain if a directory doesn't exist so just in case, make the directory
+# here
+installdirs:
+	$(MKDIR_P) $(DESTDIR)$(prefix)
+
+######################
+# Needs to be updated?
+######################
+
+# The following show how to install documentation. In this example,
+# docs are built from a separate Makefile contained in the docs
+# directory which uses the SPHINXBUILD variable to store the location
+# of the sphinx-build (Python doc tool) binary to use.
+
+$(DESTDIR)$(infodir)/mediagoblin.info: docs/build/texinfo/mediagoblin.info
+	$(POST_INSTALL)
+	$(INSTALL_DATA) @< $(DESTDIR)$@
+	if $(SHELL) -c 'install-info --version' >/dev/null 2>&1; then
+		install-info --dir-file=$(DESTDIR)$(infodir)/dir \
+				$(DESTDIR)$(infodir)/foo.info;
+	else true; fi
+
+info: docs/build/texinfo/mediagoblin.info
+
+docs/build/texinfo/mediagoblin.info: $(wildcard docs/source/*)
+ifneq ($(VIRTUALENV),no)
+	source bin/activate && cd docs && make info
+else
+	cd docs && make info
+endif
+
+
+install-html: html installdirs
+	$(INSTALL_DATA) docs/build/html/* $(DESTDIR)$(htmldir)
+
+html: docs

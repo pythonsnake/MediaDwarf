@@ -21,9 +21,9 @@ from mediagoblin.tools.translate import lazy_pass_to_ugettext as _
 class MediaCommentForm(wtforms.Form):
     comment_content = wtforms.TextAreaField(
         _('Comment'),
-        [wtforms.validators.Required()],
+        [wtforms.validators.InputRequired()],
         description=_(u'You can use '
-                      u'<a href="http://daringfireball.net/projects/markdown/basics">'
+                      u'<a href="http://daringfireball.net/projects/markdown/basics" target="_blank">'
                       u'Markdown</a> for formatting.'))
 
 class ConfirmDeleteForm(wtforms.Form):
@@ -47,5 +47,17 @@ class MediaCollectForm(wtforms.Form):
     collection_description = wtforms.TextAreaField(
         _('Description of this collection'),
         description=_("""You can use
-                      <a href="http://daringfireball.net/projects/markdown/basics">
+                      <a href="http://daringfireball.net/projects/markdown/basics" target="_blank">
                       Markdown</a> for formatting."""))
+
+class CommentReportForm(wtforms.Form):
+    report_reason = wtforms.TextAreaField(
+        _('Reason for Reporting'),
+        [wtforms.validators.InputRequired()])
+    reporter_id = wtforms.HiddenField('')
+
+class MediaReportForm(wtforms.Form):
+    report_reason = wtforms.TextAreaField(
+        _('Reason for Reporting'),
+        [wtforms.validators.InputRequired()])
+    reporter_id = wtforms.HiddenField('')

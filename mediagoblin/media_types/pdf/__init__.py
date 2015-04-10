@@ -15,17 +15,28 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from mediagoblin.media_types import MediaManagerBase
-from mediagoblin.media_types.pdf.processing import process_pdf, \
+from mediagoblin.media_types.pdf.processing import PdfProcessingManager, \
     sniff_handler
+
+
+ACCEPTED_EXTENSIONS = ['pdf']
+MEDIA_TYPE = 'mediagoblin.media_types.pdf'
 
 
 class PDFMediaManager(MediaManagerBase):
     human_readable = "PDF"
-    processor = staticmethod(process_pdf)
-    sniff_handler = staticmethod(sniff_handler)
     display_template = "mediagoblin/media_displays/pdf.html"
     default_thumb = "images/media_thumbs/pdf.jpg"
-    accepted_extensions = ["pdf"]
 
 
-MEDIA_MANAGER = PDFMediaManager
+def get_media_type_and_manager(ext):
+    if ext in ACCEPTED_EXTENSIONS:
+        return MEDIA_TYPE, PDFMediaManager
+
+
+hooks = {
+    'get_media_type_and_manager': get_media_type_and_manager,
+    'sniff_handler': sniff_handler,
+    ('media_manager', MEDIA_TYPE): lambda: PDFMediaManager,
+    ('reprocess_manager', MEDIA_TYPE): lambda: PdfProcessingManager,
+}

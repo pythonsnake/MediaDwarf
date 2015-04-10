@@ -15,17 +15,27 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from mediagoblin.media_types import MediaManagerBase
-from mediagoblin.media_types.ascii.processing import process_ascii, \
+from mediagoblin.media_types.ascii.processing import AsciiProcessingManager, \
     sniff_handler
+
+ACCEPTED_EXTENSIONS = ["txt", "asc", "nfo"]
+MEDIA_TYPE = 'mediagoblin.media_types.ascii'
 
 
 class ASCIIMediaManager(MediaManagerBase):
     human_readable = "ASCII"
-    processor = staticmethod(process_ascii)
-    sniff_handler = staticmethod(sniff_handler)
     display_template = "mediagoblin/media_displays/ascii.html"
     default_thumb = "images/media_thumbs/ascii.jpg"
-    accepted_extensions = ["txt", "asc", "nfo"]
-    
 
-MEDIA_MANAGER = ASCIIMediaManager
+
+def get_media_type_and_manager(ext):
+    if ext in ACCEPTED_EXTENSIONS:
+        return MEDIA_TYPE, ASCIIMediaManager
+
+
+hooks = {
+    'get_media_type_and_manager': get_media_type_and_manager,
+    ('media_manager', MEDIA_TYPE): lambda: ASCIIMediaManager,
+    ('reprocess_manager', MEDIA_TYPE): lambda: AsciiProcessingManager,
+    'sniff_handler': sniff_handler,
+}

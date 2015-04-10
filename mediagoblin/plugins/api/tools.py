@@ -19,9 +19,11 @@ import json
 
 from lxml.etree import Element, tostring
 from functools import wraps
-from urlparse import urljoin
 from werkzeug.exceptions import Forbidden
 from werkzeug.wrappers import Response
+
+from six.moves.urllib.parse import urljoin
+
 from mediagoblin import mg_globals
 from mediagoblin.tools.pluginapi import PluginManager
 from mediagoblin.storage.filestorage import BasicFileStorage
@@ -51,7 +53,6 @@ class Auth(object):
 
     def __call__(self, request, *args, **kw):
         raise NotImplemented()
-
 
 def json_response(serializable, _disable_cors=False, *args, **kw):
     '''

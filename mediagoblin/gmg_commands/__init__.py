@@ -16,8 +16,15 @@
 
 import argparse
 import os
+import shutil
+
+import six
 
 from mediagoblin.tools.common import import_component
+
+import logging
+_log = logging.getLogger(__name__)
+logging.basicConfig()
 
 
 SUBCOMMAND_MAP = {
@@ -37,6 +44,10 @@ SUBCOMMAND_MAP = {
         'setup': 'mediagoblin.gmg_commands.users:changepw_parser_setup',
         'func': 'mediagoblin.gmg_commands.users:changepw',
         'help': 'Changes a user\'s password'},
+    'deleteuser': {
+        'setup': 'mediagoblin.gmg_commands.users:deleteuser_parser_setup',
+        'func': 'mediagoblin.gmg_commands.users:deleteuser',
+        'help': 'Deletes a user'},
     'dbupdate': {
         'setup': 'mediagoblin.gmg_commands.dbupdate:dbupdate_parse_setup',
         'func': 'mediagoblin.gmg_commands.dbupdate:dbupdate',
@@ -45,25 +56,31 @@ SUBCOMMAND_MAP = {
         'setup': 'mediagoblin.gmg_commands.assetlink:assetlink_parser_setup',
         'func': 'mediagoblin.gmg_commands.assetlink:assetlink',
         'help': 'Link assets for themes and plugins for static serving'},
+    'reprocess': {
+        'setup': 'mediagoblin.gmg_commands.reprocess:reprocess_parser_setup',
+        'func': 'mediagoblin.gmg_commands.reprocess:reprocess',
+        'help': 'Reprocess media entries'},
+    'addmedia': {
+        'setup': 'mediagoblin.gmg_commands.addmedia:parser_setup',
+        'func': 'mediagoblin.gmg_commands.addmedia:addmedia',
+        'help': 'Reprocess media entries'},
+    'deletemedia': {
+        'setup': 'mediagoblin.gmg_commands.deletemedia:parser_setup',
+        'func': 'mediagoblin.gmg_commands.deletemedia:deletemedia',
+        'help': 'Delete media entries'},
+    'serve': {
+            'setup': 'mediagoblin.gmg_commands.serve:parser_setup',
+            'func': 'mediagoblin.gmg_commands.serve:serve',
+            'help': 'PasteScript replacement'},
+    'batchaddmedia': {
+        'setup': 'mediagoblin.gmg_commands.batchaddmedia:parser_setup',
+        'func': 'mediagoblin.gmg_commands.batchaddmedia:batchaddmedia',
+        'help': 'Add many media entries at once'},
     # 'theme': {
     #     'setup': 'mediagoblin.gmg_commands.theme:theme_parser_setup',
     #     'func': 'mediagoblin.gmg_commands.theme:theme',
     #     'help': 'Theming commands',
     #     }
-
-    ## These might be useful, mayyyybe, but don't really work anymore
-    ## due to mongo change and the "versatility" of sql options.
-    ##
-    ## For now, commenting out.  Might re-enable soonish?
-    #
-    # 'env_export': {
-    #     'setup': 'mediagoblin.gmg_commands.import_export:import_export_parse_setup',
-    #     'func': 'mediagoblin.gmg_commands.import_export:env_export',
-    #     'help': 'Exports the data for this MediaGoblin instance'},
-    # 'env_import': {
-    #     'setup': 'mediagoblin.gmg_commands.import_export:import_export_parse_setup',
-    #     'func': 'mediagoblin.gmg_commands.import_export:env_import',
-    #     'help': 'Imports the data for this MediaGoblin instance'},
     }
 
 
@@ -78,7 +95,7 @@ def main_cli():
             "otherwise mediagoblin.ini"))
 
     subparsers = parser.add_subparsers(help='sub-command help')
-    for command_name, command_struct in SUBCOMMAND_MAP.iteritems():
+    for command_name, command_struct in six.iteritems(SUBCOMMAND_MAP):
         if 'help' in command_struct:
             subparser = subparsers.add_parser(
                 command_name, help=command_struct['help'])
@@ -100,6 +117,27 @@ def main_cli():
             args.conf_file = 'mediagoblin_local.ini'
         else:
             args.conf_file = 'mediagoblin.ini'
+
+    # This is a hopefully TEMPORARY hack for adding a mediagoblin.ini
+    # if none exists, to make up for a deficiency as we are migrating
+    # our docs to the new "no mediagoblin.ini by default" workflow.
+    # Normally, the docs should provide instructions for this, but
+    # since 0.7.1 docs say "install from master!" and yet we removed
+    # mediagoblin.ini, we need to cover our bases...
+
+    parent_directory = os.path.split(os.path.abspath(args.conf_file))[0]
+    if os.path.split(args.conf_file)[1] == 'mediagoblin.ini' \
+       and not os.path.exists(args.conf_file) \
+       and os.path.exists(
+           os.path.join(
+               parent_directory, 'mediagoblin.example.ini')):
+        # Do the copy-over of the mediagoblin config for the user
+        _log.warning(
+            "No mediagoblin.ini found and no other path given, "
+            "so making one for you.")
+        shutil.copy(
+            os.path.join(parent_directory, "mediagoblin.example.ini"),
+            os.path.join(parent_directory, "mediagoblin.ini"))
 
     args.func(args)
 

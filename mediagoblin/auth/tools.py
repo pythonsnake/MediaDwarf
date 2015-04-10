@@ -14,12 +14,16 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
 import logging
+
+import six
 import wtforms
+from sqlalchemy import or_
 
 from mediagoblin import mg_globals
 from mediagoblin.tools.crypto import get_timed_signer_url
-from mediagoblin.db.models import User
+from mediagoblin.db.models import User, Privilege
 from mediagoblin.tools.mail import (normalize_email, send_email,
                                     email_debug_message)
 from mediagoblin.tools.template import render_template
@@ -101,37 +105,6 @@ def send_verification_email(user, request, email=None,
         rendered_email)
 
 
-EMAIL_FP_VERIFICATION_TEMPLATE = (
-    u"{uri}?"
-    u"token={fp_verification_key}")
-
-
-def send_fp_verification_email(user, request):
-    """
-    Send the verification email to users to change their password.
-
-    Args:
-    - user: a user object
-    - request: the request
-    """
-    fp_verification_key = get_timed_signer_url('mail_verification_token') \
-            .dumps(user.id)
-    rendered_email = render_template(
-        request, 'mediagoblin/auth/fp_verification_email.txt',
-        {'username': user.username,
-         'verification_url': EMAIL_FP_VERIFICATION_TEMPLATE.format(
-             uri=request.urlgen('mediagoblin.auth.verify_forgot_password',
-                                qualified=True),
-             fp_verification_key=fp_verification_key)})
-
-    # TODO: There is no error handling in place
-    send_email(
-        mg_globals.app_config['email_sender_address'],
-        [user.email],
-        'GNU MediaGoblin - Change forgotten password!',
-        rendered_email)
-
-
 def basic_extra_validation(register_form, *args):
     users_with_username = User.query.filter_by(
         username=register_form.username.data).count()
@@ -160,8 +133,12 @@ def register_user(request, register_form):
         # Create the user
         user = auth.create_user(register_form)
 
+        # give the user the default privileges
+        user.all_privileges += get_default_privileges(user)
+        user.save()
+
         # log the user in
-        request.session['user_id'] = unicode(user.id)
+        request.session['user_id'] = six.text_type(user.id)
         request.session.save()
 
         # send verification email
@@ -172,6 +149,14 @@ def register_user(request, register_form):
 
     return None
 
+def get_default_privileges(user):
+    instance_privilege_scheme = mg_globals.app_config['user_privilege_scheme']
+    default_privileges = [Privilege.query.filter(
+        Privilege.privilege_name==privilege_name).first()
+        for privilege_name in instance_privilege_scheme.split(',')]
+    default_privileges = [privilege for privilege in default_privileges if not privilege == None]
+
+    return default_privileges
 
 def check_login_simple(username, password):
     user = auth.get_user(username=username)
@@ -195,7 +180,18 @@ def check_auth_enabled():
 
 
 def no_auth_logout(request):
-    """Log out the user if authentication_disabled, but don't delete the messages"""
-    if not mg_globals.app.auth and 'user_id' in request.session:
+    """
+    Log out the user if no authentication is enabled, but don't delete
+    the messages
+    """
+    if not request.app.auth and 'user_id' in request.session:
         del request.session['user_id']
         request.session.save()
+
+
+def create_basic_user(form):
+    user = User()
+    user.username = form.username.data
+    user.email = form.email.data
+    user.save()
+    return user

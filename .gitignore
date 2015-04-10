@@ -7,6 +7,7 @@
 /build/
 /eggs/
 /lib/
+/lib64
 /local/
 /include/
 /parts/
@@ -22,7 +23,20 @@
 /mediagoblin.db
 /celery.db
 /kombu.db
+/celerybeat-schedule
 /server-log.txt
+*.egg/
+/env
+/mediagoblin.ini
+/node_modules/
+
+# pyconfigure/automake generated files
+/Makefile
+/autom4te.cache/
+/config.log
+/config.status
+/configure
+/aclocal.m4
 
 # Tests
 /mediagoblin/tests/user_dev/
@@ -36,5 +50,17 @@
 # The legacy of buildout
 .installed.cfg
 
+<<<<<<< HEAD
 /extlib/colorbox/
 /mediagoblin/static/js/extlib/colorbox/
+=======
+# Virtualenv, tox
+venv*
+.tox/
+
+# extlib things
+/extlib/jquery/
+/extlib/leaflet/
+/extlib/tinymce/
+/extlib/video.js/
+>>>>>>> dbc383d4834daea1de2c59aa95c06198a3941d6e

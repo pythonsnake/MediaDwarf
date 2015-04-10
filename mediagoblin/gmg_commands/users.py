@@ -14,6 +14,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
+
+import six
+
 from mediagoblin.gmg_commands import util as commands_util
 from mediagoblin import auth
 from mediagoblin import mg_globals
@@ -34,30 +38,39 @@ def adduser(args):
     #TODO: Lets trust admins this do not validate Emails :)
     commands_util.setup_app(args)
 
-    args.username = commands_util.prompt_if_not_set(args.username, "Username:")
+    args.username = unicode(commands_util.prompt_if_not_set(args.username, "Username:"))
     args.password = commands_util.prompt_if_not_set(args.password, "Password:",True)
     args.email = commands_util.prompt_if_not_set(args.email, "Email:")
 
     db = mg_globals.database
     users_with_username = \
-        db.User.find({
-            'username': args.username.lower(),
-        }).count()
+        db.User.query.filter_by(
+            username=args.username.lower()
+        ).count()
 
     if users_with_username:
-        print u'Sorry, a user with that name already exists.'
+        print(u'Sorry, a user with that name already exists.')
 
     else:
         # Create the user
         entry = db.User()
-        entry.username = unicode(args.username.lower())
-        entry.email = unicode(args.email)
+        entry.username = six.text_type(args.username.lower())
+        entry.email = six.text_type(args.email)
         entry.pw_hash = auth.gen_password_hash(args.password)
-        entry.status = u'active'
-        entry.email_verified = True
+        default_privileges = [
+            db.Privilege.query.filter(
+                db.Privilege.privilege_name==u'commenter').one(),
+            db.Privilege.query.filter(
+                db.Privilege.privilege_name==u'uploader').one(),
+            db.Privilege.query.filter(
+                db.Privilege.privilege_name==u'reporter').one(),
+            db.Privilege.query.filter(
+                db.Privilege.privilege_name==u'active').one()
+        ]
+        entry.all_privileges = default_privileges
         entry.save()
 
-        print "User created (and email marked as verified)"
+        print(u"User created (and email marked as verified)")
 
 
 def makeadmin_parser_setup(subparser):
@@ -71,13 +84,17 @@ def makeadmin(args):
 
     db = mg_globals.database
 
-    user = db.User.one({'username': unicode(args.username.lower())})
+    user = db.User.query.filter_by(
+        username=six.text_type(args.username.lower())).one()
     if user:
-        user.is_admin = True
+        user.all_privileges.append(
+            db.Privilege.query.filter(
+                db.Privilege.privilege_name==u'admin').one()
+        )
         user.save()
-        print 'The user is now Admin'
+        print(u'The user is now Admin')
     else:
-        print 'The user doesn\'t exist'
+        print(u'The user doesn\'t exist')
 
 
 def changepw_parser_setup(subparser):
@@ -94,10 +111,31 @@ def changepw(args):
 
     db = mg_globals.database
 
-    user = db.User.one({'username': unicode(args.username.lower())})
+    user = db.User.query.filter_by(
+        username=six.text_type(args.username.lower())).one()
     if user:
         user.pw_hash = auth.gen_password_hash(args.password)
         user.save()
-        print 'Password successfully changed'
+        print(u'Password successfully changed')
     else:
-        print 'The user doesn\'t exist'
+        print(u'The user doesn\'t exist')
+
+
+def deleteuser_parser_setup(subparser):
+    subparser.add_argument(
+        'username',
+        help="Username to delete",
+        type=six.text_type)
+
+
+def deleteuser(args):
+    commands_util.setup_app(args)
+
+    db = mg_globals.database
+
+    user = db.User.query.filter_by(username=args.username.lower()).first()
+    if user:
+        user.delete()
+        print('The user %s has been deleted' % args.username)
+    else:
+        print('The user %s doesn\'t exist' % args.username)

@@ -19,34 +19,22 @@
 # exit if anything fails
 set -e
 
-echo "==> checking out master"
-git checkout master
+## Maybe we'll uncomment these post-merge to master
 
-echo "==> pulling git master"
-git pull
+# echo "==> checking out master"
+# git checkout master
+
+# echo "==> pulling git master"
+# git pull
 
 echo "==> pulling present translations"
-./bin/tx pull -a
-
-git add mediagoblin/i18n/
-git commit -m "Committing present MediaGoblin translations before pushing extracted messages" \
-    || true  # Don't fail if nothing to commit
+rsync --exclude-from="devtools/pootle-exclude.txt" -vaz chapters.gnu.org::pootle/mediagoblin/ mediagoblin/i18n/
 
 echo "==> Extracting translations"
-./bin/pybabel extract -F babel.ini -o mediagoblin/i18n/en/LC_MESSAGES/mediagoblin.po .
-
-echo "==> Pushing extracted translations to Transifex"
-./bin/tx push -s
-
-echo "==> Waiting 5 seconds, so the server can process the new stuff (hopefully)"
-sleep 5
-
-# gets the new strings added to all files
-echo "==> Re-Pulling translations from Transifex"
-./bin/tx pull -a
+./bin/pybabel extract -F babel.ini -o mediagoblin/i18n/templates/mediagoblin.pot .
 
 echo "==> Compiling .mo files"
-./bin/pybabel compile -D mediagoblin -d mediagoblin/i18n/
+./devtools/compile_translations.sh
 
 echo "==> Committing to git"
 git add mediagoblin/i18n/

@@ -1,6 +1,6 @@
 .. MediaGoblin Documentation
 
-   Written in 2011, 2012 by MediaGoblin contributors
+   Written in 2011, 2012, 2014 by MediaGoblin contributors
 
    To the extent possible under law, the author(s) have dedicated all
    copyright and related and neighboring rights to this software to
@@ -18,15 +18,17 @@ Media Types
 ====================
 
 In the future, there will be all sorts of media types you can enable,
-but in the meanwhile there are three additional media types: video, audio
-and ascii art.
+but in the meanwhile there are six additional media types: video, audio,
+raw image, ascii art, STL/3d models, PDF and Document.
 
 First, you should probably read ":doc:`configuration`" to make sure
 you know how to modify the mediagoblin config file.
 
-
 Enabling Media Types
 ====================
+
+.. note::
+    Media types are now plugins
 
 Media types are enabled in your mediagoblin configuration file, typically it is
 created by copying ``mediagoblin.ini`` to ``mediagoblin_local.ini`` and then
@@ -37,11 +39,13 @@ Most media types have additional dependencies that you will have to install.
 You will find descriptions on how to satisfy the requirements of each media type
 on this page.
 
-To enable a media type, edit the ``media_types`` list in your
-``mediagoblin_local.ini``. For example, if your system supported image and
-video media types, then the list would look like this::
+To enable a media type, add the the media type under the ``[plugins]`` section
+in you ``mediagoblin_local.ini``. For example, if your system supported image
+and video media types, then it would look like this::
 
-    media_types = mediagoblin.media_types.image, mediagoblin.media_types.video
+    [plugins]
+    [[mediagoblin.media_types.image]]
+    [[mediagoblin.media_types.video]]
 
 Note that after enabling new media types, you must run dbupdate like so::
 
@@ -75,16 +79,19 @@ good/bad/ugly).  On Debianoid systems
 
 .. code-block:: bash
 
-    sudo apt-get install python-gst0.10 \
-        gstreamer0.10-plugins-base \
-        gstreamer0.10-plugins-bad \
-        gstreamer0.10-plugins-good \
-        gstreamer0.10-plugins-ugly \
-        gstreamer0.10-ffmpeg
+    sudo apt-get install python-gi python3-gi \
+        gstreamer1.0-tools \
+        gir1.2-gstreamer-1.0 \
+        gir1.2-gst-plugins-base-1.0 \
+        gstreamer1.0-plugins-good \
+        gstreamer1.0-plugins-ugly \
+        gstreamer1.0-plugins-bad \
+        gstreamer1.0-libav \
+        python-gst-1.0
 
 
-Add ``mediagoblin.media_types.video`` to the ``media_types`` list in your
-``mediagoblin_local.ini`` and restart MediaGoblin.
+Add ``[[mediagoblin.media_types.video]]`` under the ``[plugins]`` section in
+your ``mediagoblin_local.ini`` and restart MediaGoblin.
 
 Run
 
@@ -133,7 +140,7 @@ Then install ``scikits.audiolab`` for the spectrograms::
 
     ./bin/pip install scikits.audiolab
 
-Add ``mediagoblin.media_types.audio`` to the ``media_types`` list in your
+Add ``[[mediagoblin.media_types.audio]]`` under the ``[plugins]`` section in your
 ``mediagoblin_local.ini`` and restart MediaGoblin.
 
 Run
@@ -143,6 +150,28 @@ Run
     ./bin/gmg dbupdate
 
 You should now be able to upload and listen to audio files!
+
+
+Raw image
+=========
+
+To enable raw image you need to install pyexiv2.  On Debianoid systems
+
+.. code-block:: bash
+
+    sudo apt-get install python-pyexiv2
+
+Add ``[[mediagoblin.media_types.raw_image]]`` under the ``[plugins]``
+section in your ``mediagoblin_local.ini`` and restart MediaGoblin.
+
+Run
+
+.. code-block:: bash
+
+    ./bin/gmg dbupdate
+
+Now you should be able to submit raw images, and mediagoblin should
+extract the JPEG preview from them.
 
 
 Ascii art
@@ -158,13 +187,8 @@ library, which is necessary for creating thumbnails of ascii art
 
 
 Next, modify (and possibly copy over from ``mediagoblin.ini``) your
-``mediagoblin_local.ini``.  In the ``[mediagoblin]`` section, add
-``mediagoblin.media_types.ascii`` to the ``media_types`` list.
-
-For example, if your system supported image and ascii art media types, then
-the list would look like this::
-
-    media_types = mediagoblin.media_types.image, mediagoblin.media_types.ascii
+``mediagoblin_local.ini``.  In the ``[plugins]`` section, add
+``[[mediagoblin.media_types.ascii]]``.
 
 Run
 
@@ -184,8 +208,8 @@ your execution path.  This feature has been tested with Blender 2.63.
 It may work on some earlier versions, but that is not guaranteed (and
 is surely not to work prior to Blender 2.5X).
 
-Add ``mediagoblin.media_types.stl`` to the ``media_types`` list in your
-``mediagoblin_local.ini`` and restart MediaGoblin. 
+Add ``[[mediagoblin.media_types.stl]]`` under the ``[plugins]`` section in your
+``mediagoblin_local.ini`` and restart MediaGoblin.
 
 Run
 
@@ -233,8 +257,8 @@ This feature has been tested on Fedora with:
 
 It may work on some earlier versions, but that is not guaranteed.
 
-Add ``mediagoblin.media_types.pdf`` to the ``media_types`` list in your
-``mediagoblin_local.ini`` and restart MediaGoblin. 
+Add ``[[mediagoblin.media_types.pdf]]`` under the ``[plugins]`` section in your
+``mediagoblin_local.ini`` and restart MediaGoblin.
 
 Run
 
@@ -243,3 +267,13 @@ Run
     ./bin/gmg dbupdate
 
 
+Blog (HIGHLY EXPERIMENTAL)
+==========================
+
+MediaGoblin has a blog media type, which you might notice by looking
+through the docs!  However, it is *highly experimental*.  We have not
+security reviewed this, and it acts in a way that is not like normal
+blogs (the blogposts are themselves media types!).
+
+So you can play with this, but it is not necessarily recommended yet
+for production use! :)

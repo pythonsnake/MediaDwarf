@@ -16,7 +16,10 @@
 
 import os
 import sys
+import datetime
 import logging
+
+import six
 
 from celery import Celery
 from mediagoblin.tools.pluginapi import hook_runall
@@ -27,7 +30,9 @@ _log = logging.getLogger(__name__)
 
 MANDATORY_CELERY_IMPORTS = [
     'mediagoblin.processing.task',
-    'mediagoblin.notifications.task']
+    'mediagoblin.notifications.task',
+    'mediagoblin.submit.task',
+]
 
 DEFAULT_SETTINGS_MODULE = 'mediagoblin.init.celery.dummy_settings_module'
 
@@ -45,7 +50,7 @@ def get_celery_settings_dict(app_config, global_config,
     celery_settings = {}
 
     # Add all celery settings from config
-    for key, value in celery_conf.iteritems():
+    for key, value in six.iteritems(celery_conf):
         celery_settings[key] = value
 
     # TODO: use default result stuff here if it exists
@@ -57,6 +62,18 @@ def get_celery_settings_dict(app_config, global_config,
     if force_celery_always_eager:
         celery_settings['CELERY_ALWAYS_EAGER'] = True
         celery_settings['CELERY_EAGER_PROPAGATES_EXCEPTIONS'] = True
+
+    # Garbage collection periodic task
+    frequency = app_config.get('garbage_collection', 60)
+    if frequency:
+        frequency = int(frequency)
+        celery_settings['CELERYBEAT_SCHEDULE'] = {
+            'garbage-collection': {
+                'task': 'mediagoblin.submit.task.collect_garbage',
+                'schedule': datetime.timedelta(minutes=frequency),
+            }
+        }
+        celery_settings['BROKER_HEARTBEAT'] = 1
 
     return celery_settings
 
@@ -98,7 +115,7 @@ def setup_celery_from_config(app_config, global_config,
     __import__(settings_module)
     this_module = sys.modules[settings_module]
 
-    for key, value in celery_settings.iteritems():
+    for key, value in six.iteritems(celery_settings):
         setattr(this_module, key, value)
 
     if set_environ:

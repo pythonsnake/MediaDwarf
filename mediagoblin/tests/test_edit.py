@@ -14,11 +14,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import urlparse
+import six
+import six.moves.urllib.parse as urlparse
+import pytest
 
 from mediagoblin import mg_globals
-from mediagoblin.db.models import User
-from mediagoblin.tests.tools import fixture_add_user
+from mediagoblin.db.models import User, MediaEntry
+from mediagoblin.tests.tools import fixture_add_user, fixture_media_entry
 from mediagoblin import auth
 from mediagoblin.tools import template, mail
 
@@ -27,7 +29,8 @@ class TestUserEdit(object):
     def setup(self):
         # set up new user
         self.user_password = u'toast'
-        self.user = fixture_add_user(password = self.user_password)
+        self.user = fixture_add_user(password = self.user_password,
+                               privileges=[u'active'])
 
     def login(self, test_app):
         test_app.post(
@@ -52,43 +55,9 @@ class TestUserEdit(object):
         # deleted too. Perhaps in submission test?
 
         #Restore user at end of test
-        self.user = fixture_add_user(password = self.user_password)
+        self.user = fixture_add_user(password = self.user_password,
+                               privileges=[u'active'])
         self.login(test_app)
-
-
-    def test_change_password(self, test_app):
-        """Test changing password correctly and incorrectly"""
-        self.login(test_app)
-
-        # test that the password can be changed
-        template.clear_test_template_context()
-        res = test_app.post(
-            '/edit/password/', {
-                'old_password': 'toast',
-                'new_password': '123456',
-                })
-        res.follow()
-
-        # Did we redirect to the correct page?
-        assert urlparse.urlsplit(res.location)[2] == '/edit/account/'
-
-        # test_user has to be fetched again in order to have the current values
-        test_user = User.query.filter_by(username=u'chris').first()
-        assert auth.check_password('123456', test_user.pw_hash)
-        # Update current user passwd
-        self.user_password = '123456'
-
-        # test that the password cannot be changed if the given
-        # old_password is wrong
-        template.clear_test_template_context()
-        test_app.post(
-            '/edit/password/', {
-                'old_password': 'toast',
-                'new_password': '098765',
-                })
-
-        test_user = User.query.filter_by(username=u'chris').first()
-        assert not auth.check_password('098765', test_user.pw_hash)
 
 
     def test_change_bio_url(self, test_app):
@@ -115,7 +84,8 @@ class TestUserEdit(object):
         assert test_user.url == u'http://dustycloud.org/'
 
         # change a different user than the logged in (should fail with 403)
-        fixture_add_user(username=u"foo")
+        fixture_add_user(username=u"foo",
+                         privileges=[u'active'])
         res = test_app.post(
             '/u/foo/edit/', {
                 'bio': u'I love toast!',
@@ -147,26 +117,26 @@ class TestUserEdit(object):
         # Test email already in db
         template.clear_test_template_context()
         test_app.post(
-            '/edit/account/', {
+            '/edit/email/', {
                 'new_email': 'chris@example.com',
                 'password': 'toast'})
 
         # Check form errors
         context = template.TEMPLATE_TEST_CONTEXT[
-            'mediagoblin/edit/edit_account.html']
+            'mediagoblin/edit/change_email.html']
         assert context['form'].new_email.errors == [
             u'Sorry, a user with that email address already exists.']
 
         # Test successful email change
         template.clear_test_template_context()
         res = test_app.post(
-            '/edit/account/', {
+            '/edit/email/', {
                 'new_email': 'new@example.com',
                 'password': 'toast'})
         res.follow()
 
         # Correct redirect?
-        assert urlparse.urlsplit(res.location)[2] == '/u/chris/'
+        assert urlparse.urlsplit(res.location)[2] == '/edit/account/'
 
         # Make sure we get email verification and try verifying
         assert len(mail.EMAIL_TEST_INBOX) == 1
@@ -174,8 +144,7 @@ class TestUserEdit(object):
         assert message['To'] == 'new@example.com'
         email_context = template.TEMPLATE_TEST_CONTEXT[
             'mediagoblin/edit/verification.txt']
-        assert email_context['verification_url'] in \
-            message.get_payload(decode=True)
+        assert email_context['verification_url'].encode('ascii') in message.get_payload(decode=True)
 
         path = urlparse.urlsplit(email_context['verification_url'])[2]
         assert path == u'/edit/verify_email/'
@@ -190,8 +159,8 @@ class TestUserEdit(object):
         assert urlparse.urlsplit(res.location)[2] == '/'
 
         # Email shouldn't be saved
-        email_in_db = mg_globals.database.User.find_one(
-            {'email': 'new@example.com'})
+        email_in_db = mg_globals.database.User.query.filter_by(
+            email='new@example.com').first()
         email = User.query.filter_by(username='chris').first().email
         assert email_in_db is None
         assert email == 'chris@example.com'
@@ -206,3 +175,87 @@ class TestUserEdit(object):
         email = User.query.filter_by(username='chris').first().email
         assert email == 'new@example.com'
 # test changing the url inproperly
+
+class TestMetaDataEdit:
+    @pytest.fixture(autouse=True)
+    def setup(self, test_app):
+        # set up new user
+        self.user_password = u'toast'
+        self.user = fixture_add_user(password = self.user_password,
+                               privileges=[u'active',u'admin'])
+        self.test_app = test_app
+
+    def login(self, test_app):
+        test_app.post(
+            '/auth/login/', {
+                'username': self.user.username,
+                'password': self.user_password})
+
+    def do_post(self, data, *context_keys, **kwargs):
+        url = kwargs.pop('url', '/submit/')
+        do_follow = kwargs.pop('do_follow', False)
+        template.clear_test_template_context()
+        response = self.test_app.post(url, data, **kwargs)
+        if do_follow:
+            response.follow()
+        context_data = template.TEMPLATE_TEST_CONTEXT
+        for key in context_keys:
+            context_data = context_data[key]
+        return response, context_data
+
+    def test_edit_metadata(self, test_app):
+        media_entry = fixture_media_entry(uploader=self.user.id,
+            state=u'processed')
+        media_slug = "/u/{username}/m/{media_id}/metadata/".format(
+                username = str(self.user.username),
+                media_id = str(media_entry.id))
+
+        self.login(test_app)
+        response = test_app.get(media_slug)
+        assert response.status == '200 OK'
+        assert media_entry.media_metadata == {}
+        # First test adding in  metadata
+        ################################
+        response, context = self.do_post({
+            "media_metadata-0-identifier":"dc:title",
+            "media_metadata-0-value":"Some title",
+            "media_metadata-1-identifier":"dc:creator",
+            "media_metadata-1-value":"Me"},url=media_slug)
+
+        media_entry = MediaEntry.query.first()
+        new_metadata = media_entry.media_metadata
+        assert new_metadata != {}
+        assert new_metadata.get("dc:title") == "Some title"
+        assert new_metadata.get("dc:creator") == "Me"
+        # Now test removing the metadata
+        ################################
+        response, context = self.do_post({
+            "media_metadata-0-identifier":"dc:title",
+            "media_metadata-0-value":"Some title"},url=media_slug)
+
+        media_entry = MediaEntry.query.first()
+        new_metadata = media_entry.media_metadata
+        assert new_metadata.get("dc:title") == "Some title"
+        assert new_metadata.get("dc:creator") is None
+        # Now test adding bad metadata
+        ###############################
+        response, context = self.do_post({
+            "media_metadata-0-identifier":"dc:title",
+            "media_metadata-0-value":"Some title",
+            "media_metadata-1-identifier":"dc:creator",
+            "media_metadata-1-value":"Me",
+            "media_metadata-2-identifier":"dc:created",
+            "media_metadata-2-value":"On the worst day"},url=media_slug)
+
+        media_entry = MediaEntry.query.first()
+        old_metadata = new_metadata
+        new_metadata = media_entry.media_metadata
+        assert new_metadata == old_metadata
+        context = template.TEMPLATE_TEST_CONTEXT[
+            'mediagoblin/edit/metadata.html']
+        if six.PY2:
+            expected = "u'On the worst day' is not a 'date-time'"
+        else:
+            expected = "'On the worst day' is not a 'date-time'"
+        assert context['form'].errors[
+            'media_metadata'][0]['identifier'][0] == expected

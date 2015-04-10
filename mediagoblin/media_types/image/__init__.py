@@ -13,23 +13,28 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 import datetime
 from urlparse import urljoin
+import logging
 
 from mediagoblin.tools.processing import get_resize_dimensions
 from mediagoblin.media_types import MediaManagerBase
-from mediagoblin.media_types.image.processing import process_image, \
-    sniff_handler
+from mediagoblin.media_types.image.processing import sniff_handler, \
+        ImageProcessingManager
+from mediagoblin.plugins.api.tools import get_media_file_paths
+
+_log = logging.getLogger(__name__)
+
+
+ACCEPTED_EXTENSIONS = ["jpe", "jpg", "jpeg", "png", "gif", "tiff"]
+MEDIA_TYPE = 'mediagoblin.media_types.image'
 
 
 class ImageMediaManager(MediaManagerBase):
     human_readable = "Image"
-    processor = staticmethod(process_image)
-    sniff_handler = staticmethod(sniff_handler)
     display_template = "mediagoblin/media_displays/image.html"
     default_thumb = "images/media_thumbs/image.png"
-    accepted_extensions = ["jpg", "jpeg", "png", "gif", "tiff"]
+
     media_fetch_order = [u'medium', u'original', u'thumb']
 
     def get_original_date(self):
@@ -62,9 +67,22 @@ class ImageMediaManager(MediaManagerBase):
 
     def oembed_func(self, request, query_params):
         r_params = self.init_oembed(request, query_params)
-        r_params.update({'type': 'image', 'url': request.app.public_store.file_url(self.entry.media_files['original'])})
+        r_params.update({'type': 'image',
+                         'url': get_media_file_paths(
+                            self.entry.media_files, request.urlgen)['original']})
+
 
         return r_params
 
 
-MEDIA_MANAGER = ImageMediaManager
+def get_media_type_and_manager(ext):
+    if ext in ACCEPTED_EXTENSIONS:
+        return MEDIA_TYPE, ImageMediaManager
+
+
+hooks = {
+    'get_media_type_and_manager': get_media_type_and_manager,
+    'sniff_handler': sniff_handler,
+    ('media_manager', MEDIA_TYPE): lambda: ImageMediaManager,
+    ('reprocess_manager', MEDIA_TYPE): lambda: ImageProcessingManager,
+}

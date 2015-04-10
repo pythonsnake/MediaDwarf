@@ -18,9 +18,35 @@
 
 selfname=$(basename "$0")
 local_bin="./bin"
+
+# Test whether or not gunicorn is installed
+# -----------------------------------------
+if [ -f "${local_bin}/python" ]; then
+    our_python="${local_bin}/python";
+else
+    our_python="python";
+fi
+
+if $our_python -c "import sys
+try:
+    import gunicorn
+    sys.exit(0)
+except ImportError:
+    sys.exit(1)
+"; then
+    use_gunicorn=true;
+else
+    use_gunicorn=false;
+fi
+# -----------------------------------------
+
 case "$selfname" in
     lazyserver.sh)
-        starter_cmd=paster
+        if $use_gunicorn; then
+            starter_cmd=gunicorn;
+        else
+            starter_cmd=paster;
+        fi
         ini_prefix=paste
         ;;
     lazycelery.sh)
@@ -36,9 +62,14 @@ esac
 if [ "$1" = "-h" ]; then
     echo "$0 [-h] [-c filename.ini] [ARGS_to_${starter_cmd} ...]"
     echo ""
-    echo "   For example:"
-    echo "         $0 -c fcgi.ini port_number=23371"
-    echo "     or: $0 --server-name=fcgi --log-file=paste.log"
+    if $use_gunicorn; then
+        echo "   For Gunicorn settings, see at:"
+        echo "      http://docs.gunicorn.org/en/19.0/settings.html"
+    else
+        echo "   For example:"
+        echo "         $0 -c fcgi.ini port_number=23371"
+        echo "     or: $0 --server-name=fcgi --log-file=paste.log"
+    fi
     echo ""
     echo "   The configfile defaults to ${ini_prefix}_local.ini,"
     echo "   if that is readable, otherwise ${ini_prefix}.ini."
@@ -67,16 +98,30 @@ else
     exit 1
 fi
 
+# If the user somehow doesn't have a mediagoblin.ini
+# (maybe they aren't using make) give them one
+#   ... this doesn't fulfill all conditions maybe, but is a stopgap
+#   that doesn't have noticable race conditions
+if [ -f mediagoblin.example.ini ] && \
+    [ ! -f mediagoblin.ini ]; then
+    echo "No mediagoblin.ini found, making one";
+    cp --no-clobber mediagoblin.example.ini mediagoblin.ini;
+fi
+
 set -x
 export CELERY_ALWAYS_EAGER=true
 case "$selfname" in
     lazyserver.sh)
-        $starter serve "$ini_file" "$@" --reload
+        if $use_gunicorn; then
+            $starter --paste "$ini_file" --log-file=- $@;
+        else
+            $starter serve "$ini_file" "$@" --reload;
+        fi
         ;;
     lazycelery.sh)
         MEDIAGOBLIN_CONFIG="${ini_file}" \
             CELERY_CONFIG_MODULE=mediagoblin.init.celery.from_celery \
-            $starter "$@"
+            $starter -B "$@"
         ;;
     *) exit 1 ;;
 esac

@@ -80,6 +80,9 @@ window.show_things = function () {
 };
 </script>
 
+<div class="media_pane eleven columns">
+<div class="media_image_container">
+
 <img 
    id="perspective"
    class="media_image"
@@ -104,41 +107,38 @@ window.show_things = function () {
    src="{{ front_view }}"
    alt="{% trans media_title=media.title -%}
         Image for {{ media_title }}{% endtrans %}" />
-<div id="thingy_view" style="width:640px;height:640px;"></div>
+<!--<div id="thingy_view" style="width:640px;height:640px;"></div>-->
+<div id="thingy_view"></div>
 
+</div>
 
 <div style="padding: 4px;">
-  <a class="button_action" onclick="show('perspective');"
-     title="{%- trans %}Toggle Rotate{% endtrans -%}">
+  <a class="button_action" onclick="show('perspective');">
     {%- trans %}Perspective{% endtrans -%}
   </a>
-  <a class="button_action" onclick="show('front_view');"
-     title="{%- trans %}Front{% endtrans -%}">
+  <a class="button_action" onclick="show('front_view');">
     {%- trans %}Front{% endtrans -%}
   </a>
-  <a class="button_action" onclick="show('top_view');"
-     title="{%- trans %}Top{% endtrans -%}">
+  <a class="button_action" onclick="show('top_view');">
     {%- trans %}Top{% endtrans -%}
   </a>
-  <a class="button_action" onclick="show('side_view');"
-     title="{%- trans %}Side{% endtrans -%}">
+  <a class="button_action" onclick="show('side_view');">
     {%- trans %}Side{% endtrans -%}
   </a>
 {% if media.media_data.file_type == "stl" %}
   <a id="webgl_button" class="button_action"
-     onclick="show_things();"
-     title="{%- trans %}WebGL{% endtrans -%}">
+     onclick="show_things();">
     {%- trans %}WebGL{% endtrans -%}
   </a>
 {% endif %}
 
   <a class="button_action" href="{{ model_download }}"
-     title="{%- trans %}Download{% endtrans -%}"
      style="float:right;">
     {%- trans %}Download model{% endtrans -%}
   </a>
 </div>
 
+</div>
 
 {% endblock %}
 
@@ -147,4 +147,5 @@ window.show_things = function () {
 <p>{{ media.media_data.file_type }}</p>
 <h3>{% trans %}Object Height{% endtrans %}</h3>
 <p>~{{ media.media_data.height|int }} mm</p>
+{% template_hook("stl_sideinfo") %}
 {% endblock %}

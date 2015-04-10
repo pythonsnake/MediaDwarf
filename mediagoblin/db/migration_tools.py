@@ -14,11 +14,66 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+
+import logging
+import os
+
+from alembic import command
+from alembic.config import Config
+from alembic.migration import MigrationContext
+
+from mediagoblin.db.base import Base
 from mediagoblin.tools.common import simple_printer
 from sqlalchemy import Table
+from sqlalchemy.sql import select
+
+log = logging.getLogger(__name__)
+
 
 class TableAlreadyExists(Exception):
     pass
+
+
+class AlembicMigrationManager(object):
+
+    def __init__(self, session):
+        root_dir = os.path.abspath(os.path.dirname(os.path.dirname(
+            os.path.dirname(__file__))))
+        alembic_cfg_path = os.path.join(root_dir, 'alembic.ini')
+        self.alembic_cfg = Config(alembic_cfg_path)
+        self.session = session
+
+    def get_current_revision(self):
+        context = MigrationContext.configure(self.session.bind)
+        return context.get_current_revision()
+
+    def upgrade(self, version):
+        return command.upgrade(self.alembic_cfg, version or 'head')
+
+    def downgrade(self, version):
+        if isinstance(version, int) or version is None or version.isdigit():
+            version = 'base'
+        return command.downgrade(self.alembic_cfg, version)
+
+    def stamp(self, revision):
+        return command.stamp(self.alembic_cfg, revision=revision)
+
+    def init_tables(self):
+        Base.metadata.create_all(self.session.bind)
+        # load the Alembic configuration and generate the
+        # version table, "stamping" it with the most recent rev:
+        # XXX: we need to find a better way to detect current installations
+        # using sqlalchemy-migrate because we don't have to create all table
+        # for them
+        command.stamp(self.alembic_cfg, 'head')
+
+    def init_or_migrate(self, version=None):
+        # XXX: we need to call this method when we ditch
+        # sqlalchemy-migrate entirely
+        # if self.get_current_revision() is None:
+        #     self.init_tables()
+        self.upgrade(version)
 
 
 class MigrationManager(object):
@@ -29,7 +84,7 @@ class MigrationManager(object):
     to the latest migrations, etc.
     """
 
-    def __init__(self, name, models, migration_registry, session,
+    def __init__(self, name, models, foundations, migration_registry, session,
                  printer=simple_printer):
         """
         Args:
@@ -38,8 +93,9 @@ class MigrationManager(object):
          - migration_registry: where we should find all migrations to
            run
         """
-        self.name = unicode(name)
+        self.name = name
         self.models = models
+        self.foundations = foundations
         self.session = session
         self.migration_registry = migration_registry
         self._sorted_migrations = None
@@ -140,6 +196,18 @@ class MigrationManager(object):
             self.session.bind,
             tables=[model.__table__ for model in self.models])
 
+    def populate_table_foundations(self):
+        """
+        Create the table foundations (default rows) as layed out in FOUNDATIONS
+            in mediagoblin.db.models
+        """
+        for Model, rows in self.foundations.items():
+            self.printer(u'   + Laying foundations for %s table\n' % 
+                (Model.__name__))
+            for parameters in rows:
+                new_row = Model(**parameters)
+                self.session.add(new_row)
+
     def create_new_migration_record(self):
         """
         Create a new migration record for this migration set
@@ -175,8 +243,7 @@ class MigrationManager(object):
         if self.name == u'__main__':
             return u"main mediagoblin tables"
         else:
-            # TODO: Use the friendlier media manager "human readable" name
-            return u'media type "%s"' % self.name
+            return u'plugin "%s"' % self.name
 
     def init_or_migrate(self):
         """
@@ -203,9 +270,9 @@ class MigrationManager(object):
 
             self.init_tables()
             # auto-set at latest migration number
-            self.create_new_migration_record()  
-            
+            self.create_new_migration_record()
             self.printer(u"done.\n")
+            self.populate_table_foundations()
             self.set_current_migration()
             return u'inited'
 
@@ -217,7 +284,7 @@ class MigrationManager(object):
             for migration_number, migration_func in migrations_to_run:
                 self.printer(
                     u'   + Running migration %s, "%s"... ' % (
-                        migration_number, migration_func.func_name))
+                        migration_number, migration_func.__name__))
                 migration_func(self.session)
                 self.set_current_migration(migration_number)
                 self.printer('done.\n')
@@ -274,3 +341,35 @@ def inspect_table(metadata, table_name):
     """Simple helper to get a ref to an already existing table"""
     return Table(table_name, metadata, autoload=True,
                  autoload_with=metadata.bind)
+
+def replace_table_hack(db, old_table, replacement_table):
+    """
+    A function to fully replace a current table with a new one for migrati-
+    -ons. This is necessary because some changes are made tricky in some situa-
+    -tion, for example, dropping a boolean column in sqlite is impossible w/o
+    this method
+
+        :param old_table            A ref to the old table, gotten through 
+                                    inspect_table
+
+        :param replacement_table    A ref to the new table, gotten through
+                                    inspect_table
+
+    Users are encouraged to sqlalchemy-migrate replace table solutions, unless
+    that is not possible... in which case, this solution works,
+    at least for sqlite.
+    """
+    surviving_columns = replacement_table.columns.keys()
+    old_table_name = old_table.name
+    for row in db.execute(select(
+        [column for column in old_table.columns
+            if column.name in surviving_columns])):
+
+        db.execute(replacement_table.insert().values(**row))
+    db.commit()
+
+    old_table.drop()
+    db.commit()
+
+    replacement_table.rename(old_table_name)
+    db.commit()

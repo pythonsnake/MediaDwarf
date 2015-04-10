@@ -46,7 +46,7 @@ class CsrfForm(Form):
     is included in the POST."""
 
     csrf_token = HiddenField("",
-                             [validators.Required()])
+                             [validators.InputRequired()])
 
 
 def render_csrf_form_token(request):
@@ -111,7 +111,7 @@ class CsrfMeddleware(BaseMeddleware):
             httponly=True)
 
         # update the Vary header
-        response.vary = (getattr(response, 'vary', None) or []) + ['Cookie']
+        response.vary = list(getattr(response, 'vary', None) or []) + ['Cookie']
 
     def _make_token(self, request):
         """Generate a new token to use for CSRF protection."""

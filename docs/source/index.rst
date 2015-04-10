@@ -44,6 +44,7 @@ MediaGoblin website.  It is written for site administrators.
    siteadmin/relnotes
    siteadmin/theming
    siteadmin/plugins
+   siteadmin/commandline-upload
 
 
 .. _core-plugin-section:
@@ -56,9 +57,12 @@ Part 2: Core plugin documentation
 
    plugindocs/flatpagesfile
    plugindocs/sampleplugin
-   plugindocs/oauth
    plugindocs/trim_whitespace
    plugindocs/raven
+   plugindocs/basic_auth
+   plugindocs/openid
+   plugindocs/persona
+   plugindocs/ldap
 
 
 Part 3: Plugin Writer's Guide
@@ -74,6 +78,9 @@ This guide covers writing new GNU MediaGoblin plugins.
    pluginwriter/database
    pluginwriter/api
    pluginwriter/tests
+   pluginwriter/hooks
+   pluginwriter/media_type_hooks
+   pluginwriter/authhooks
 
 
 Part 4: Developer's Zone
@@ -88,6 +95,25 @@ This chapter contains various information for developers.
    devel/storage
    devel/originaldesigndecisions
    devel/migrations
+
+
+Part 5: Pump API
+================
+
+This chapter covers MediaGoblin's `Pump API
+<https://github.com/e14n/pump.io/blob/master/API.md>`_ support.  (A
+work in progress; full federation is not supported at the moment, but
+media uploading works!  You can use something like
+`PyPump <http://pypump.org>`_
+to write MediaGoblin applications.)
+
+.. toctree::
+   :maxdepth: 1
+
+   api/authentication
+   api/activities
+   api/objects
+
 
 
 Indices and tables

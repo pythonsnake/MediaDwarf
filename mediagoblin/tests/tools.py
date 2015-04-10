@@ -19,19 +19,24 @@ import os
 import pkg_resources
 import shutil
 
+import six
 
 from paste.deploy import loadapp
 from webtest import TestApp
 
 from mediagoblin import mg_globals
 from mediagoblin.db.models import User, MediaEntry, Collection, MediaComment, \
-    CommentSubscription, CommentNotification
+    CommentSubscription, CommentNotification, Privilege, CommentReport, Client, \
+    RequestToken, AccessToken, Activity, Generator
 from mediagoblin.tools import testing
 from mediagoblin.init.config import read_mediagoblin_config
 from mediagoblin.db.base import Session
 from mediagoblin.meddleware import BaseMeddleware
 from mediagoblin.auth import gen_password_hash
 from mediagoblin.gmg_commands.dbupdate import run_dbupdate
+from mediagoblin.tools.crypto import random_string
+
+from datetime import datetime
 
 
 MEDIAGOBLIN_TEST_DB_NAME = u'__mediagoblin_tests__'
@@ -133,7 +138,6 @@ def get_app(request, paste_config=None, mgoblin_config=None):
     mg_globals.app.meddleware.insert(0, TestingMeddleware(mg_globals.app))
 
     app = TestApp(test_app)
-
     return app
 
 
@@ -141,7 +145,7 @@ def install_fixtures_simple(db, fixtures):
     """
     Very simply install fixtures in the database
     """
-    for collection_name, collection_fixtures in fixtures.iteritems():
+    for collection_name, collection_fixtures in six.iteritems(fixtures):
         collection = db[collection_name]
         for fixture in collection_fixtures:
             collection.insert(fixture)
@@ -161,16 +165,16 @@ def assert_db_meets_expected(db, expected):
              {'id': 'foo',
               'some_field': 'some_value'},]}
     """
-    for collection_name, collection_data in expected.iteritems():
+    for collection_name, collection_data in six.iteritems(expected):
         collection = db[collection_name]
         for expected_document in collection_data:
-            document = collection.find_one({'id': expected_document['id']})
+            document = collection.query.filter_by(id=expected_document['id']).first()
             assert document is not None  # make sure it exists
             assert document == expected_document  # make sure it matches
 
 
 def fixture_add_user(username=u'chris', password=u'toast',
-                     active_user=True, wants_comment_notification=True):
+                     privileges=[], wants_comment_notification=True):
     # Reuse existing user or create a new one
     test_user = User.query.filter_by(username=username).first()
     if test_user is None:
@@ -179,14 +183,13 @@ def fixture_add_user(username=u'chris', password=u'toast',
     test_user.email = username + u'@example.com'
     if password is not None:
         test_user.pw_hash = gen_password_hash(password)
-    if active_user:
-        test_user.email_verified = True
-        test_user.status = u'active'
-
     test_user.wants_comment_notification = wants_comment_notification
+    for privilege in privileges:
+        query = Privilege.query.filter(Privilege.privilege_name==privilege)
+        if query.count():
+            test_user.all_privileges.append(query.one())
 
     test_user.save()
-
     # Reload
     test_user = User.query.filter_by(username=username).first()
 
@@ -314,3 +317,57 @@ def fixture_add_comment(author=None, media_entry=None, comment=None):
 
     return comment
 
+def fixture_add_comment_report(comment=None, reported_user=None,
+        reporter=None, created=None, report_content=None):
+    if comment is None:
+        comment = fixture_add_comment()
+
+    if reported_user is None:
+        reported_user = fixture_add_user()
+
+    if reporter is None:
+        reporter = fixture_add_user()
+
+    if created is None:
+        created=datetime.now()
+
+    if report_content is None:
+        report_content = \
+            'Auto-generated test report'
+
+    comment_report = CommentReport(comment=comment,
+        reported_user = reported_user,
+        reporter = reporter,
+        created = created,
+        report_content=report_content)
+
+    comment_report.save()
+
+    Session.expunge(comment_report)
+
+    return comment_report
+
+def fixture_add_activity(obj, verb="post", target=None, generator=None, actor=None):
+    if generator is None:
+        generator = Generator(
+            name="GNU MediaGoblin",
+            object_type="service"
+        )
+        generator.save()
+
+    if actor is None:
+        actor = fixture_add_user()
+
+    activity = Activity(
+        verb=verb,
+        actor=actor.id,
+        generator=generator.id,
+    )
+
+    activity.set_object(obj)
+
+    if target is not None:
+        activity.set_target(target)
+
+    activity.save()
+    return activity
