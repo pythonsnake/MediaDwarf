@@ -33,8 +33,14 @@ def test_404_for_non_existent(test_app):
     assert res.status_int == 404
 
 def test_delete_comments(test_app):
-    user_a = fixture_add_user(u"pikachu", password='123')
-    user_b = fixture_add_user(u"ditto", password='123')
+    user_a = fixture_add_user(u"pikachu", password='123',
+                              privileges=[u'active',u'uploader', u'commenter'])
+    user_b = fixture_add_user(u"ditto", password='123',
+                              privileges=[u'active',u'uploader', u'commenter'])
+    user_c = fixture_add_user(u"mew", password='123',
+                              privileges=[u'active',u'uploader', u'commenter', u'admin'])
+
+    # Login
     test_app.post('/auth/login/', {
         'username': u'pikachu',
         'password': '123'})
@@ -50,22 +56,29 @@ def test_delete_comments(test_app):
         cmt.author = u_id
         cmt.content = u"I'm an awesome pokemon!"
         Session.add(cmt)
-
     Session.flush()
 
+    # We have 2 comments from each user
     assert MediaComment.query.count() == 2
 
-    resp = test_app.post('/c/1/confirm-delete/',
+    # User can delete its own comment
+    test_app.post('/c/1/confirm-delete/',
           {'confirm': 'y'})
-
     assert MediaComment.query.count() == 1
 
+    # Others can't
+    resp = test_app.get('/c/2/confirm-delete/',
+                        expect_errors=True)
+    assert resp.status_int == 403
+
+    # But admin can
+    test_app.get('/auth/logout/')
+    test_app.post('/auth/login/', {
+        'username': u'mew',
+        'password': '123'})
     test_app.post('/c/2/confirm-delete/',
           {'confirm': 'y'})
-
-    assert MediaComment.query.count() == 1
-
-
+    assert MediaComment.query.count() == 0
 
 def test_deleting_user_deletes_comments(test_app):
     """Testing if deleting user deletes its comments too
