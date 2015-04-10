@@ -40,7 +40,7 @@ from mediagoblin.decorators import (uses_pagination, get_user_media_entry,
     get_media_entry_by_id, user_has_privilege, user_not_banned,
     require_active_login, user_may_delete_media, user_may_alter_collection,
     get_user_collection, get_user_collection_item, active_user_from_url,
-    get_optional_media_comment_by_id, allow_reporting)
+    get_optional_media_comment_by_id, allow_reporting, user_may_delete_comment)
 
 from werkzeug.contrib.atom import AtomFeed
 from werkzeug.exceptions import MethodNotAllowed
@@ -206,14 +206,14 @@ def media_post_comment(request, media):
     return redirect_obj(request, media)
 
 @require_active_login
-@get_comment_entry_by_id
+@get_optional_media_comment_by_id
+@user_may_delete_comment
 def comment_confirm_delete(request, comment):
 
     form = user_forms.ConfirmDeleteForm(request.form)
     media = request.db.MediaEntry.query.filter_by(id=comment.media_entry).first()
 
     if request.method == 'POST' and form.validate():
-
         if form.confirm.data is True:
             comment.delete()
             messages.add_message(
@@ -226,8 +226,8 @@ def comment_confirm_delete(request, comment):
         return redirect(request,
                         location=media.url_for_self(request.urlgen))
 
-    if ((request.user.is_admin and
-         request.user.id != comment.get_author.id)):
+    if ((request.user.has_privilege(u'admin') and
+         request.user.id == media.uploader)):
         messages.add_message(
             request, messages.WARNING,
             _("You are about to delete another user's comment. "

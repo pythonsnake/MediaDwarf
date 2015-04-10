@@ -134,6 +134,20 @@ def user_may_delete_media(controller):
 
     return wrapper
 
+def user_may_delete_comment(controller):
+    """
+    Require user ownership of the MediaComment to delete.
+    """
+    @wraps(controller)
+    def wrapper(request, *args, **kwargs):
+        author_id = kwargs['comment'].author
+        if not (request.user.has_privilege(u'admin') or
+                request.user.id == author_id):
+            raise Forbidden()
+
+        return controller(request, *args, **kwargs)
+
+    return wrapper
 
 def user_may_alter_collection(controller):
     """

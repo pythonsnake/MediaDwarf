@@ -32,8 +32,44 @@ def test_404_for_non_existent(test_app):
     res = test_app.get('/does-not-exist/', expect_errors=True)
     assert res.status_int == 404
 
+def test_delete_comments(test_app):
+    user_a = fixture_add_user(u"pikachu", password='123')
+    user_b = fixture_add_user(u"ditto", password='123')
+    test_app.post('/auth/login/', {
+        'username': u'pikachu',
+        'password': '123'})
 
-def test_user_deletes_other_comments(test_app):
+    media_a = fixture_media_entry(uploader=user_a.id, save=False,
+                                  expunge=False, fake_upload=False)
+    Session.add(media_a)
+    Session.flush()
+
+    for u_id in (user_a.id, user_b.id):
+        cmt = MediaComment()
+        cmt.media_entry = media_a.id
+        cmt.author = u_id
+        cmt.content = u"I'm an awesome pokemon!"
+        Session.add(cmt)
+
+    Session.flush()
+
+    assert MediaComment.query.count() == 2
+
+    resp = test_app.post('/c/1/confirm-delete/',
+          {'confirm': 'y'})
+
+    assert MediaComment.query.count() == 1
+
+    test_app.post('/c/2/confirm-delete/',
+          {'confirm': 'y'})
+
+    assert MediaComment.query.count() == 1
+
+
+
+def test_deleting_user_deletes_comments(test_app):
+    """Testing if deleting user deletes its comments too
+    """
     user_a = fixture_add_user(u"chris_a")
     user_b = fixture_add_user(u"chris_b")
 

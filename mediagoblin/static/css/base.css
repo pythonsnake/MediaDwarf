@@ -505,6 +505,13 @@ textarea#description, textarea#bio {
   font-size: 0.9em;
 }
 
+.comment_wrapper .delete_button {
+  top: 10px;
+  position: absolute;
+  right: 10px;
+  font-size: 10px;
+}
+
 a.comment_authorlink, a.report_authorlink {
   text-decoration: none;
   padding-right: 5px;
